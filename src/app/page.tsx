@@ -3,6 +3,7 @@ import HeroSlideshow from "@/components/HeroSlideshow";
 import RecentWritings from "@/components/RecentWritings";
 import ThemeToggle from "@/components/ThemeToggle";
 import AboutPreview from "@/components/AboutPreview";
+import Footer from "@/components/Footer";
 
 export default function Home() {
   return (
@@ -14,6 +15,8 @@ export default function Home() {
       <RecentWritings />
 
       <AboutPreview />
+
+      <Footer />
 
       <ThemeToggle />
     </main>

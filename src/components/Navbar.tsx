@@ -252,14 +252,14 @@ export default function Navbar() {
                 href="#"
                 className="text-sm transition hover:text-[var(--primary)]"
               >
-                GitHub
+                Twitter(X)
               </a>
 
               <a
                 href="#"
                 className="text-sm transition hover:text-[var(--primary)]"
               >
-                Twitter(X)
+                Email Id
               </a>
             </div>
           </div>
