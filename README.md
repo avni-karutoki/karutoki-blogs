@@ -4,7 +4,7 @@
 
 **Karutoki Blogs** is a personal writing platform built to bring poems, blogs and late-night thoughts together in one calm, minimal space.
 
-It is designed as more than just a blog — it's a personal digital journal where thoughts can be written, published and explored.
+It is designed as more than just a blog: it's a personal digital journal where thoughts can be written, published and explored.
 
 ---
 
