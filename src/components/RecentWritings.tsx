@@ -1,84 +1,89 @@
-import WritingCard from "@/components/WritingCard";
+import { createClient } from "@/lib/supabase/server";
 
-const writings = [
-  {
-    category: "Poem",
-    title: "The Things We Never Said",
-    excerpt:
-      "Some feelings remain between the lines, waiting for someone to read them.",
-    date: "August 2026",
-    href: "/poems",
-  },
-  {
-    category: "Blog",
-    title: "A Little Bit of Everything",
-    excerpt:
-      "Thoughts, stories, little observations and everything that crosses my mind.",
-    date: "August 2026",
-    href: "/blogs",
-  },
-  {
-    category: "Midnight Talk",
-    title: "Things I Think About at 2 AM",
-    excerpt:
-      "When the world gets quiet, somehow the mind decides to get louder.",
-    date: "August 2026",
-    href: "/midnight-talks",
-  },
-];
+export default async function RecentWritings() {
+  const supabase = await createClient();
 
-export default function RecentWritings() {
+  const { data: writings, error } = await supabase
+    .from("posts")
+    .select("id, title, slug, category, excerpt, created_at")
+    .eq("published", true)
+    .order("created_at", { ascending: false })
+    .limit(3);
+
+  if (error) {
+    return null;
+  }
+
+  if (!writings || writings.length === 0) {
+    return null;
+  }
+
   return (
-    <section className="mx-auto w-full max-w-7xl px-5 py-20 sm:px-8 lg:px-10">
-
-      {/* Section heading */}
-      <div className="mb-10 flex items-end justify-between gap-6">
+    <section className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
+      <div className="mb-10 flex items-end justify-between">
         <div>
-          <p className="mb-3 text-xs uppercase tracking-[0.3em] text-[var(--primary)]">
-            From my little corner
+          <p className="text-xs uppercase tracking-[0.3em] text-[var(--primary)]">
+            From the journal
           </p>
 
-          <h2 className="font-[var(--font-playfair)] text-3xl font-semibold sm:text-4xl">
+          <h2 className="mt-3 font-[var(--font-playfair)] text-3xl font-semibold sm:text-4xl">
             Recent Writings
           </h2>
-
-          <p className="mt-3 max-w-xl font-[var(--font-cormorant)] text-lg text-[var(--foreground)]/65">
-            A collection of thoughts, stories and words that found their way
-            onto these pages.
-          </p>
         </div>
 
         <a
           href="/writings"
-          className="hidden whitespace-nowrap text-sm font-medium tracking-wide text-[var(--primary)] transition hover:underline sm:block"
+          className="hidden text-sm text-[var(--primary)] transition hover:underline sm:block"
         >
           View all →
         </a>
       </div>
 
-      {/* Writing cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {writings.map((writing) => (
-          <WritingCard
-            key={writing.title}
-            category={writing.category}
-            title={writing.title}
-            excerpt={writing.excerpt}
-            date={writing.date}
-            href={writing.href}
-          />
-        ))}
+      <div className="grid gap-6 md:grid-cols-3">
+        {writings.map((writing) => {
+          const category =
+            writing.category === "poem"
+              ? "Poem"
+              : writing.category === "blog"
+                ? "Blog"
+                : "Midnight Talk";
+
+          return (
+            <a
+              key={writing.id}
+              href={`/writings/${writing.slug}`}
+              className="group block"
+            >
+              <article className="h-full rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                <p className="text-xs uppercase tracking-[0.25em] text-[var(--primary)]">
+                  {category}
+                </p>
+
+                <h3 className="mt-4 font-[var(--font-playfair)] text-2xl font-semibold">
+                  {writing.title}
+                </h3>
+
+                {writing.excerpt && (
+                  <p className="mt-3 font-[var(--font-cormorant)] text-lg leading-relaxed text-[var(--foreground)]/65">
+                    {writing.excerpt}
+                  </p>
+                )}
+
+                <span className="mt-6 inline-block text-sm text-[var(--primary)] transition-transform duration-300 group-hover:translate-x-1">
+                  Read →
+                </span>
+              </article>
+            </a>
+          );
+        })}
       </div>
 
-      {/* Mobile view all */}
-      <div className="mt-8 text-center sm:hidden">
-        <a
-          href="/writings"
-          className="text-sm font-medium tracking-wide text-[var(--primary)]"
-        >
-          View all writings →
-        </a>
-      </div>
+      <a
+        href="/writings"
+        className="mt-8 block text-center text-sm text-[var(--primary)] hover:underline sm:hidden"
+      >
+        View all writings →
+      </a>
     </section>
   );
 }

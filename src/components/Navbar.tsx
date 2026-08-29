@@ -255,12 +255,6 @@ export default function Navbar() {
                 Twitter(X)
               </a>
 
-              <a
-                href="#"
-                className="text-sm transition hover:text-[var(--primary)]"
-              >
-                Email Id
-              </a>
             </div>
           </div>
 

@@ -1,16 +1,20 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Cormorant_Garamond } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
+
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import ThemeToggle from "@/components/ThemeToggle";
+
 import "./globals.css";
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
+const geistSans = Geist({
+  variable: "--font-geist-sans",
   subsets: ["latin"],
 });
 
-const cormorant = Cormorant_Garamond({
-  variable: "--font-cormorant",
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -26,9 +30,19 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${playfair.variable} ${cormorant.variable}`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body>{children}</body>
+      <body className="min-h-full flex flex-col">
+        <Navbar />
+
+        <div className="flex-1">
+          {children}
+        </div>
+
+        <Footer />
+
+        <ThemeToggle />
+      </body>
     </html>
   );
 }
