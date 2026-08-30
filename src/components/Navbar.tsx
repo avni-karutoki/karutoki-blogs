@@ -218,46 +218,53 @@ export default function Navbar() {
             </a>
           </div>
 
-          {/* ================= FOLLOW ME ================= */}
-          <div className="mt-auto border-t border-[var(--border)] pt-6">
+{/* ================= FOLLOW ME ================= */}
+<div className="mt-auto border-t border-[var(--border)] pt-6">
 
-            <p className="mb-4 text-xs uppercase tracking-[0.2em] text-[var(--foreground)]/50">
-              Follow Me
-            </p>
+  <p className="mb-4 text-xs uppercase tracking-[0.2em] text-[var(--foreground)]/50">
+    Follow Me
+  </p>
 
-            <div className="flex flex-col gap-3">
+  <div className="flex flex-col gap-3">
 
-              <a
-                href="#"
-                className="text-sm transition hover:text-[var(--primary)]"
-              >
-                Instagram
-              </a>
+    <a
+      href="https://www.instagram.com/avni.karutoki/"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-sm transition hover:text-[var(--primary)]"
+    >
+      Instagram
+    </a>
 
-              <a
-                href="#"
-                className="text-sm transition hover:text-[var(--primary)]"
-              >
-                Pinterest
-              </a>
+    <a
+      href="https://pin.it/1WBBgualJ"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-sm transition hover:text-[var(--primary)]"
+    >
+      Pinterest
+    </a>
 
-              <a
-                href="#"
-                className="text-sm transition hover:text-[var(--primary)]"
-              >
-                LinkedIn
-              </a>
+    <a
+      href="https://www.linkedin.com/in/avni-karutoki"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-sm transition hover:text-[var(--primary)]"
+    >
+      LinkedIn
+    </a>
 
-              <a
-                href="#"
-                className="text-sm transition hover:text-[var(--primary)]"
-              >
-                Twitter(X)
-              </a>
+    <a
+      href="https://x.com/avnikaruroki"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-sm transition hover:text-[var(--primary)]"
+    >
+      X (Twitter)
+    </a>
 
-            </div>
-          </div>
-
+  </div>
+</div>
         </div>
       </aside>
     </>

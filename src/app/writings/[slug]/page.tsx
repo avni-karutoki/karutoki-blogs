@@ -11,7 +11,9 @@ export default async function WritingPage({
 
   const { data: writing, error } = await supabase
     .from("posts")
-    .select("id, title, slug, category, excerpt, content, created_at")
+    .select(
+      "id, title, slug, category, excerpt, content, cover_image, created_at"
+    )
     .eq("slug", slug)
     .eq("published", true)
     .single();
@@ -46,17 +48,24 @@ export default async function WritingPage({
         ? "Blog"
         : "Midnight Talk";
 
-  const formattedDate = new Date(writing.created_at).toLocaleDateString(
-    "en-US",
-    {
-      month: "long",
-      year: "numeric",
-    },
-  );
+  const formattedDate = new Date(
+    writing.created_at
+  ).toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
+
+  const backPath =
+    writing.category === "poem"
+      ? "/poems"
+      : writing.category === "blog"
+        ? "/blogs"
+        : "/midnight-talks";
 
   return (
     <main className="min-h-screen">
-      <article className="mx-auto max-w-4xl px-5 pb-24 pt-20 sm:px-8">
+      <article className="mx-auto max-w-5xl px-5 pb-24 pt-20 sm:px-8">
+
         {/* Category */}
         <div className="text-center">
           <p className="text-xs uppercase tracking-[0.3em] text-[var(--primary)]">
@@ -81,6 +90,17 @@ export default async function WritingPage({
           )}
         </div>
 
+        {/* Cover Image */}
+        {writing.cover_image && (
+          <div className="mx-auto mt-12 max-w-4xl overflow-hidden rounded-3xl border border-[var(--border)]">
+            <img
+              src={writing.cover_image}
+              alt={writing.title}
+              className="h-auto max-h-[600px] w-full object-cover"
+            />
+          </div>
+        )}
+
         {/* FULL CONTENT */}
         <div className="mx-auto mt-16 max-w-2xl border-y border-[var(--border)] py-12">
           <div className="whitespace-pre-wrap font-[var(--font-cormorant)] text-xl leading-[2] text-[var(--foreground)]/80 sm:text-2xl">
@@ -91,12 +111,13 @@ export default async function WritingPage({
         {/* Back */}
         <div className="mt-10 text-center">
           <a
-            href={`/${writing.category === "poem" ? "poems" : writing.category === "blog" ? "blogs" : "midnight-talks"}`}
+            href={backPath}
             className="text-sm font-medium text-[var(--primary)] transition hover:underline"
           >
             ← Back to {categoryName}s
           </a>
         </div>
+
       </article>
     </main>
   );
