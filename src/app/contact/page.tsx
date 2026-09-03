@@ -1,210 +1,240 @@
 "use client";
 
-import { useState } from "react";
+import { FormEvent, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function ContactPage() {
-  const [submitted, setSubmitted] = useState(false);
+  const supabase = createClient();
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
+    setLoading(true);
+    setError("");
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const subject = formData.get("subject") as string;
+    const message = formData.get("message") as string;
+
+    const { error } = await supabase
+      .from("contact_messages")
+      .insert({
+        name,
+        email,
+        subject,
+        message,
+      });
+
+    setLoading(false);
+
+    if (error) {
+      console.error(error);
+      setError("Something went wrong. Please try again.");
+      return;
+    }
+
     setSubmitted(true);
+    form.reset();
+  }
+
+  if (submitted) {
+    return (
+      <main className="min-h-screen flex items-center justify-center px-6">
+        <div className="max-w-xl text-center">
+          <p className="text-sm uppercase tracking-[0.25em] opacity-60">
+            Contact Me
+          </p>
+
+          <h1 className="mt-4 text-4xl font-semibold">
+            Message received ✨
+          </h1>
+
+          <p className="mt-4 opacity-70">
+            Thank you for reaching out. I&apos;ll get back to you soon.
+          </p>
+
+          <button
+            onClick={() => setSubmitted(false)}
+            className="mt-8 rounded-full border px-6 py-3 text-sm transition hover:opacity-70"
+          >
+            Send another message
+          </button>
+        </div>
+      </main>
+    );
   }
 
   return (
-    <main className="min-h-screen px-6 py-16 sm:px-10">
-      <div className="mx-auto max-w-5xl">
-
+    <main className="min-h-screen px-6 py-16 md:px-12">
+      <div className="mx-auto max-w-6xl">
         {/* Header */}
-        <section className="pt-10 text-center sm:pt-16">
-          <p className="text-xs uppercase tracking-[0.3em] text-[var(--primary)]">
-            Get in touch
+        <div className="max-w-2xl">
+          <p className="text-sm uppercase tracking-[0.25em] opacity-60">
+            Contact Me
           </p>
 
-          <h1 className="mt-4 font-[var(--font-playfair)] text-5xl font-semibold sm:text-6xl">
-            Contact Me
+          <h1 className="mt-4 text-5xl font-semibold tracking-tight">
+            Get in touch
           </h1>
 
-          <p className="mx-auto mt-5 max-w-2xl font-[var(--font-cormorant)] text-xl leading-relaxed text-[var(--foreground)]/60 sm:text-2xl">
-            Have something to say, share, ask, or simply want to say hi?
-            I&apos;d love to hear from you.
+          <p className="mt-5 text-base leading-7 opacity-70">
+            Have something to say, share, collaborate on, or simply want to
+            say hello? I&apos;d love to hear from you.
           </p>
-        </section>
+        </div>
 
-        {/* Contact Content */}
-        <section className="mt-16 grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+        <div className="mt-16 grid gap-12 md:grid-cols-2">
+          {/* Left */}
+          <div>
+            <h2 className="text-2xl font-medium">Say hello</h2>
 
-          {/* Left Side */}
-          <div className="rounded-3xl border border-[var(--border)] p-7 sm:p-9">
-            <p className="text-xs uppercase tracking-[0.25em] text-[var(--primary)]">
-              Say hello
+            <p className="mt-4 max-w-md leading-7 opacity-70">
+              Whether it&apos;s about writing, ideas, projects, collaborations,
+              or just a random thought — my inbox is open.
             </p>
 
-            <h2 className="mt-4 font-[var(--font-playfair)] text-3xl font-semibold">
-              Let&apos;s talk.
-            </h2>
+            <div className="mt-10 space-y-4">
+              <a
+                href="https://www.instagram.com/avni.karutoki/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block transition hover:opacity-60"
+              >
+                Instagram ↗
+              </a>
 
-            <p className="mt-4 text-sm leading-7 text-[var(--foreground)]/60">
-              Whether it&apos;s about my writings, collaborations, ideas,
-              feedback, or just a random thought you want to share —
-              my inbox is open.
-            </p>
+              <a
+                href="https://pin.it/1WBBgualJ"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block transition hover:opacity-60"
+              >
+                Pinterest ↗
+              </a>
 
-            {/* Social Links */}
-            <div className="mt-8 border-t border-[var(--border)] pt-7">
-              <p className="text-xs uppercase tracking-[0.2em] text-[var(--foreground)]/40">
-                Find me elsewhere
-              </p>
+              <a
+                href="https://www.linkedin.com/in/avni-karutoki"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block transition hover:opacity-60"
+              >
+                LinkedIn ↗
+              </a>
 
-              <div className="mt-4 flex flex-wrap gap-3">
-                <a
-                  href="https://www.instagram.com/avni.karutoki/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-full border border-[var(--border)] px-4 py-2 text-sm transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
-                >
-                  Instagram
-                </a>
-
-                <a
-                  href="https://pin.it/1WBBgualJ"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-full border border-[var(--border)] px-4 py-2 text-sm transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
-                >
-                  Pinterest
-                </a>
-
-                <a
-                  href="https://www.linkedin.com/in/avni-karutoki"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-full border border-[var(--border)] px-4 py-2 text-sm transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
-                >
-                  LinkedIn
-                </a>
-
-                <a
-                  href="https://x.com/avnikaruroki"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-full border border-[var(--border)] px-4 py-2 text-sm transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
-                >
-                  X
-                </a>
-              </div>
+              <a
+                href="https://x.com/avnikaruroki"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block transition hover:opacity-60"
+              >
+                X (Twitter) ↗
+              </a>
             </div>
           </div>
 
-          {/* Contact Form */}
-          <div className="rounded-3xl border border-[var(--border)] p-7 sm:p-9">
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label
+                htmlFor="name"
+                className="mb-2 block text-sm opacity-70"
+              >
+                Name
+              </label>
 
-            {submitted ? (
-              <div className="flex min-h-[420px] flex-col items-center justify-center text-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--primary)]/10 text-2xl">
-                  ✓
-                </div>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                required
+                className="w-full border-b bg-transparent px-0 py-3 outline-none transition focus:border-opacity-100"
+                placeholder="Your name"
+              />
+            </div>
 
-                <h2 className="mt-6 font-[var(--font-playfair)] text-3xl font-semibold">
-                  Message received.
-                </h2>
+            <div>
+              <label
+                htmlFor="email"
+                className="mb-2 block text-sm opacity-70"
+              >
+                Email
+              </label>
 
-                <p className="mt-3 max-w-sm text-sm leading-7 text-[var(--foreground)]/60">
-                  Thank you for reaching out. Your message has been noted.
-                  I&apos;ll get back to you soon.
-                </p>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                className="w-full border-b bg-transparent px-0 py-3 outline-none"
+                placeholder="you@example.com"
+              />
+            </div>
 
-                <button
-                  type="button"
-                  onClick={() => setSubmitted(false)}
-                  className="mt-7 rounded-xl border border-[var(--border)] px-5 py-3 text-sm transition hover:bg-[var(--foreground)]/5"
-                >
-                  Send another message
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label
+                htmlFor="subject"
+                className="mb-2 block text-sm opacity-70"
+              >
+                Subject
+              </label>
 
-                {/* Name */}
-                <div>
-                  <label className="mb-2 block text-sm font-medium">
-                    Name
-                  </label>
+              <input
+                id="subject"
+                name="subject"
+                type="text"
+                required
+                className="w-full border-b bg-transparent px-0 py-3 outline-none"
+                placeholder="What&apos;s this about?"
+              />
+            </div>
 
-                  <input
-                    type="text"
-                    name="name"
-                    placeholder="Your name"
-                    required
-                    className="w-full rounded-xl border border-[var(--border)] bg-transparent px-4 py-3.5 text-sm outline-none transition placeholder:text-[var(--foreground)]/30 focus:border-[var(--primary)]"
-                  />
-                </div>
+            <div>
+              <label
+                htmlFor="message"
+                className="mb-2 block text-sm opacity-70"
+              >
+                Message
+              </label>
 
-                {/* Email */}
-                <div>
-                  <label className="mb-2 block text-sm font-medium">
-                    Email
-                  </label>
+              <textarea
+                id="message"
+                name="message"
+                required
+                rows={6}
+                className="w-full resize-none border-b bg-transparent px-0 py-3 outline-none"
+                placeholder="Write your message..."
+              />
+            </div>
 
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="you@example.com"
-                    required
-                    className="w-full rounded-xl border border-[var(--border)] bg-transparent px-4 py-3.5 text-sm outline-none transition placeholder:text-[var(--foreground)]/30 focus:border-[var(--primary)]"
-                  />
-                </div>
-
-                {/* Subject */}
-                <div>
-                  <label className="mb-2 block text-sm font-medium">
-                    Subject
-                  </label>
-
-                  <input
-                    type="text"
-                    name="subject"
-                    placeholder="What&apos;s on your mind?"
-                    required
-                    className="w-full rounded-xl border border-[var(--border)] bg-transparent px-4 py-3.5 text-sm outline-none transition placeholder:text-[var(--foreground)]/30 focus:border-[var(--primary)]"
-                  />
-                </div>
-
-                {/* Message */}
-                <div>
-                  <label className="mb-2 block text-sm font-medium">
-                    Message
-                  </label>
-
-                  <textarea
-                    name="message"
-                    rows={7}
-                    placeholder="Write your message..."
-                    required
-                    className="w-full resize-y rounded-xl border border-[var(--border)] bg-transparent px-4 py-3.5 text-sm leading-7 outline-none transition placeholder:text-[var(--foreground)]/30 focus:border-[var(--primary)]"
-                  />
-                </div>
-
-                {/* Submit */}
-                <button
-                  type="submit"
-                  className="w-full rounded-xl bg-[var(--foreground)] px-6 py-3.5 text-sm font-medium text-[var(--background)] transition hover:opacity-90"
-                >
-                  Send Message →
-                </button>
-
-              </form>
+            {error && (
+              <p className="text-sm text-red-500">
+                {error}
+              </p>
             )}
-          </div>
-        </section>
 
-        {/* Bottom Quote */}
-        <section className="mt-20 border-t border-[var(--border)] pt-10 text-center">
-          <p className="font-[var(--font-cormorant)] text-lg italic text-[var(--foreground)]/40">
+            <button
+              type="submit"
+              disabled={loading}
+              className="rounded-full border px-7 py-3 text-sm transition hover:opacity-70 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {loading ? "Sending..." : "Send message ↗"}
+            </button>
+          </form>
+        </div>
+
+        <div className="mt-20 border-t pt-8">
+          <p className="text-sm italic opacity-60">
             &quot;Some conversations begin with nothing more than a hello.&quot;
           </p>
-        </section>
-
+        </div>
       </div>
     </main>
   );
