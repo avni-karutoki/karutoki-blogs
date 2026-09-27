@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const SIZE = 40;
+const SIZE = 32;
 const EDGE = 20;
-const FOLLOW_OFFSET = { x: 20, y: 24 };
+const FOLLOW_OFFSET = { x: 18, y: 22 };
 const IDLE_HOME_MS = 8000;
 
 const INK = "var(--text-heading)";
@@ -140,7 +140,7 @@ export default function CursorRabbit() {
       }
 
       const running = dist > 7;
-      const f = running ? 1 + (Math.floor(now / 260) % 2) : 0;
+      const f = running ? 1 + (Math.floor(now / 200) % 2) : 0;
       if (f !== frameRef.current) {
         frameRef.current = f;
         setFrame(f);
@@ -170,10 +170,9 @@ export default function CursorRabbit() {
         setFacing(faceTarget);
       }
 
-      // gentle hop bob while running
-      const bob = running ? -Math.abs(Math.sin(now / 200)) * 3 : 0;
+      // level glide while running — legs do the work, body stays steady
       if (nodeRef.current) {
-        nodeRef.current.style.transform = `translate3d(${c.x}px, ${c.y + bob}px, 0)`;
+        nodeRef.current.style.transform = `translate3d(${c.x}px, ${c.y}px, 0)`;
       }
 
       // wander home after a long idle
@@ -218,7 +217,7 @@ export default function CursorRabbit() {
           <RunRabbit blink={blink} legsApart={frame === 1} />
         )}
       </div>
-      <div className="mx-auto -mt-3 h-1.5 w-7 rounded-full bg-black/15 blur-[2px]" />
+      <div className="mx-auto -mt-2 h-1.5 w-6 rounded-full bg-black/15 blur-[2px]" />
       </div>
     </>
   );
