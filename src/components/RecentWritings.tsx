@@ -1,89 +1,72 @@
+import Link from "next/link";
+import Reveal from "./Reveal";
+import SectionHeading from "./SectionHeading";
 import { createClient } from "@/lib/supabase/server";
+import { categoryLabel } from "@/lib/types";
 
 export default async function RecentWritings() {
-  const supabase = await createClient();
-
-  const { data: writings, error } = await supabase
-    .from("posts")
-    .select("id, title, slug, category, excerpt, created_at")
-    .eq("published", true)
-    .order("created_at", { ascending: false })
-    .limit(3);
-
-  if (error) {
+  let writings: { id: string; title: string; slug: string; category: string; excerpt: string | null; created_at: string }[] = [];
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("posts")
+      .select("id, title, slug, category, excerpt, created_at")
+      .eq("published", true)
+      .order("created_at", { ascending: false })
+      .limit(3);
+    if (!error && data) writings = data;
+  } catch {
     return null;
   }
 
-  if (!writings || writings.length === 0) {
-    return null;
-  }
+  if (writings.length === 0) return null;
 
   return (
-    <section className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
-      <div className="mb-10 flex items-end justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-[var(--primary)]">
-            From the journal
-          </p>
-
-          <h2 className="mt-3 font-[var(--font-playfair)] text-3xl font-semibold sm:text-4xl">
-            Recent Writings
-          </h2>
+    <section className="mx-auto max-w-6xl px-6 py-20">
+      <Reveal>
+        <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
+          <SectionHeading
+            eyebrow="From the journal"
+            title="Recent Writings"
+          />
+          <Link
+            href="/writings"
+            className="ink-link hidden font-sans text-[12px] font-semibold uppercase tracking-[0.2em] sm:block"
+          >
+            View all →
+          </Link>
         </div>
-
-        <a
-          href="/writings"
-          className="hidden text-sm text-[var(--primary)] transition hover:underline sm:block"
-        >
-          View all →
-        </a>
-      </div>
+      </Reveal>
 
       <div className="grid gap-6 md:grid-cols-3">
-        {writings.map((writing) => {
-          const category =
-            writing.category === "poem"
-              ? "Poem"
-              : writing.category === "blog"
-                ? "Blog"
-                : "Midnight Talk";
-
-          return (
-            <a
-              key={writing.id}
-              href={`/writings/${writing.slug}`}
-              className="group block"
-            >
-              <article className="h-full rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-                <p className="text-xs uppercase tracking-[0.25em] text-[var(--primary)]">
-                  {category}
+        {writings.map((writing, i) => (
+          <Reveal key={writing.id} delay={i * 0.08}>
+            <Link href={`/writings/${writing.slug}`} className="group block h-full">
+              <article className="vintage-card h-full p-7">
+                <p className="font-sans text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
+                  {categoryLabel(writing.category)}
                 </p>
-
-                <h3 className="mt-4 font-[var(--font-playfair)] text-2xl font-semibold">
-                  {writing.title}
-                </h3>
-
+                <h3 className="mt-3">{writing.title}</h3>
                 {writing.excerpt && (
-                  <p className="mt-3 font-[var(--font-cormorant)] text-lg leading-relaxed text-[var(--foreground)]/65">
+                  <p className="mt-3 line-clamp-3 font-serif text-[1.02rem] leading-relaxed text-[var(--text-muted)]">
                     {writing.excerpt}
                   </p>
                 )}
-
-                <span className="mt-6 inline-block text-sm text-[var(--primary)] transition-transform duration-300 group-hover:translate-x-1">
+                <span className="mt-6 inline-block font-sans text-[12px] font-semibold uppercase tracking-[0.18em] text-[var(--accent)] transition-transform duration-300 group-hover:translate-x-1">
                   Read →
                 </span>
               </article>
-            </a>
-          );
-        })}
+            </Link>
+          </Reveal>
+        ))}
       </div>
 
-      <a
+      <Link
         href="/writings"
-        className="mt-8 block text-center text-sm text-[var(--primary)] hover:underline sm:hidden"
+        className="ink-link mt-8 block text-center font-sans text-[12px] font-semibold uppercase tracking-[0.2em] sm:hidden"
       >
         View all writings →
-      </a>
+      </Link>
     </section>
   );
 }

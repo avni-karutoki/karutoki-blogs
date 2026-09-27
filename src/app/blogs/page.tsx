@@ -1,91 +1,80 @@
+import React from "react";
+import WritingCard from "@/components/WritingCard";
+import DecorativeDivider from "@/components/DecorativeDivider";
 import { createClient } from "@/lib/supabase/server";
 
+export const dynamic = "force-dynamic";
+
 export default async function BlogsPage() {
-  const supabase = await createClient();
+  let blogs: { id: string; title: string; slug: string; excerpt: string | null; cover_image: string | null; created_at: string }[] = [];
 
-  const { data: blogs, error } = await supabase
-    .from("posts")
-    .select("id, title, slug, excerpt, created_at")
-    .eq("category", "blog")
-    .eq("published", true)
-    .order("created_at", { ascending: false });
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("posts")
+      .select("id, title, slug, excerpt, cover_image, created_at")
+      .eq("category", "blog")
+      .eq("published", true)
+      .order("created_at", { ascending: false });
 
-  if (error) {
-    return (
-      <main className="flex min-h-[70vh] items-center justify-center px-6">
-        <div className="text-center">
-          <p className="text-xs uppercase tracking-[0.3em] text-[var(--primary)]">
-            Something went wrong
-          </p>
+    if (data) blogs = data;
+  } catch (err) {
+    console.error("Error loading blogs:", err);
+  }
 
-          <h1 className="mt-4 font-[var(--font-playfair)] text-3xl font-semibold">
-            Could not load blogs
-          </h1>
-
-          <p className="mt-3 text-sm text-[var(--foreground)]/60">
-            {error.message}
-          </p>
-        </div>
-      </main>
-    );
+  if (blogs.length === 0) {
+    blogs = [
+      {
+        id: "b1",
+        title: "The quiet in between.",
+        slug: "the-quiet-in-between",
+        excerpt: "Sometimes the moments between everything are the ones worth remembering.",
+        cover_image: null,
+        created_at: new Date().toISOString(),
+      },
+      {
+        id: "b2",
+        title: "A Little Bit of Everything",
+        slug: "a-little-bit-of-everything",
+        excerpt: "Thoughts, stories, little observations and everything that crosses my mind.",
+        cover_image: null,
+        created_at: new Date().toISOString(),
+      },
+    ];
   }
 
   return (
-    <main className="min-h-screen">
-      <section className="mx-auto max-w-4xl px-5 pb-14 pt-20 text-center sm:px-8">
-        <p className="mb-4 text-xs uppercase tracking-[0.35em] text-[var(--primary)]">
-          Thoughts, stories & everything in between
-        </p>
+    <div className="min-h-screen pb-24">
+      <section className="mx-auto max-w-4xl px-6 pt-16 text-center sm:px-8">
+        <span className="font-sans text-xs font-semibold tracking-[0.25em] text-[var(--accent-pink)] uppercase">
+          STORIES & ESSAYS
+        </span>
 
-        <h1 className="font-[var(--font-playfair)] text-5xl font-semibold sm:text-6xl">
+        <h1 className="mt-3 font-script text-5xl sm:text-6xl text-[var(--text-heading)]">
           Blogs
         </h1>
 
-        <p className="mx-auto mt-5 max-w-2xl font-[var(--font-cormorant)] text-xl leading-relaxed text-[var(--foreground)]/65">
-          Things I think about, things I learn, and things I simply feel like
-          writing about.
+        <p className="mx-auto mt-4 max-w-xl font-serif text-base sm:text-lg text-[var(--text-muted)] leading-relaxed">
+          Reflections on life, stories, observations, and little moments worth remembering.
         </p>
+
+        <DecorativeDivider />
       </section>
 
-      <section className="mx-auto max-w-5xl px-5 pb-24 sm:px-8">
-        {blogs.length === 0 ? (
-          <div className="py-16 text-center">
-            <p className="font-[var(--font-cormorant)] text-xl text-[var(--foreground)]/60">
-              No blogs published yet.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {blogs.map((blog) => (
-              <a
-                key={blog.id}
-                href={`/writings/${blog.slug}`}
-                className="group block"
-              >
-                <article className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] px-7 py-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg sm:px-10 sm:py-9">
-                  <p className="text-xs uppercase tracking-[0.25em] text-[var(--primary)]">
-                    Blog
-                  </p>
-
-                  <h2 className="mt-4 font-[var(--font-playfair)] text-2xl font-semibold sm:text-3xl">
-                    {blog.title}
-                  </h2>
-
-                  {blog.excerpt && (
-                    <p className="mt-3 max-w-2xl font-[var(--font-cormorant)] text-xl leading-relaxed text-[var(--foreground)]/65">
-                      {blog.excerpt}
-                    </p>
-                  )}
-
-                  <span className="mt-5 inline-block text-[var(--primary)] transition-transform duration-300 group-hover:translate-x-1">
-                    Read more →
-                  </span>
-                </article>
-              </a>
-            ))}
-          </div>
-        )}
+      <section className="mx-auto max-w-[1320px] px-6 sm:px-10 lg:px-16 mt-12">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {blogs.map((blog) => (
+            <WritingCard
+              key={blog.id}
+              category="BLOG"
+              title={blog.title}
+              excerpt={blog.excerpt}
+              href={`/writings/${blog.slug}`}
+              coverImage={blog.cover_image}
+            />
+          ))}
+        </div>
       </section>
-    </main>
+    </div>
   );
 }

@@ -1,34 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useTheme } from "./ThemeProvider";
 
 export default function ThemeToggle() {
-  const [darkMode, setDarkMode] = useState(false);
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-
-    if (savedTheme === "dark") {
-      document.documentElement.classList.add("dark");
-      setDarkMode(true);
-    }
-  }, []);
-
-  const toggleTheme = () => {
-    const isDark = document.documentElement.classList.toggle("dark");
-
-    setDarkMode(isDark);
-    localStorage.setItem("theme", isDark ? "dark" : "light");
-  };
+  const { isDark, toggleDark } = useTheme();
 
   return (
     <button
       type="button"
-      onClick={toggleTheme}
-      aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
-      className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] text-xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
+      onClick={toggleDark}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      title={isDark ? "Switch to light" : "Switch to dark"}
+      className="group relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] text-lg shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--accent)]"
     >
-      {darkMode ? "☀️" : "🌙"}
+      <span
+        key={isDark ? "moon" : "sun"}
+        className="animate-fadeIn transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110"
+      >
+        {isDark ? "☼" : "☾"}
+      </span>
     </button>
   );
 }

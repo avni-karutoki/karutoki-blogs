@@ -1,122 +1,104 @@
-import WritingCard from "@/components/WritingCard";
-import RecentWritings from "@/components/RecentWritings";
+import Link from "next/link";
+import Reveal from "@/components/Reveal";
+import SectionHeading from "@/components/SectionHeading";
+import { createClient } from "@/lib/supabase/server";
+import type { Post } from "@/lib/types";
+import { categoryLabel } from "@/lib/types";
 
-const writings = [
-  {
-    category: "Poem",
-    title: "The Things We Never Said",
-    excerpt:
-      "Some feelings remain between the lines, waiting for someone to read them.",
-    date: "August 2026",
-    href: "/poems",
-  },
-  {
-    category: "Blog",
-    title: "A Little Bit of Everything",
-    excerpt:
-      "Thoughts, stories, little observations and everything that crosses my mind.",
-    date: "August 2026",
-    href: "/blogs",
-  },
-  {
-    category: "Midnight Talk",
-    title: "Things I Think About at 2 AM",
-    excerpt:
-      "When the world gets quiet, somehow the mind decides to get louder.",
-    date: "August 2026",
-    href: "/midnight-talks",
-  },
-  {
-    category: "Poem",
-    title: "Between The Lines",
-    excerpt:
-      "For all the words that stayed in drafts, notebooks and somewhere between thought and expression.",
-    date: "August 2026",
-    href: "/poems",
-  },
-  {
-    category: "Blog",
-    title: "Things Worth Remembering",
-    excerpt:
-      "A collection of little thoughts, lessons and moments that deserve a place in words.",
-    date: "August 2026",
-    href: "/blogs",
-  },
-  {
-    category: "Midnight Talk",
-    title: "Dear 2 AM",
-    excerpt:
-      "A quiet conversation with the thoughts that only seem to appear when everyone else is asleep.",
-    date: "August 2026",
-    href: "/midnight-talks",
-  },
+const tabs = [
+  { key: "all", label: "All" },
+  { key: "poem", label: "Poems" },
+  { key: "blog", label: "Blogs" },
+  { key: "midnight-talk", label: "Midnight Talks" },
 ];
 
-export default function WritingsPage() {
+async function getPosts(category: string): Promise<Post[]> {
+  try {
+    const supabase = await createClient();
+    let query = supabase
+      .from("posts")
+      .select("*")
+      .eq("published", true)
+      .order("created_at", { ascending: false });
+
+    if (category && category !== "all") {
+      query = query.eq("category", category);
+    }
+
+    const { data, error } = await query;
+    if (error) return [];
+    return (data as Post[]) || [];
+  } catch {
+    return [];
+  }
+}
+
+export default async function WritingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>;
+}) {
+  const params = await searchParams;
+  const active = params?.category || "all";
+  const posts = await getPosts(active);
+
   return (
-    <main className="min-h-screen">
-      {/* Page Header */}
-      <section className="mx-auto max-w-5xl px-5 pb-12 pt-20 text-center sm:px-8">
-        <p className="mb-4 text-xs uppercase tracking-[0.35em] text-[var(--primary)]">
-          A collection of words
+    <div className="mx-auto max-w-5xl px-6 py-14">
+      <Reveal>
+        <p className="eyebrow">My writings</p>
+        <h1 className="mt-2">Words, I have left behind.</h1>
+        <p className="lead mt-3 max-w-md">
+          Poems, blogs, midnight thoughts, and everything in between.
         </p>
+      </Reveal>
 
-        <h1 className="font-[var(--font-playfair)] text-4xl font-semibold sm:text-5xl lg:text-6xl">
-          Writings
-        </h1>
-
-        <p className="mx-auto mt-5 max-w-2xl font-[var(--font-cormorant)] text-xl leading-relaxed text-[var(--foreground)]/65">
-          Poems, stories, thoughts and midnight conversations — all the little
-          pieces of writing that found their way here.
-        </p>
-      </section>
-
-      {/* Category Navigation */}
-      <div className="mx-auto mb-12 flex max-w-7xl flex-wrap justify-center gap-3 px-5 sm:px-8 lg:px-10">
-        <a
-          href="/writings"
-          className="rounded-full border border-[var(--primary)] bg-[var(--primary)] px-5 py-2 text-sm text-white transition hover:scale-105"
-        >
-          All
-        </a>
-
-        <a
-          href="/poems"
-          className="rounded-full border border-[var(--border)] px-5 py-2 text-sm transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
-        >
-          Poems
-        </a>
-
-        <a
-          href="/blogs"
-          className="rounded-full border border-[var(--border)] px-5 py-2 text-sm transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
-        >
-          Blogs
-        </a>
-
-        <a
-          href="/midnight-talks"
-          className="rounded-full border border-[var(--border)] px-5 py-2 text-sm transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
-        >
-          Midnight Talks
-        </a>
+      <div className="mt-10 flex gap-7 border-b border-[var(--border-color)] font-sans text-[12px] font-semibold uppercase tracking-[0.2em]">
+        {tabs.map((t) => (
+          <Link
+            key={t.key}
+            href={t.key === "all" ? "/writings" : `/writings?category=${encodeURIComponent(t.key)}`}
+            className={`-mb-px border-b pb-3 transition-colors ${
+              active === t.key
+                ? "border-[var(--accent)] text-[var(--text-heading)]"
+                : "border-transparent text-[var(--text-faint)] hover:text-[var(--text-heading)]"
+            }`}
+          >
+            {t.label}
+          </Link>
+        ))}
       </div>
 
-      {/* Writings Grid */}
-      <section className="mx-auto max-w-7xl px-5 pb-24 sm:px-8 lg:px-10">
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {writings.map((writing) => (
-            <WritingCard
-              key={writing.title}
-              category={writing.category}
-              title={writing.title}
-              excerpt={writing.excerpt}
-              date={writing.date}
-              href={writing.href}
-            />
-          ))}
-        </div>
-      </section>
-    </main>
+      <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {posts.length === 0 && (
+          <p className="body-text col-span-full">Nothing here yet under this theme.</p>
+        )}
+        {posts.map((post, i) => (
+          <Reveal key={post.slug} delay={Math.min(i, 5) * 0.06}>
+            <Link href={`/writings/${post.slug}`} className="vintage-card group block h-full p-5">
+              {post.cover_image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={post.cover_image}
+                  alt={post.title}
+                  className="mb-4 aspect-[16/10] w-full rounded-xl border border-[var(--border-color)] object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                />
+              ) : null}
+              <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
+                {categoryLabel(post.category)}
+              </p>
+              <h3 className="mt-2 text-[1.65rem]! leading-snug transition-colors group-hover:text-[var(--accent)]">
+                {post.title}
+              </h3>
+              <p className="mt-2 line-clamp-3 font-serif text-[0.98rem] leading-relaxed text-[var(--text-muted)]">
+                {post.excerpt}
+              </p>
+              <p className="mt-4 font-sans text-[11px] text-[var(--text-faint)]">
+                {post.reading_time ? `${post.reading_time} read` : ""}
+              </p>
+            </Link>
+          </Reveal>
+        ))}
+      </div>
+    </div>
   );
 }

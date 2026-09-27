@@ -1,66 +1,79 @@
-type WritingCardProps = {
+import React from "react";
+import Link from "next/link";
+
+interface WritingCardProps {
   category: string;
   title: string;
-  excerpt: string;
-  date: string;
-  href?: string;
-};
+  excerpt?: string | null;
+  date?: string;
+  readTime?: string;
+  href: string;
+  coverImage?: string | null;
+}
 
 export default function WritingCard({
   category,
   title,
   excerpt,
-  date,
-  href = "#",
+  date = "August 2026",
+  readTime = "3 min read",
+  href,
+  coverImage,
 }: WritingCardProps) {
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+    <article className="vintage-card group flex flex-col justify-between p-6 sm:p-8 h-full">
+      <div>
+        {/* Cover Image if available */}
+        {coverImage ? (
+          <div className="mb-7 overflow-hidden rounded-xl border border-[var(--border-color)] aspect-[16/10]">
+            <img
+              src={coverImage}
+              alt={title}
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          </div>
+        ) : (
+          <div className="mb-7 flex h-40 w-full items-center justify-center rounded-xl border border-[var(--border-pink)] bg-[var(--bg-secondary)] text-center p-4">
+            <span className="font-sans text-[11px] font-medium tracking-[0.2em] text-[var(--text-muted)] uppercase">
+              {category} JOURNAL
+            </span>
+          </div>
+        )}
 
-      {/* Decorative top area */}
-      <div className="relative h-40 overflow-hidden bg-gradient-to-br from-[var(--primary-dark)] via-[var(--primary)] to-[var(--secondary)]">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full border border-white/50" />
-          <div className="absolute -bottom-16 -left-8 h-40 w-40 rounded-full border border-white/30" />
-        </div>
+        {/* Category Tag */}
+        <span className="font-sans text-xs font-semibold tracking-[0.18em] text-[var(--accent-pink)] uppercase">
+          {category}
+        </span>
 
-        <div className="relative flex h-full items-center justify-center">
-          <span className="font-[var(--font-cormorant)] text-3xl italic text-white/90">
-            {category}
-          </span>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="flex flex-1 flex-col p-6">
-
-        <div className="mb-3 flex items-center justify-between">
-          <span className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--primary)]">
-            {category}
-          </span>
-
-          <span className="text-xs text-[var(--foreground)]/50">
-            {date}
-          </span>
-        </div>
-
-        <h3 className="font-[var(--font-playfair)] text-xl font-semibold leading-snug">
+        {/* Handwritten Title */}
+        <h3 className="mt-3 font-script text-3xl sm:text-4xl leading-[1.1] text-[var(--text-heading)] group-hover:text-[var(--accent-pink)] transition-colors">
           {title}
         </h3>
 
-        <p className="mt-3 flex-1 font-[var(--font-cormorant)] text-lg leading-relaxed text-[var(--foreground)]/70">
-          {excerpt}
-        </p>
+        {/* Excerpt */}
+        {excerpt && (
+          <p className="mt-4 font-serif text-[1.02rem] leading-relaxed text-[var(--text-muted)] line-clamp-3">
+            {excerpt}
+          </p>
+        )}
+      </div>
 
-        <a
+      {/* Meta & Action */}
+      <div className="mt-7 border-t border-[var(--border-light)] pt-5">
+        <div className="flex items-center justify-between text-xs font-sans text-[var(--text-muted)]">
+          <div className="flex items-center gap-3">
+            <span>📅 {date}</span>
+            <span>•</span>
+            <span>🕒 {readTime}</span>
+          </div>
+        </div>
+
+        <Link
           href={href}
-          className="mt-6 inline-flex items-center text-sm font-medium tracking-wide text-[var(--primary)] transition-all duration-300 group-hover:gap-2"
+          className="mt-4 inline-flex items-center gap-1 font-sans text-xs font-semibold tracking-wider text-[var(--accent-pink)] transition-all group-hover:translate-x-1 group-hover:text-[var(--text-heading)]"
         >
-          Read more
-          <span className="ml-1 transition-transform duration-300 group-hover:translate-x-1">
-            →
-          </span>
-        </a>
-
+          READ MORE →
+        </Link>
       </div>
     </article>
   );

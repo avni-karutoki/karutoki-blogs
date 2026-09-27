@@ -35,7 +35,7 @@ export default function DeleteButton({
       {/* Confirmation Modal */}
       {showConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-5 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-3xl border border-[var(--border)] bg-[var(--background)] p-7 shadow-2xl">
+          <div className="w-full max-w-md rounded-3xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-7 shadow-2xl">
             
             {/* Icon */}
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-500/10">
@@ -44,11 +44,11 @@ export default function DeleteButton({
 
             {/* Text */}
             <div className="mt-5 text-center">
-              <h2 className="font-[var(--font-playfair)] text-2xl font-semibold">
+              <h2 className="font-script text-2xl font-semibold">
                 Delete this writing?
               </h2>
 
-              <p className="mt-3 text-sm leading-relaxed text-[var(--foreground)]/60">
+              <p className="mt-3 text-sm leading-relaxed text-[var(--text-primary)]/60">
                 This action cannot be undone. The writing will be permanently
                 removed from your dashboard.
               </p>
@@ -60,7 +60,7 @@ export default function DeleteButton({
                 type="button"
                 onClick={() => setShowConfirm(false)}
                 disabled={isPending}
-                className="flex-1 rounded-xl border border-[var(--border)] px-5 py-3 text-sm transition hover:bg-[var(--foreground)]/5 disabled:opacity-50"
+                className="flex-1 rounded-xl border border-[var(--border-color)] px-5 py-3 text-sm transition hover:bg-[var(--text-primary)]/5 disabled:opacity-50"
               >
                 Cancel
               </button>

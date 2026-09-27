@@ -1,122 +1,59 @@
+import Link from "next/link";
+import Swirl from "./Swirl";
+
+const socials = [
+  { label: "Instagram", short: "IG", href: "https://www.instagram.com/avni.karutoki/" },
+  { label: "LinkedIn", short: "IN", href: "https://www.linkedin.com/in/avni-karutoki" },
+  { label: "Pinterest", short: "PIN", href: "https://pin.it/1WBBgualJ" },
+  { label: "X", short: "X", href: "https://x.com/avnikaruroki" },
+];
+
 export default function Footer() {
   return (
-    <footer className="border-t border-[var(--border)] bg-[var(--surface)]">
-      <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10">
-
-        {/* Main Footer Content */}
-        <div className="grid gap-10 md:grid-cols-3">
-
-          {/* Brand */}
-          <div>
-            <a
-              href="/"
-              className="font-[var(--font-playfair)] text-2xl font-semibold"
-            >
-              Karutoki
-            </a>
-
-            <p className="mt-3 max-w-sm font-[var(--font-cormorant)] text-lg leading-relaxed text-[var(--foreground)]/65">
-              A little corner of thoughts, poetry, stories and words.
-            </p>
-          </div>
-
-          {/* Quick Links */}
-          <div>
-            <h3 className="text-xs font-medium uppercase tracking-[0.25em] text-[var(--primary)]">
-              Explore
-            </h3>
-
-            <div className="mt-4 flex flex-col gap-3">
-              <a
-                href="/"
-                className="text-sm transition hover:text-[var(--primary)]"
-              >
-                Home
-              </a>
-
-              <a
-                href="/writings"
-                className="text-sm transition hover:text-[var(--primary)]"
-              >
-                Writings
-              </a>
-
-              <a
-                href="/themes"
-                className="text-sm transition hover:text-[var(--primary)]"
-              >
-                Themes
-              </a>
-
-              <a
-                href="/about"
-                className="text-sm transition hover:text-[var(--primary)]"
-              >
-                About
-              </a>
-
-              <a
-                href="/contact"
-                className="text-sm transition hover:text-[var(--primary)]"
-              >
-                Contact Us
-              </a>
-            </div>
-          </div>
-
-          {/* Socials */}
-          <div>
-            <h3 className="text-xs font-medium uppercase tracking-[0.25em] text-[var(--primary)]">
-              Follow Me
-            </h3>
-
-            <div className="mt-4 flex flex-col gap-3">
-              <a
-                href="#"
-                className="text-sm transition hover:text-[var(--primary)]"
-              >
-                Instagram
-              </a>
-
-              <a
-                href="#"
-                className="text-sm transition hover:text-[var(--primary)]"
-              >
-                Pinterest
-              </a>
-
-              <a
-                href="#"
-                className="text-sm transition hover:text-[var(--primary)]"
-              >
-                LinkedIn
-              </a>
-
-              <a
-                href="#"
-                className="text-sm transition hover:text-[var(--primary)]"
-              >
-                Twitter / X
-              </a>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom Section */}
-        <div className="mt-12 border-t border-[var(--border)] pt-8 text-center">
-
-          <p className="font-[var(--font-cormorant)] text-lg text-[var(--foreground)]/75">
-            Made with ❤️ by{" "}
-            <span className="font-semibold text-[var(--primary)]">
-              Avni Goel aka Karutoki
+    <footer className="mt-24 border-t border-[var(--border-color)] bg-[var(--bg-card)]/50">
+      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-8 px-6 py-12 md:flex-row">
+        <Link href="/" className="flex items-center gap-3">
+          <span className="flex h-10 w-10 rotate-45 items-center justify-center border border-[var(--text-heading)]">
+            <span className="-rotate-45 font-script text-sm text-[var(--text-heading)]">K</span>
+          </span>
+          <span>
+            <span className="block font-sans text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--text-heading)]">
+              Karutoki Blogs
             </span>
-          </p>
+            <span className="block font-script text-2xl leading-tight text-[var(--text-muted)]">
+              Words for the things left unsaid.
+            </span>
+          </span>
+        </Link>
 
-          <p className="mt-2 text-xs tracking-wide text-[var(--foreground)]/45">
-            © 2026. All rights reserved.
-          </p>
+        <nav className="flex flex-wrap items-center justify-center gap-x-7 gap-y-3 font-sans text-[11.5px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
+          <Link href="/writings" className="ink-link">Writings</Link>
+          <Link href="/poems" className="ink-link">Poems</Link>
+          <Link href="/blogs" className="ink-link">Blogs</Link>
+          <Link href="/midnight-talks" className="ink-link">Midnight Talks</Link>
+          <Link href="/about" className="ink-link">About</Link>
+        </nav>
 
+        <div className="flex items-center gap-5">
+          {socials.map((s) => (
+            <a
+              key={s.label}
+              href={s.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={s.label}
+              className="font-sans text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)] transition-colors hover:text-[var(--accent)]"
+            >
+              {s.short}
+            </a>
+          ))}
         </div>
+      </div>
+      <div className="pb-8 text-center">
+        <Swirl className="mx-auto text-[var(--text-faint)]" />
+        <p className="mt-2 font-sans text-xs text-[var(--text-faint)]">
+          Made with love by Avni Goel aka Karutoki © {new Date().getFullYear()}. All rights reserved.
+        </p>
       </div>
     </footer>
   );

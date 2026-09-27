@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { isAdminUser } from "@/lib/supabase/authorization";
 
 type Post = {
   id: string;
@@ -12,6 +13,8 @@ type Post = {
   excerpt: string | null;
   content: string;
   cover_image: string | null;
+  tags: string[] | null;
+  featured: boolean | null;
   published: boolean;
 };
 
@@ -19,111 +22,132 @@ export default function EditPostPage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
-
   const supabase = createClient();
 
   const [post, setPost] = useState<Post | null>(null);
-
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [category, setCategory] = useState("poem");
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
+  const [tags, setTags] = useState("");
+  const [featured, setFeatured] = useState(false);
   const [coverImage, setCoverImage] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState("");
   const [published, setPublished] = useState(false);
-
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     async function loadPost() {
-      const { data, error } = await supabase
+      const client = createClient();
+      const { data, error } = await client
         .from("posts")
-        .select(
-          "id, title, slug, category, excerpt, content, cover_image, published"
-        )
+        .select("id, title, slug, category, excerpt, content, cover_image, tags, featured, published")
         .eq("id", id)
         .single();
-
       if (error || !data) {
         setError(error?.message || "Writing not found.");
         setLoading(false);
         return;
       }
-
       setPost(data);
-
       setTitle(data.title);
       setSlug(data.slug);
       setCategory(data.category);
       setExcerpt(data.excerpt || "");
       setContent(data.content);
+      setTags((data.tags || []).join(", "));
+      setFeatured(!!data.featured);
       setCoverImage(data.cover_image || "");
       setPublished(data.published);
-
       setLoading(false);
     }
-
     loadPost();
   }, [id]);
 
+  useEffect(() => {
+    createClient().auth.getUser().then(({ data: { user } }) => {
+      if (!isAdminUser(user)) router.replace("/admin/login");
+    });
+  }, [router]);
+
+  function createSlug(value: string) {
+    return value.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
+  }
+
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) return setError("Please select an image file.");
+    if (file.size > 5 * 1024 * 1024) return setError("Image must be smaller than 5MB.");
+    setError("");
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  }
+
+  async function uploadImage() {
+    if (!imageFile) return coverImage.trim() || null;
+    const extension = imageFile.name.split(".").pop() || "jpg";
+    const filePath = `${category}/${Date.now()}-${crypto.randomUUID()}.${extension}`;
+    const { error: uploadError } = await supabase.storage.from("post-images").upload(filePath, imageFile, { cacheControl: "3600", upsert: false });
+    if (uploadError) throw new Error(uploadError.message);
+    return supabase.storage.from("post-images").getPublicUrl(filePath).data.publicUrl;
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
-
     setError("");
     setSaving(true);
-
-    const { error } = await supabase
-      .from("posts")
-      .update({
-        title: title.trim(),
-        slug: slug.trim(),
-        category,
-        excerpt: excerpt.trim() || null,
-        content: content.trim(),
-        cover_image: coverImage.trim() || null,
-        published,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", id);
-
-    if (error) {
-      setError(error.message);
+    if (!title.trim() || !slug.trim() || !content.trim()) {
+      setError("Title, slug, and content are required.");
       setSaving(false);
       return;
     }
-
-    router.push("/admin");
-    router.refresh();
+    try {
+      const uploadedCoverImage = await uploadImage();
+      const tagList = tags.split(",").map((t) => t.trim()).filter(Boolean);
+      const { error } = await supabase
+        .from("posts")
+        .update({
+          title: title.trim(),
+          slug: slug.trim(),
+          category,
+          excerpt: excerpt.trim() || null,
+          content: content.trim(),
+          tags: tagList.length ? tagList : null,
+          cover_image: uploadedCoverImage,
+          featured,
+          published,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", id);
+      if (error) throw new Error(error.message);
+      router.push("/admin");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not save this writing.");
+      setSaving(false);
+    }
   }
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center">
-        <p className="text-sm text-[var(--foreground)]/50">
-          Loading writing...
-        </p>
+      <main className="flex min-h-[60vh] items-center justify-center">
+        <p className="animate-fadeIn font-serif text-lg italic text-[var(--text-muted)]">Loading writing…</p>
       </main>
     );
   }
 
   if (!post) {
     return (
-      <main className="flex min-h-screen items-center justify-center px-6">
+      <main className="flex min-h-[60vh] items-center justify-center px-6">
         <div className="text-center">
-          <h1 className="font-[var(--font-playfair)] text-4xl font-semibold">
-            Writing not found
-          </h1>
-
-          <p className="mt-3 text-sm text-red-500">
-            {error}
-          </p>
-
-          <button
-            onClick={() => router.push("/admin")}
-            className="mt-6 text-sm text-[var(--primary)] hover:underline"
-          >
+          <h1>Writing not found</h1>
+          <p className="mt-3 font-sans text-sm text-red-500">{error}</p>
+          <button onClick={() => router.push("/admin")} className="ink-link mt-6 font-sans text-[12px] font-semibold uppercase tracking-[0.2em]">
             ← Back to dashboard
           </button>
         </div>
@@ -132,180 +156,100 @@ export default function EditPostPage() {
   }
 
   return (
-    <main className="min-h-screen px-6 py-16 sm:px-10">
-      <div className="mx-auto max-w-4xl">
+    <main className="mx-auto max-w-3xl px-6 py-14">
+      <button type="button" onClick={() => router.push("/admin")} className="ink-link font-sans text-[12px] font-semibold uppercase tracking-[0.2em]">
+        ← Back to dashboard
+      </button>
+      <p className="eyebrow mt-8">Karutoki Studio</p>
+      <h1 className="mt-2">Edit writing</h1>
 
-        {/* Header */}
-        <div className="mb-10">
-          <button
-            type="button"
-            onClick={() => router.push("/admin")}
-            className="text-sm text-[var(--foreground)]/50 hover:text-[var(--primary)]"
-          >
-            ← Back to dashboard
-          </button>
-
-          <p className="mt-8 text-xs uppercase tracking-[0.3em] text-[var(--primary)]">
-            Karutoki
-          </p>
-
-          <h1 className="mt-3 font-[var(--font-playfair)] text-5xl font-semibold">
-            Edit Writing
-          </h1>
+      <form onSubmit={handleSave} className="vintage-card mt-10 space-y-7 p-7 sm:p-9">
+        <div>
+          <label className="eyebrow">Title</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => { setTitle(e.target.value); setSlug(createSlug(e.target.value)); }}
+            required
+            className="field-underline mt-1 font-script text-3xl!"
+          />
         </div>
 
-        <form onSubmit={handleSave} className="space-y-7">
-
-          {/* Title */}
+        <div className="grid gap-7 sm:grid-cols-2">
           <div>
-            <label className="mb-2 block text-sm font-medium">
-              Title
-            </label>
-
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              className="w-full rounded-2xl border border-[var(--border)] bg-transparent px-5 py-4 font-[var(--font-playfair)] text-xl outline-none focus:border-[var(--primary)]"
-            />
+            <label className="eyebrow">Slug</label>
+            <input type="text" value={slug} onChange={(e) => setSlug(createSlug(e.target.value))} required className="field-underline mt-1 font-mono text-sm" />
           </div>
-
-          {/* Slug */}
           <div>
-            <label className="mb-2 block text-sm font-medium">
-              Slug
-            </label>
-
-            <input
-              type="text"
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-              required
-              className="w-full rounded-xl border border-[var(--border)] bg-transparent px-4 py-3 text-sm outline-none focus:border-[var(--primary)]"
-            />
-          </div>
-
-          {/* Category */}
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              Category
-            </label>
-
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full rounded-xl border border-[var(--border)] bg-[var(--background)] px-4 py-3 outline-none focus:border-[var(--primary)]"
-            >
+            <label className="eyebrow">Category</label>
+            <select value={category} onChange={(e) => setCategory(e.target.value)} className="field-underline mt-1">
               <option value="poem">Poem</option>
               <option value="blog">Blog</option>
               <option value="midnight-talk">Midnight Talk</option>
             </select>
           </div>
+        </div>
 
-          {/* Excerpt */}
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              Excerpt
-            </label>
+        <div>
+          <label className="eyebrow">Tags (comma separated)</label>
+          <input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="night, love, rain" className="field-underline mt-1" />
+        </div>
 
-            <textarea
-              value={excerpt}
-              onChange={(e) => setExcerpt(e.target.value)}
-              rows={3}
-              className="w-full resize-none rounded-2xl border border-[var(--border)] bg-transparent px-5 py-4 outline-none focus:border-[var(--primary)]"
-            />
-          </div>
+        <div>
+          <label className="eyebrow">Excerpt</label>
+          <textarea value={excerpt} onChange={(e) => setExcerpt(e.target.value)} rows={2} className="field-box mt-2 font-serif text-[1.05rem]" />
+        </div>
 
-          {/* Content */}
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              Content
-            </label>
+        <div>
+          <label className="eyebrow">Content</label>
+          <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={14} required className="field-box mt-2 font-serif text-[1.1rem] leading-relaxed" />
+        </div>
 
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows={18}
-              required
-              className="w-full resize-y rounded-2xl border border-[var(--border)] bg-transparent px-5 py-4 font-[var(--font-cormorant)] text-xl leading-relaxed outline-none focus:border-[var(--primary)]"
-            />
-          </div>
-
-          {/* Cover Image */}
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              Cover Image URL
-            </label>
-
-            <input
-              type="url"
-              value={coverImage}
-              onChange={(e) => setCoverImage(e.target.value)}
-              placeholder="https://..."
-              className="w-full rounded-xl border border-[var(--border)] bg-transparent px-4 py-3 text-sm outline-none focus:border-[var(--primary)]"
-            />
-          </div>
-
-          {/* Published */}
-          <div className="flex items-center justify-between rounded-2xl border border-[var(--border)] p-5">
-            <div>
-              <p className="font-medium">
-                Published
-              </p>
-
-              <p className="mt-1 text-sm text-[var(--foreground)]/50">
-                Published writings are visible on the website.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setPublished(!published)}
-              className={`relative h-7 w-12 rounded-full transition ${
-                published
-                  ? "bg-[var(--primary)]"
-                  : "bg-[var(--foreground)]/20"
-              }`}
-            >
-              <span
-                className={`absolute top-1 h-5 w-5 rounded-full bg-white transition ${
-                  published ? "left-6" : "left-1"
-                }`}
-              />
-            </button>
-          </div>
-
-          {/* Error */}
-          {error && (
-            <div className="rounded-xl border border-red-500/30 px-4 py-3">
-              <p className="text-sm text-red-500">
-                {error}
-              </p>
-            </div>
+        <div>
+          <label className="eyebrow">Cover image</label>
+          <input type="file" accept="image/*" onChange={handleImageChange} className="field-box mt-2 cursor-pointer font-sans text-sm" />
+          {(imagePreview || coverImage) && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={imagePreview || coverImage} alt="Cover preview" className="mt-4 aspect-[16/9] w-full rounded-xl border border-[var(--border-color)] object-cover" />
           )}
+        </div>
 
-          {/* Buttons */}
-          <div className="flex flex-col gap-3 pt-4 sm:flex-row sm:justify-end">
-            <button
-              type="button"
-              onClick={() => router.push("/admin")}
-              className="rounded-xl border border-[var(--border)] px-6 py-3 text-sm hover:bg-[var(--foreground)]/5"
-            >
-              Cancel
-            </button>
-
-            <button
-              type="submit"
-              disabled={saving}
-              className="rounded-xl bg-[var(--foreground)] px-7 py-3 text-sm font-medium text-[var(--background)] hover:opacity-90 disabled:opacity-50"
-            >
-              {saving ? "Saving..." : "Save Changes"}
-            </button>
+        <div className="flex items-center justify-between gap-4 rounded-2xl border border-[var(--border-color)] p-5">
+          <div>
+            <p className="font-sans text-sm font-semibold">Published</p>
+            <p className="body-text text-sm">Published writings are visible on the website.</p>
           </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={published}
+            onClick={() => setPublished(!published)}
+            className={`relative h-7 w-12 shrink-0 rounded-full transition ${published ? "bg-[var(--accent)]" : "bg-[var(--text-faint)]/30"}`}
+          >
+            <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all ${published ? "left-6" : "left-1"}`} />
+          </button>
+        </div>
 
-        </form>
-      </div>
+        <label className="flex cursor-pointer items-center gap-2.5 font-sans text-[12px] font-semibold uppercase tracking-[0.18em]">
+          <input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} className="h-4 w-4 accent-[var(--accent)]" />
+          Feature on home
+        </label>
+
+        {error && (
+          <div className="rounded-xl border border-red-500/30 px-4 py-3">
+            <p className="font-sans text-sm text-red-500">{error}</p>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+          <button type="button" onClick={() => router.push("/admin")} className="secondary-button px-6 py-3 text-xs uppercase tracking-[0.18em]">
+            Cancel
+          </button>
+          <button type="submit" disabled={saving} className="btn-ink disabled:opacity-50">
+            {saving ? "Saving…" : "Save changes"}
+          </button>
+        </div>
+      </form>
     </main>
   );
 }

@@ -48,7 +48,7 @@ export default function DeleteConfirmation({
           }}
         >
           <div
-            className="w-full max-w-md rounded-3xl border border-[var(--border)] bg-[var(--background)] p-7 shadow-2xl"
+            className="w-full max-w-md rounded-3xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-7 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Warning Icon */}
@@ -58,19 +58,19 @@ export default function DeleteConfirmation({
 
             {/* Heading */}
             <div className="mt-5 text-center">
-              <h2 className="font-[var(--font-playfair)] text-2xl font-semibold">
+              <h2 className="font-script text-2xl font-semibold">
                 Delete this writing?
               </h2>
 
-              <p className="mt-3 break-words text-sm leading-relaxed text-[var(--foreground)]/60">
+              <p className="mt-3 break-words text-sm leading-relaxed text-[var(--text-primary)]/60">
                 Are you sure you want to delete{" "}
-                <span className="font-medium text-[var(--foreground)]">
+                <span className="font-medium text-[var(--text-primary)]">
                   “{title}”
                 </span>
                 ?
               </p>
 
-              <p className="mt-2 text-xs text-[var(--foreground)]/40">
+              <p className="mt-2 text-xs text-[var(--text-primary)]/40">
                 This action cannot be undone.
               </p>
             </div>
@@ -81,7 +81,7 @@ export default function DeleteConfirmation({
                 type="button"
                 onClick={() => setShowModal(false)}
                 disabled={isPending}
-                className="flex-1 rounded-xl border border-[var(--border)] px-5 py-3 text-sm transition hover:bg-[var(--foreground)]/5 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex-1 rounded-xl border border-[var(--border-color)] px-5 py-3 text-sm transition hover:bg-[var(--text-primary)]/5 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Cancel
               </button>
