@@ -7,6 +7,30 @@ import KarutokiLogo from "./KarutokiLogo";
 import { useTheme } from "./ThemeProvider";
 import { useSearch } from "./SearchContext";
 
+function NavPill({
+  href,
+  active,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-current={active ? "page" : undefined}
+      className={`rounded-full px-4 py-2 font-sans text-[11.5px] font-semibold uppercase tracking-[0.18em] transition-all duration-300 hover:-translate-y-px ${
+        active
+          ? "bg-[var(--text-heading)] text-[var(--bg-primary)] shadow"
+          : "text-[var(--text-muted)] hover:bg-[var(--accent-soft)] hover:text-[var(--text-heading)]"
+      }`}
+    >
+      {children}
+    </Link>
+  );
+}
+
 export default function Navbar() {
   const pathname = usePathname();
   const { theme, setTheme, themes, toggleDark, isDark } = useTheme();
@@ -20,88 +44,95 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[var(--border-color)] bg-[var(--bg-primary)]/85 backdrop-blur-md transition-colors duration-300">
-      <nav className="mx-auto flex h-[72px] max-w-6xl items-center justify-between px-6">
-        <Link href="/" className="flex items-center transition-transform duration-300 hover:scale-[1.02]">
+      <nav className="relative mx-auto flex h-[72px] max-w-6xl items-center justify-between px-6">
+        <Link href="/" className="relative z-10 flex items-center transition-transform duration-300 hover:scale-[1.02]">
           <KarutokiLogo />
         </Link>
 
-        {/* Desktop */}
-        <div className="hidden items-center gap-7 md:flex">
-          <Link href="/" className={`nav-link ${isActive("/") ? "active" : ""}`}>
-            Home
-          </Link>
-          <Link href="/writings" className={`nav-link ${isActive("/writings") ? "active" : ""}`}>
-            Writings
-          </Link>
+        {/* Desktop — centered pill links */}
+        <div className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 md:block">
+          <div className="flex items-center gap-1 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)]/70 p-1.5 shadow-[var(--shadow-card)] backdrop-blur-md">
+            <NavPill href="/" active={isActive("/")}>
+              Home
+            </NavPill>
+            <NavPill href="/writings" active={isActive("/writings")}>
+              Writings
+            </NavPill>
 
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setThemesOpen((p) => !p)}
-              onBlur={() => window.setTimeout(() => setThemesOpen(false), 180)}
-              className="nav-link flex items-center gap-1.5 outline-none"
-              aria-expanded={themesOpen}
-            >
-              <span>Themes</span>
-              <span
-                className={`text-[9px] transition-transform duration-300 ${
-                  themesOpen ? "rotate-180" : ""
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setThemesOpen((p) => !p)}
+                onBlur={() => window.setTimeout(() => setThemesOpen(false), 180)}
+                aria-expanded={themesOpen}
+                className={`flex items-center gap-1.5 rounded-full px-4 py-2 font-sans text-[11.5px] font-semibold uppercase tracking-[0.18em] outline-none transition-all duration-300 hover:-translate-y-px ${
+                  themesOpen
+                    ? "bg-[var(--text-heading)] text-[var(--bg-primary)] shadow"
+                    : "text-[var(--text-muted)] hover:bg-[var(--accent-soft)] hover:text-[var(--text-heading)]"
                 }`}
               >
-                ▼
-              </span>
-            </button>
+                <span>Themes</span>
+                <span
+                  className={`text-[9px] transition-transform duration-300 ${
+                    themesOpen ? "rotate-180" : ""
+                  }`}
+                >
+                  ▼
+                </span>
+              </button>
 
-            {themesOpen && (
-              <div className="absolute right-0 top-full z-50 mt-3 w-56 animate-fadeIn rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] p-2 shadow-[var(--shadow-card)]">
-                <p className="px-3 pb-1 pt-2 font-sans text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
-                  Select aesthetic
-                </p>
-                {themes.map((t) => (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => {
-                      setTheme(t.id);
-                      setThemesOpen(false);
-                    }}
-                    className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 font-sans text-[13px] transition-colors duration-200 ${
-                      theme === t.id
-                        ? "bg-[var(--accent-soft)] font-semibold text-[var(--accent)]"
-                        : "text-[var(--text-primary)] hover:bg-[var(--accent-soft)]"
-                    }`}
-                  >
-                    <span className="flex items-center gap-2.5">
-                      <span
-                        className="inline-block h-4 w-4 rounded-full border border-black/10"
-                        style={{ backgroundColor: t.previewColor }}
-                      />
-                      {t.icon} {t.name}
-                    </span>
-                    {theme === t.id && <span>✓</span>}
-                  </button>
-                ))}
-                <p className="px-3 pb-1 pt-2 font-sans text-[10px] text-[var(--text-faint)]">
-                  {isDark ? "Dark" : "Light"} mode active
-                </p>
-              </div>
-            )}
+              {themesOpen && (
+                <div className="absolute left-1/2 top-full z-50 mt-3 w-56 -translate-x-1/2 animate-fadeIn rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] p-2 shadow-[var(--shadow-card)]">
+                  <p className="px-3 pb-1 pt-2 font-sans text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
+                    Select aesthetic
+                  </p>
+                  {themes.map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => {
+                        setTheme(t.id);
+                        setThemesOpen(false);
+                      }}
+                      className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 font-sans text-[13px] transition-colors duration-200 ${
+                        theme === t.id
+                          ? "bg-[var(--accent-soft)] font-semibold text-[var(--accent)]"
+                          : "text-[var(--text-primary)] hover:bg-[var(--accent-soft)]"
+                      }`}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <span
+                          className="inline-block h-4 w-4 rounded-full border border-black/10"
+                          style={{ backgroundColor: t.previewColor }}
+                        />
+                        {t.icon} {t.name}
+                      </span>
+                      {theme === t.id && <span>✓</span>}
+                    </button>
+                  ))}
+                  <p className="px-3 pb-1 pt-2 font-sans text-[10px] text-[var(--text-faint)]">
+                    {isDark ? "Dark" : "Light"} mode active
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <NavPill href="/about" active={isActive("/about")}>
+              About
+            </NavPill>
+            <NavPill href="/contact" active={isActive("/contact")}>
+              Contact
+            </NavPill>
           </div>
+        </div>
 
-          <Link href="/about" className={`nav-link ${isActive("/about") ? "active" : ""}`}>
-            About
-          </Link>
-          <Link href="/contact" className={`nav-link ${isActive("/contact") ? "active" : ""}`}>
-            Contact
-          </Link>
-
-          <span className="h-5 w-px bg-[var(--border-color)]" aria-hidden />
-
+        {/* Desktop — right controls */}
+        <div className="relative z-10 hidden items-center gap-2 md:flex">
           <button
             type="button"
             onClick={openSearch}
             aria-label="Open search"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-[var(--text-primary)] transition hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-transparent text-[var(--text-primary)] transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-color)] hover:bg-[var(--bg-card)] hover:text-[var(--accent)]"
           >
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
               <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.7" />
@@ -114,7 +145,7 @@ export default function Navbar() {
             onClick={toggleDark}
             aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
             title={isDark ? "Light mode" : "Dark mode"}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--border-color)] text-[15px] transition-all duration-300 hover:rotate-12 hover:border-[var(--accent)] hover:text-[var(--accent)]"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--bg-card)]/70 text-[15px] shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-px hover:rotate-12 hover:border-[var(--accent)] hover:text-[var(--accent)]"
           >
             <span key={isDark ? "sun" : "moon"} className="animate-fadeIn">
               {isDark ? "☼" : "☾"}
