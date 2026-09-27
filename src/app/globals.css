@@ -565,3 +565,62 @@ button {
     scroll-behavior: auto !important;
   }
 }
+
+/* ————— Theme-matched ambient background —————
+   Soft tinted glows + paper grain + vignette that shift with the theme.
+   Painted on fixed pseudo layers behind all content. */
+:root,
+[data-theme="cream"] {
+  --glow-a: rgba(154, 106, 79, 0.16);
+  --glow-b: rgba(255, 252, 244, 0.9);
+  --grain-opacity: 0.05;
+  --vignette: rgba(60, 45, 30, 0.08);
+}
+[data-theme="moonlit"] {
+  --glow-a: rgba(211, 169, 126, 0.12);
+  --glow-b: rgba(122, 92, 168, 0.14);
+  --grain-opacity: 0.07;
+  --vignette: rgba(0, 0, 0, 0.35);
+}
+[data-theme="blush"] {
+  --glow-a: rgba(180, 82, 107, 0.13);
+  --glow-b: rgba(255, 255, 255, 0.75);
+  --grain-opacity: 0.05;
+  --vignette: rgba(148, 64, 79, 0.08);
+}
+[data-theme="lavender"] {
+  --glow-a: rgba(111, 90, 168, 0.15);
+  --glow-b: rgba(255, 255, 255, 0.7);
+  --grain-opacity: 0.05;
+  --vignette: rgba(87, 68, 138, 0.09);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(52rem 34rem at 12% -6%, var(--glow-a), transparent 62%),
+    radial-gradient(48rem 32rem at 88% 8%, var(--glow-b), transparent 60%),
+    radial-gradient(60rem 40rem at 50% 115%, var(--glow-a), transparent 65%);
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+}
+
+.vignette-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 40%, transparent 60%, var(--vignette) 100%);
+}

@@ -65,6 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       >
         <ThemeProvider>
           <SearchProvider>
+            <div className="vignette-veil" aria-hidden />
             <Navbar />
             <main className="min-h-[72vh]">
               <PageTransition>{children}</PageTransition>
