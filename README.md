@@ -134,14 +134,3 @@ supabase/schema.sql          run once in Supabase's SQL editor
 - **Editing existing posts**: not built into the dashboard yet — for now,
   edit a post's fields directly in Supabase's Table Editor, or delete and
   re-create it from `/admin/new`.
-
-## ✦ GitHub Contributions
-
-![Avni's GitHub contribution graph](https://ghchart.rshah.org/avni-karutoki)
-
-## ✦ Connect with me
-
-- Instagram: https://www.instagram.com/avni.karutoki/
-- LinkedIn: https://www.linkedin.com/in/avni-karutoki
-- Pinterest: https://pin.it/1WBBgualJ
-- X: https://x.com/avnikaruroki
