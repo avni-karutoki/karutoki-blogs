@@ -510,29 +510,6 @@ button {
   animation: veil-sweep 0.9s cubic-bezier(0.65, 0, 0.35, 1) both;
 }
 
-/* cursor companion sparkle trail */
-.cursor-trail-dot {
-  position: fixed;
-  z-index: 9998;
-  width: 6px;
-  height: 6px;
-  margin: -3px 0 0 -3px;
-  border-radius: 999px;
-  background: var(--accent);
-  pointer-events: none;
-  animation: cursor-trail-pop 0.75s ease-out both;
-}
-@keyframes cursor-trail-pop {
-  0% {
-    opacity: 0.9;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(0.2) translateY(-10px);
-  }
-}
-
 /* thin scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
