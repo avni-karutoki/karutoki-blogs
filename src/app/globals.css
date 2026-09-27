@@ -510,6 +510,29 @@ button {
   animation: veil-sweep 0.9s cubic-bezier(0.65, 0, 0.35, 1) both;
 }
 
+/* rabbit paw-dot trail (fades within a second) */
+.rabbit-trail-dot {
+  position: fixed;
+  z-index: 9998;
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  border-radius: 999px;
+  background: var(--accent);
+  pointer-events: none;
+  animation: rabbit-trail-fade 1.2s ease-out both;
+}
+@keyframes rabbit-trail-fade {
+  0% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.25);
+  }
+}
+
 /* thin scrollbar */
 ::-webkit-scrollbar {
   width: 10px;

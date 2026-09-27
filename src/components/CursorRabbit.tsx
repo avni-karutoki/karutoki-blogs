@@ -2,13 +2,15 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const SIZE = 54;
+const SIZE = 40;
 const EDGE = 20;
-const FOLLOW_OFFSET = { x: 24, y: 28 };
+const FOLLOW_OFFSET = { x: 20, y: 24 };
 const IDLE_HOME_MS = 8000;
 
 const INK = "var(--text-heading)";
 const PAPER = "var(--bg-primary)";
+
+type TrailDot = { id: number; x: number; y: number };
 
 function homeSpot() {
   if (typeof window === "undefined") return { x: EDGE, y: 600 };
@@ -71,6 +73,7 @@ export default function CursorRabbit() {
   const [frame, setFrame] = useState(0); // 0 = sit, 1/2 = run cycle
   const [facing, setFacing] = useState(1); // 1 = right, -1 = left
   const [blink, setBlink] = useState(false);
+  const [trail, setTrail] = useState<TrailDot[]>([]);
 
   const nodeRef = useRef<HTMLDivElement>(null);
   const pos = useRef(homeSpot());
@@ -79,6 +82,9 @@ export default function CursorRabbit() {
   const homing = useRef(true);
   const frameRef = useRef(0);
   const facingRef = useRef(1);
+  const lastDot = useRef({ x: -1000, y: -1000 });
+  const dotId = useRef(0);
+  const dotTimers = useRef<number[]>([]);
 
   useEffect(() => {
     const hoverQuery = window.matchMedia("(hover: none)");
@@ -126,7 +132,7 @@ export default function CursorRabbit() {
       const dx = t.x - c.x;
       const dy = t.y - c.y;
       const dist = Math.hypot(dx, dy);
-      const speed = homing.current ? 4.5 : 6.5;
+      const speed = homing.current ? 2.2 : 3.2;
       if (dist > 0.5) {
         const step = Math.min(dist, speed);
         c.x += (dx / dist) * step;
@@ -134,10 +140,27 @@ export default function CursorRabbit() {
       }
 
       const running = dist > 7;
-      const f = running ? 1 + (Math.floor(now / 150) % 2) : 0;
+      const f = running ? 1 + (Math.floor(now / 260) % 2) : 0;
       if (f !== frameRef.current) {
         frameRef.current = f;
         setFrame(f);
+      }
+
+      // leave a dotted trail while hopping along
+      if (running) {
+        const fx = c.x + SIZE / 2;
+        const fy = c.y + SIZE - 10;
+        const pdx = fx - lastDot.current.x;
+        const pdy = fy - lastDot.current.y;
+        if (pdx * pdx + pdy * pdy > 20 * 20) {
+          lastDot.current = { x: fx, y: fy };
+          const id = ++dotId.current;
+          setTrail((t) => [...t.slice(-23), { id, x: fx, y: fy }]);
+          const timer = window.setTimeout(() => {
+            setTrail((t) => t.filter((d) => d.id !== id));
+          }, 1250);
+          dotTimers.current.push(timer);
+        }
       }
 
       // face the cursor (or travel direction while homing)
@@ -147,8 +170,8 @@ export default function CursorRabbit() {
         setFacing(faceTarget);
       }
 
-      // hop bob while running
-      const bob = running ? -Math.abs(Math.sin(now / 110)) * 5 : 0;
+      // gentle hop bob while running
+      const bob = running ? -Math.abs(Math.sin(now / 200)) * 3 : 0;
       if (nodeRef.current) {
         nodeRef.current.style.transform = `translate3d(${c.x}px, ${c.y + bob}px, 0)`;
       }
@@ -167,6 +190,7 @@ export default function CursorRabbit() {
     return () => {
       cancelAnimationFrame(raf);
       window.clearInterval(blinkTimer);
+      dotTimers.current.forEach((t) => window.clearTimeout(t));
       window.removeEventListener("mousemove", onMove);
       document.documentElement.removeEventListener("mouseleave", onLeave);
     };
@@ -175,12 +199,18 @@ export default function CursorRabbit() {
   if (!enabled) return null;
 
   return (
-    <div
-      ref={nodeRef}
-      aria-hidden
-      className="pointer-events-none fixed left-0 top-0 z-[9999] select-none"
-      style={{ opacity: seen ? 1 : 0, transition: "opacity 0.5s ease" }}
-    >
+    <>
+      {/* dotted paw trail */}
+      {trail.map((dot) => (
+        <span key={dot.id} aria-hidden className="rabbit-trail-dot" style={{ left: dot.x, top: dot.y }} />
+      ))}
+
+      <div
+        ref={nodeRef}
+        aria-hidden
+        className="pointer-events-none fixed left-0 top-0 z-[9999] select-none"
+        style={{ opacity: seen ? 1 : 0, transition: "opacity 0.5s ease" }}
+      >
       <div style={{ transform: `scaleX(${facing})`, width: SIZE, height: SIZE }}>
         {frame === 0 ? (
           <SitRabbit blink={blink} />
@@ -188,7 +218,8 @@ export default function CursorRabbit() {
           <RunRabbit blink={blink} legsApart={frame === 1} />
         )}
       </div>
-      <div className="mx-auto -mt-3 h-2 w-10 rounded-full bg-black/15 blur-[2px]" />
-    </div>
+      <div className="mx-auto -mt-3 h-1.5 w-7 rounded-full bg-black/15 blur-[2px]" />
+      </div>
+    </>
   );
 }
