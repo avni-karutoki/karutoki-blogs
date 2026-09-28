@@ -148,7 +148,10 @@ export default function Footer() {
             </Link>
           </div>
           <p className="mt-4 font-sans text-xs text-[var(--text-faint)]">
-            Prefer email? <span className="text-[var(--accent)]">hello@karutoki.blog</span>
+            Prefer email?{" "}
+            <a href="mailto:karutokiblogs@gmail.com" className="ink-link text-[var(--accent)]">
+              karutokiblogs@gmail.com
+            </a>
           </p>
         </div>
       </div>
