@@ -18,17 +18,37 @@ export default function SearchPage() {
     e.preventDefault();
     if (!q.trim()) return;
     setLoading(true);
-    const supabase = createClient();
-    const term = q.trim().replace(/[%_]/g, "");
-    const { data } = await supabase
-      .from("posts")
-      .select("slug, title, excerpt, category")
-      .eq("published", true)
-      .or(`title.ilike.%${term}%,content.ilike.%${term}%,excerpt.ilike.%${term}%`)
-      .limit(20);
-    setResults((data as SearchResult[]) || []);
-    setSearched(true);
-    setLoading(false);
+    try {
+      const supabase = createClient();
+      // Escape PostgREST `or` filter special chars so quotes/commas/parens can't break the query.
+      const term = q
+        .trim()
+        .replace(/[%_]/g, "")
+        .replace(/[,().:"]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 80);
+      if (!term) {
+        setResults([]);
+        setSearched(true);
+        return;
+      }
+      const { data, error } = await supabase
+        .from("posts")
+        .select("slug, title, excerpt, category")
+        .eq("published", true)
+        .or(`title.ilike.%${term}%,content.ilike.%${term}%,excerpt.ilike.%${term}%`)
+        .limit(20);
+      if (error) throw error;
+      setResults((data as SearchResult[]) || []);
+      setSearched(true);
+    } catch (err) {
+      console.error("Search error:", err);
+      setResults([]);
+      setSearched(true);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

@@ -24,6 +24,9 @@ export interface Post {
   published: boolean;
   created_at: string;
   updated_at?: string | null;
+  scheduled_for?: string | null;
+  likes?: number | null;
+  views?: number | null;
 }
 
 export interface HeroSettings {

@@ -22,13 +22,10 @@ export default function Hero({
 
   return (
     <section className="relative overflow-hidden">
-      {/* ambient glows */}
+      {/* ambient glows — static, GPU-composited (no infinite repaint) */}
       <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[var(--accent-soft)] blur-3xl" />
-        <div
-          className="absolute -right-24 top-24 h-80 w-80 rounded-full bg-[var(--accent-soft)] blur-3xl"
-          style={{ animation: "drift 9s ease-in-out infinite" }}
-        />
+        <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[var(--accent-soft)] blur-2xl will-change-transform" />
+        <div className="absolute -right-24 top-24 h-80 w-80 rounded-full bg-[var(--accent-soft)] blur-2xl will-change-transform" />
       </div>
 
       <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-6 pb-14 pt-14 md:grid-cols-[1.05fr_0.95fr] md:pb-20 md:pt-20">
@@ -119,6 +116,9 @@ export default function Hero({
                   src={cover}
                   alt="Featured writing cover"
                   className="aspect-[4/5] w-full object-cover"
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
                 />
               ) : (
                 <div className="flex aspect-[4/5] w-full flex-col items-center justify-center gap-3 bg-[var(--bg-secondary)] p-8 text-center">
@@ -136,11 +136,11 @@ export default function Hero({
             </div>
           </div>
 
-          {/* floating cards */}
+          {/* floating cards — float only when motion is allowed */}
           {latest && (
             <Link
               href={`/writings/${latest.slug}`}
-              className="vintage-card animate-float absolute -left-4 top-8 max-w-[210px] rounded-2xl! p-4 sm:-left-10"
+              className="vintage-card absolute -left-4 top-8 max-w-[210px] rounded-2xl! p-4 motion-safe:animate-float sm:-left-10"
             >
               <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
                 {categoryLabel(latest.category)} · Latest
@@ -153,8 +153,7 @@ export default function Hero({
           {second && (
             <Link
               href={`/writings/${second.slug}`}
-              className="vintage-card absolute -bottom-5 -right-2 max-w-[200px] rounded-2xl! p-4 sm:-right-6"
-              style={{ animation: "float 8s ease-in-out 1.2s infinite" }}
+              className="vintage-card absolute -bottom-5 -right-2 max-w-[200px] rounded-2xl! p-4 motion-safe:animate-float sm:-right-6"
             >
               <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
                 {categoryLabel(second.category)}
@@ -178,6 +177,14 @@ export default function Hero({
           <span className="text-[var(--accent)]">✦</span>
           <Link href="/writings" className="hidden transition hover:text-[var(--accent)] sm:inline">All writings</Link>
         </div>
+      </div>
+
+      {/* gentle scroll cue into the featured writings */}
+      <div className="relative mx-auto max-w-6xl px-6 pb-2 pt-6 text-center">
+        <p className="font-sans text-[10.5px] font-semibold uppercase tracking-[0.28em] text-[var(--text-faint)]">
+          Scroll for tonight&apos;s words
+        </p>
+        <p aria-hidden className="mt-1 animate-bounce text-[var(--accent)]">↓</p>
       </div>
     </section>
   );

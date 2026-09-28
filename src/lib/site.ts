@@ -14,6 +14,8 @@ export const DEFAULT_ABOUT: AboutSettings = {
 };
 
 export async function getSiteSetting<T>(
+  // Supabase client is intentionally loose here to stay compatible across versions.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: { from: (t: string) => any },
   key: string,
   fallback: T
@@ -21,7 +23,7 @@ export async function getSiteSetting<T>(
   try {
     const { data, error } = await supabase.from("site_settings").select("value").eq("key", key).maybeSingle();
     if (error || !data?.value) return fallback;
-    return { ...fallback, ...(data.value as object) } as T;
+    return { ...fallback, ...(data.value as Record<string, unknown>) } as T;
   } catch {
     return fallback;
   }

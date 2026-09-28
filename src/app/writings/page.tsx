@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
-import SectionHeading from "@/components/SectionHeading";
 import { createClient } from "@/lib/supabase/server";
 import type { Post } from "@/lib/types";
 import { categoryLabel } from "@/lib/types";
@@ -33,8 +32,7 @@ async function getPosts(category: string): Promise<Post[]> {
   }
 }
 
-export default async function WritingsPage({
-  searchParams,
+export default async function WritingsPage({  searchParams,
 }: {
   searchParams: Promise<{ category?: string }>;
 }) {

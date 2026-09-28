@@ -6,13 +6,13 @@ import { createClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 export default async function BlogsPage() {
-  let blogs: { id: string; title: string; slug: string; excerpt: string | null; cover_image: string | null; created_at: string }[] = [];
+  let blogs: { id: string; title: string; slug: string; excerpt: string | null; cover_image: string | null; created_at: string; reading_time?: string | null }[] = [];
 
   try {
     const supabase = await createClient();
     const { data } = await supabase
       .from("posts")
-      .select("id, title, slug, excerpt, cover_image, created_at")
+      .select("id, title, slug, excerpt, cover_image, created_at, reading_time")
       .eq("category", "blog")
       .eq("published", true)
       .order("created_at", { ascending: false });
@@ -71,6 +71,8 @@ export default async function BlogsPage() {
               excerpt={blog.excerpt}
               href={`/writings/${blog.slug}`}
               coverImage={blog.cover_image}
+              date={new Date(blog.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+              readTime={blog.reading_time ? `${blog.reading_time} read` : undefined}
             />
           ))}
         </div>

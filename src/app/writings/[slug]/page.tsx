@@ -2,6 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Swirl from "@/components/Swirl";
+import LikeButton from "@/components/LikeButton";
+import ViewCounter from "@/components/ViewCounter";
+import ShareButtons from "@/components/ShareButtons";
+import ReadingProgress from "@/components/ReadingProgress";
+import FontSizeToggle from "@/components/FontSizeToggle";
 import type { Post } from "@/lib/types";
 import { categoryLabel } from "@/lib/types";
 
@@ -39,6 +44,19 @@ async function getNeighbours(createdAt: string) {
   return { prev, next };
 }
 
+async function getRelated(category: string, slug: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("posts")
+    .select("slug, title, excerpt")
+    .eq("published", true)
+    .eq("category", category)
+    .neq("slug", slug)
+    .order("created_at", { ascending: false })
+    .limit(3);
+  return (data as { slug: string; title: string; excerpt: string | null }[]) || [];
+}
+
 export default async function WritingDetailPage({
   params,
 }: {
@@ -48,10 +66,14 @@ export default async function WritingDetailPage({
   const post = await getPost(slug);
   if (!post) notFound();
 
-  const { prev, next } = await getNeighbours(post.created_at);
+  const [{ prev, next }, related] = await Promise.all([
+    getNeighbours(post.created_at),
+    getRelated(post.category, post.slug),
+  ]);
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-14">
+      <ReadingProgress />
       <p className="eyebrow text-center">{categoryLabel(post.category)}</p>
       <h1 className="mt-3 text-center">{post.title}</h1>
       <p className="mt-4 text-center font-sans text-[12px] uppercase tracking-[0.18em] text-[var(--text-faint)]">
@@ -84,19 +106,54 @@ export default async function WritingDetailPage({
       {post.tags && post.tags.length > 0 && (
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           {post.tags.map((tag) => (
-            <span
+            <Link
               key={tag}
-              className="rounded-full border border-[var(--border-color)] bg-[var(--accent-soft)] px-3 py-1 font-sans text-[11px] font-medium text-[var(--accent)]"
+              href={`/tags/${encodeURIComponent(tag)}`}
+              className="rounded-full border border-[var(--border-color)] bg-[var(--accent-soft)] px-3 py-1 font-sans text-[11px] font-medium text-[var(--accent)] transition-colors hover:border-[var(--accent)]"
             >
               #{tag}
-            </span>
+            </Link>
           ))}
         </div>
       )}
 
-      <article className="mt-10 whitespace-pre-line font-serif text-[1.18rem] leading-[1.85] text-[var(--text-primary)]">
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-3">
+        {/* keyed by slug so counts reset when navigating between posts */}
+        <ViewCounter key={`v-${post.slug}`} slug={post.slug} initialViews={post.views ?? 0} />
+        <LikeButton key={`l-${post.slug}`} slug={post.slug} initialLikes={post.likes ?? 0} />
+        <FontSizeToggle />
+      </div>
+
+      <article className="reading-body mt-10 whitespace-pre-line font-serif leading-[1.85] text-[var(--text-primary)]">
         {post.content}
       </article>
+
+      <div className="mt-10">
+        <ShareButtons key={`s-${post.slug}`} title={post.title} />
+      </div>
+
+      {related.length > 0 && (
+        <section className="mt-14 border-t border-[var(--border-color)] pt-10">
+          <p className="eyebrow text-center">Keep reading</p>
+          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+            {related.map((r) => (
+              <Link key={r.slug} href={`/writings/${r.slug}`} className="vintage-card group block p-5">
+                <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
+                  {categoryLabel(post.category)}
+                </p>
+                <p className="mt-2 font-script text-2xl leading-tight text-[var(--text-heading)] transition-colors group-hover:text-[var(--accent)]">
+                  {r.title}
+                </p>
+                {r.excerpt && (
+                  <p className="mt-2 line-clamp-2 font-serif text-sm leading-relaxed text-[var(--text-muted)]">
+                    {r.excerpt}
+                  </p>
+                )}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       <div className="mt-16 grid gap-4 border-t border-[var(--border-color)] pt-8 sm:grid-cols-3 sm:items-center">
         <div>

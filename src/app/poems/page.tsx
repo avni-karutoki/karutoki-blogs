@@ -6,13 +6,13 @@ import { createClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 export default async function PoemsPage() {
-  let poems: { id: string; title: string; slug: string; excerpt: string | null; cover_image: string | null; created_at: string }[] = [];
+  let poems: { id: string; title: string; slug: string; excerpt: string | null; cover_image: string | null; created_at: string; reading_time?: string | null }[] = [];
 
   try {
     const supabase = await createClient();
     const { data } = await supabase
       .from("posts")
-      .select("id, title, slug, excerpt, cover_image, created_at")
+      .select("id, title, slug, excerpt, cover_image, created_at, reading_time")
       .eq("category", "poem")
       .eq("published", true)
       .order("created_at", { ascending: false });
@@ -71,6 +71,8 @@ export default async function PoemsPage() {
               excerpt={poem.excerpt}
               href={`/writings/${poem.slug}`}
               coverImage={poem.cover_image}
+              date={new Date(poem.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+              readTime={poem.reading_time ? `${poem.reading_time} read` : undefined}
             />
           ))}
         </div>

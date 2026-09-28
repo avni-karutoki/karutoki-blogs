@@ -139,6 +139,16 @@ export default function Navbar() {
               <line x1="16.2" y1="16.2" x2="21" y2="21" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
             </svg>
           </button>
+          <button
+            type="button"
+            onClick={openSearch}
+            title="Search (⌘K)"
+            aria-label="Open search with Control K"
+            className="hidden items-center gap-1 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)]/70 px-2.5 py-1.5 font-sans text-[10px] font-semibold tracking-[0.08em] text-[var(--text-faint)] shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-px hover:border-[var(--accent)] hover:text-[var(--accent)] lg:inline-flex"
+          >
+            <kbd className="font-sans">⌘</kbd>
+            <kbd className="font-sans">K</kbd>
+          </button>
 
           <button
             type="button"

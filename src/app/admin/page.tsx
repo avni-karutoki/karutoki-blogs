@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isAdminUser } from "@/lib/supabase/authorization";
+import { publishDuePosts } from "@/lib/publishing";
 import DashboardClient from "./DashboardClient";
 import { DEFAULT_ABOUT, DEFAULT_HERO, getSiteSetting } from "@/lib/site";
 import type { AboutSettings, HeroSettings } from "@/lib/types";
@@ -15,6 +16,9 @@ export default async function AdminDashboard() {
 
   if (!user) redirect("/admin/login");
   if (!isAdminUser(user)) redirect("/admin/login");
+
+  // Auto-publish any scheduled pieces whose time has come.
+  await publishDuePosts();
 
   const [{ data: posts }, { data: messages }, hero, about] = await Promise.all([
     supabase.from("posts").select("*").order("created_at", { ascending: false }),

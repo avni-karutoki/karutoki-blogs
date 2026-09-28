@@ -8,10 +8,12 @@ import { DEFAULT_ABOUT, DEFAULT_HERO, getSiteSetting } from "@/lib/site";
 import type { AboutSettings, HeroSettings, Post } from "@/lib/types";
 import { categoryLabel } from "@/lib/types";
 
+export const revalidate = 60;
+
 async function getHomeData() {
   try {
     const supabase = await createClient();
-    const [postsRes, hero, about] = await Promise.all([
+    const [postsRes, hero, about, poemsCount, blogsCount, talksCount] = await Promise.all([
       supabase
         .from("posts")
         .select("*")
@@ -20,31 +22,46 @@ async function getHomeData() {
         .limit(8),
       getSiteSetting<HeroSettings>(supabase, "hero", DEFAULT_HERO),
       getSiteSetting<AboutSettings>(supabase, "about", DEFAULT_ABOUT),
+      supabase.from("posts").select("id", { count: "exact", head: true }).eq("published", true).eq("category", "poem"),
+      supabase.from("posts").select("id", { count: "exact", head: true }).eq("published", true).eq("category", "blog"),
+      supabase.from("posts").select("id", { count: "exact", head: true }).eq("published", true).eq("category", "midnight-talk"),
     ]);
     const posts = (postsRes.data as Post[]) || [];
-    const counts = { poems: 0, blogs: 0, talks: 0 };
+    // Featured shelf is best-effort: an older DB without the `featured`
+    // column must never blank the whole homepage.
+    let featuredPosts: Post[] = [];
     try {
-      const { data: all } = await supabase
+      const { data, error } = await supabase
         .from("posts")
-        .select("category")
-        .eq("published", true);
-      (all || []).forEach((p: { category: string }) => {
-        if (p.category === "poem") counts.poems++;
-        else if (p.category === "blog") counts.blogs++;
-        else counts.talks++;
-      });
+        .select("*")
+        .eq("published", true)
+        .eq("featured", true)
+        .order("created_at", { ascending: false })
+        .limit(4);
+      if (!error) featuredPosts = (data as Post[]) || [];
     } catch {
-      /* counts stay zero */
+      /* fall back to latest below */
     }
-    return { posts, hero, about, counts };
+    const counts = {
+      poems: poemsCount.count ?? 0,
+      blogs: blogsCount.count ?? 0,
+      talks: talksCount.count ?? 0,
+    };
+    return { posts, featuredPosts, hero, about, counts };
   } catch {
-    return { posts: [], hero: DEFAULT_HERO, about: DEFAULT_ABOUT, counts: { poems: 0, blogs: 0, talks: 0 } };
+    return { posts: [], featuredPosts: [], hero: DEFAULT_HERO, about: DEFAULT_ABOUT, counts: { poems: 0, blogs: 0, talks: 0 } };
   }
 }
 
 export default async function HomePage() {
-  const { posts, hero, about, counts } = await getHomeData();
-  const featured = posts.slice(0, 4);
+  const { posts, featuredPosts, hero, about, counts } = await getHomeData();
+  // Editor's picks first; fall back to the latest when nothing is featured.
+  const shelf = featuredPosts.length > 0 ? featuredPosts : posts.slice(0, 4);
+  const shelfEyebrow = featuredPosts.length > 0 ? "Handpicked" : "Fresh from the desk";
+  const shelfSub =
+    featuredPosts.length > 0
+      ? "The pieces I'd press into your hands."
+      : "A few words, no longer than they need to be.";
 
   return (
     <div>
@@ -56,9 +73,9 @@ export default async function HomePage() {
           <Reveal>
             <div className="flex flex-wrap items-end justify-between gap-4">
               <SectionHeading
-                eyebrow="Fresh from the desk"
+                eyebrow={shelfEyebrow}
                 title="Featured writings"
-                sub="A few words, no longer than they need to be."
+                sub={shelfSub}
               />
               <Link
                 href="/writings"
@@ -70,13 +87,13 @@ export default async function HomePage() {
           </Reveal>
 
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {featured.length === 0 && (
+            {shelf.length === 0 && (
               <p className="body-text col-span-full">
                 No writings yet — the admin can publish the first piece from{" "}
                 <Link href="/admin" className="ink-link text-[var(--accent)]">/admin</Link>.
               </p>
             )}
-            {featured.map((post, i) => (
+            {shelf.map((post, i) => (
               <Reveal key={post.slug} delay={i * 0.08}>
                 <Link
                   href={`/writings/${post.slug}`}
@@ -87,6 +104,8 @@ export default async function HomePage() {
                     <img
                       src={post.cover_image}
                       alt={post.title}
+                      loading="lazy"
+                      decoding="async"
                       className="mb-4 aspect-[16/10] w-full rounded-xl border border-[var(--border-color)] object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                     />
                   ) : null}
@@ -138,7 +157,7 @@ export default async function HomePage() {
         </section>
 
         {/* Newsletter */}
-        <section className="border-t border-[var(--border-color)] py-16 text-center">
+        <section id="newsletter" className="scroll-mt-24 border-t border-[var(--border-color)] py-16 text-center">
           <Reveal>
             <div className="mx-auto max-w-md">
               <SectionHeading

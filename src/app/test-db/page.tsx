@@ -1,12 +1,23 @@
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { isAdminUser } from "@/lib/supabase/authorization";
 
+export const dynamic = "force-dynamic";
+
+// Internal connectivity check — admins only, so drafts never leak publicly.
 export default async function TestDatabase() {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user || !isAdminUser(user)) redirect("/admin/login");
 
   const { data, error } = await supabase
     .from("posts")
-    .select("*")
-    .order("created_at", { ascending: false });
+    .select("id, slug, title, category, published, created_at")
+    .order("created_at", { ascending: false })
+    .limit(50);
 
   if (error) {
     return (

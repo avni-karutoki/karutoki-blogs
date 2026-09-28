@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useDeferredValue, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearch } from "./SearchContext";
 import { createClient } from "@/lib/supabase/client";
@@ -61,7 +61,7 @@ export default function SearchOverlay() {
   const [posts, setPosts] = useState<WritingPost[]>(defaultWritings);
   const [loading, setLoading] = useState(false);
 
-  // Fetch posts from Supabase when search opens
+  // Fetch posts from Supabase when search opens (capped + no heavy content field)
   useEffect(() => {
     if (!isOpen) return;
 
@@ -71,12 +71,15 @@ export default function SearchOverlay() {
         const supabase = createClient();
         const { data, error } = await supabase
           .from("posts")
-          .select("id, title, slug, category, excerpt, content, created_at")
+          .select("id, title, slug, category, excerpt, created_at")
           .eq("published", true)
-          .order("created_at", { ascending: false });
+          .order("created_at", { ascending: false })
+          .limit(100);
 
         if (!error && data && data.length > 0) {
-          setPosts(data);
+          setPosts(
+            data.map((p) => ({ ...p, content: "" })) as WritingPost[]
+          );
         }
       } catch (err) {
         console.error("Search fetch error:", err);
@@ -99,18 +102,22 @@ export default function SearchOverlay() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, closeSearch]);
 
-  if (!isOpen) return null;
+  const deferredQuery = useDeferredValue(query);
 
-  const filteredPosts = posts.filter((post) => {
-    const q = query.toLowerCase().trim();
-    if (!q) return true;
-    return (
-      post.title.toLowerCase().includes(q) ||
-      (post.excerpt && post.excerpt.toLowerCase().includes(q)) ||
-      post.category.toLowerCase().includes(q) ||
-      post.content.toLowerCase().includes(q)
-    );
-  });
+  const filteredPosts = useMemo(() => {
+    const q = deferredQuery.toLowerCase().trim();
+    if (!q) return posts.slice(0, 12);
+    return posts
+      .filter(
+        (post) =>
+          post.title.toLowerCase().includes(q) ||
+          (post.excerpt && post.excerpt.toLowerCase().includes(q)) ||
+          post.category.toLowerCase().includes(q)
+      )
+      .slice(0, 12);
+  }, [posts, deferredQuery]);
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex flex-col bg-[var(--bg-primary)] px-6 py-10 sm:px-12 md:px-20 overflow-y-auto animate-fadeIn">

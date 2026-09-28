@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import LogoutButton from "./logout-button";
 import DeleteConfirmation from "./delete-confirmation";
 import { togglePublished, toggleMessageRead, deleteMessage, updateSiteSettings } from "./actions";
@@ -16,6 +17,9 @@ interface PostItem {
   cover_image: string | null;
   published: boolean;
   created_at: string;
+  scheduled_for?: string | null;
+  likes?: number | null;
+  views?: number | null;
 }
 
 interface ContactMessage {
@@ -64,11 +68,67 @@ export default function DashboardClient({
   const [settingsStatus, setSettingsStatus] = useState("");
   const [savingSettings, setSavingSettings] = useState(false);
 
+  // Newsletter notify state
+  const [notifySlug, setNotifySlug] = useState<string | null>(null);
+  const [notifyMsg, setNotifyMsg] = useState("");
+
   // Metrics
   const totalWritings = initialPosts.length;
   const publishedCount = initialPosts.filter((p) => p.published).length;
   const draftCount = initialPosts.filter((p) => !p.published).length;
   const unreadMessagesCount = initialMessages.filter((m) => !m.read).length;
+  // Note: publishDuePosts() already runs on every /admin load and flips due
+  // posts to published — so anything still carrying `scheduled_for` is future.
+  const scheduledCount = initialPosts.filter(
+    (p) => !p.published && p.scheduled_for
+  ).length;
+  const totalLikes = initialPosts.reduce((sum, p) => sum + (p.likes ?? 0), 0);
+  const totalViews = initialPosts.reduce((sum, p) => sum + (p.views ?? 0), 0);
+
+  const router = useRouter();
+
+  async function handleTogglePublished(id: string, current: boolean) {
+    await togglePublished(id, current);
+    router.refresh();
+  }
+
+  async function handleToggleMessageRead(id: string, current: boolean) {
+    await toggleMessageRead(id, current);
+    router.refresh();
+  }
+
+  async function handleDeleteMessage(id: string, name: string) {
+    if (confirm(`Delete message from ${name}?`)) {
+      await deleteMessage(id);
+      router.refresh();
+    }
+  }
+
+  // Email all newsletter subscribers about a published piece (needs RESEND_API_KEY).
+  async function handleNotify(slug: string, title: string) {
+    if (!confirm(`Email all subscribers about “${title}”?`)) return;
+    setNotifySlug(slug);
+    setNotifyMsg("");
+    try {
+      const res = await fetch("/api/admin/notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setNotifyMsg(`Could not send: ${data.error || "unknown error"}`);
+      } else if (data.sent === 0 && data.failed === 0) {
+        setNotifyMsg("No subscribers yet — letters will send once readers sign up.");
+      } else {
+        setNotifyMsg(`Letter sent to ${data.sent} subscriber${data.sent === 1 ? "" : "s"}${data.failed ? ` (${data.failed} failed)` : ""} ✨`);
+      }
+    } catch {
+      setNotifyMsg("Could not send — please try again.");
+    } finally {
+      setNotifySlug(null);
+    }
+  }
 
   // Filtered posts logic
   const filteredPosts = initialPosts.filter((post) => {
@@ -242,6 +302,13 @@ export default function DashboardClient({
               </div>
             </div>
 
+            {(scheduledCount > 0 || totalLikes > 0 || totalViews > 0) && (
+              <p className="font-sans text-xs text-[var(--text-muted)]">
+                {scheduledCount > 0 && <span>⏳ {scheduledCount} scheduled · </span>}
+                <span>♥ {totalLikes} total likes · 👁 {totalViews} total reads</span>
+              </p>
+            )}
+
             {/* Recent Activity Table */}
             <div className="vintage-card p-8 rounded-2xl border border-[var(--border-pink)] bg-[var(--bg-card)] space-y-6">
               <div className="flex items-center justify-between">
@@ -351,6 +418,11 @@ export default function DashboardClient({
             </div>
 
             {/* Posts List */}
+            {notifyMsg && (
+              <p className="vintage-card rounded-2xl p-4 text-center font-sans text-xs font-semibold text-[var(--accent)]">
+                {notifyMsg}
+              </p>
+            )}
             {filteredPosts.length === 0 ? (
               <div className="vintage-card p-12 text-center rounded-2xl space-y-4">
                 <p className="font-script text-3xl text-[var(--text-heading)]">
@@ -384,6 +456,14 @@ export default function DashboardClient({
                         >
                           {post.published ? "Published" : "Draft"}
                         </span>
+                        {!post.published && post.scheduled_for && (
+                          <span
+                            className="rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-sky-600"
+                            title={new Date(post.scheduled_for).toLocaleString()}
+                          >
+                            Scheduled · {new Date(post.scheduled_for).toLocaleDateString()}
+                          </span>
+                        )}
                       </div>
 
                       <h2 className="font-script text-3xl text-[var(--text-heading)] truncate">
@@ -392,6 +472,11 @@ export default function DashboardClient({
 
                       <p className="font-sans text-xs text-[var(--text-muted)]">
                         slug: <span className="font-mono text-[11px]">/writings/{post.slug}</span>
+                        {(post.likes != null || post.views != null) && (
+                          <span className="ml-3">
+                            ♥ {post.likes ?? 0} · 👁 {post.views ?? 0}
+                          </span>
+                        )}
                       </p>
 
                       {post.excerpt && (
@@ -421,15 +506,25 @@ export default function DashboardClient({
 
                       <button
                         type="button"
-                        onClick={async () => {
-                          await togglePublished(post.id, post.published);
-                        }}
+                        onClick={() => handleTogglePublished(post.id, post.published)}
                         className={`secondary-button text-xs uppercase px-4 py-2 h-9 ${
                           post.published ? "hover:border-amber-500 hover:text-amber-600" : "hover:border-emerald-500 hover:text-emerald-600"
                         }`}
                       >
                         {post.published ? "Unpublish" : "Publish"}
                       </button>
+
+                      {post.published && (
+                        <button
+                          type="button"
+                          onClick={() => handleNotify(post.slug, post.title)}
+                          disabled={notifySlug !== null}
+                          title="Email all newsletter subscribers about this piece"
+                          className="secondary-button text-xs uppercase px-4 py-2 h-9 hover:border-[var(--accent)] hover:text-[var(--accent)] disabled:opacity-50"
+                        >
+                          {notifySlug === post.slug ? "Sending…" : "✉ Notify"}
+                        </button>
+                      )}
 
                       <DeleteConfirmation postId={post.id} title={post.title} />
                     </div>
@@ -491,9 +586,7 @@ export default function DashboardClient({
 
                         <button
                           type="button"
-                          onClick={async () => {
-                            await toggleMessageRead(msg.id, msg.read);
-                          }}
+                          onClick={() => handleToggleMessageRead(msg.id, msg.read)}
                           className="secondary-button text-xs uppercase px-3 py-1.5 h-8"
                         >
                           {msg.read ? "Mark Unread" : "Mark Read"}
@@ -501,11 +594,7 @@ export default function DashboardClient({
 
                         <button
                           type="button"
-                          onClick={async () => {
-                            if (confirm(`Delete message from ${msg.name}?`)) {
-                              await deleteMessage(msg.id);
-                            }
-                          }}
+                          onClick={() => handleDeleteMessage(msg.id, msg.name)}
                           className="secondary-button text-xs uppercase px-3 py-1.5 h-8 text-rose-500 hover:border-rose-500"
                         >
                           Delete

@@ -1,9 +1,34 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Category } from "@/lib/types";
+
+const DRAFT_KEY = "karutoki-draft-new";
+
+interface NewDraft {
+  title: string;
+  excerpt: string;
+  content: string;
+  category: Category;
+  tags: string;
+  featured: boolean;
+  published: boolean;
+  savedAt: string;
+}
+
+function loadDraft(): NewDraft | null {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    const d = JSON.parse(raw) as NewDraft;
+    if (!d || typeof d !== "object") return null;
+    return d;
+  } catch {
+    return null;
+  }
+}
 
 function slugify(title: string) {
   return title
@@ -22,17 +47,73 @@ function estimateReadingTime(content: string) {
 
 export default function NewPostPage() {
   const router = useRouter();
-  const [title, setTitle] = useState("");
-  const [excerpt, setExcerpt] = useState("");
-  const [content, setContent] = useState("");
-  const [category, setCategory] = useState<Category>("poem");
-  const [tags, setTags] = useState("");
-  const [featured, setFeatured] = useState(false);
-  const [published, setPublished] = useState(true);
+  const [title, setTitle] = useState(() =>
+    typeof window === "undefined" ? "" : (loadDraft()?.title ?? "")
+  );
+  const [excerpt, setExcerpt] = useState(() =>
+    typeof window === "undefined" ? "" : (loadDraft()?.excerpt ?? "")
+  );
+  const [content, setContent] = useState(() =>
+    typeof window === "undefined" ? "" : (loadDraft()?.content ?? "")
+  );
+  const [category, setCategory] = useState<Category>(() =>
+    typeof window === "undefined" ? "poem" : (loadDraft()?.category ?? "poem")
+  );
+  const [tags, setTags] = useState(() =>
+    typeof window === "undefined" ? "" : (loadDraft()?.tags ?? "")
+  );
+  const [featured, setFeatured] = useState(() =>
+    typeof window === "undefined" ? false : (loadDraft()?.featured ?? false)
+  );
+  const [published, setPublished] = useState(() =>
+    typeof window === "undefined" ? true : (loadDraft()?.published ?? true)
+  );
+  const [publishAt, setPublishAt] = useState("");
+  const [restoredAt, setRestoredAt] = useState<string | null>(() =>
+    typeof window === "undefined" ? null : (loadDraft()?.savedAt ?? null)
+  );
+  const [autosavedAt, setAutosavedAt] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [preview, setPreview] = useState("");
+  const previewRef = useRef("");
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Autosave text fields (covers can't be persisted) a beat after you stop typing.
+  useEffect(() => {
+    if (!title && !excerpt && !content && !tags) return;
+    const t = window.setTimeout(() => {
+      try {
+        const savedAt = new Date().toISOString();
+        localStorage.setItem(
+          DRAFT_KEY,
+          JSON.stringify({ title, excerpt, content, category, tags, featured, published, savedAt })
+        );
+        setAutosavedAt(savedAt);
+      } catch {
+        /* storage full/blocked — ignore */
+      }
+    }, 800);
+    return () => window.clearTimeout(t);
+  }, [title, excerpt, content, category, tags, featured, published]);
+
+  function discardDraft() {
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+    } catch {
+      /* ignore */
+    }
+    setTitle("");
+    setExcerpt("");
+    setContent("");
+    setTags("");
+    setFeatured(false);
+    setPublished(true);
+    setPublishAt("");
+    setRestoredAt(null);
+    setAutosavedAt(null);
+  }
 
   function handleImage(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -41,8 +122,20 @@ export default function NewPostPage() {
     if (file.size > 5 * 1024 * 1024) return setError("Image must be smaller than 5MB.");
     setError(null);
     setImageFile(file);
-    setPreview(URL.createObjectURL(file));
+    // Revoke the previous object URL so repeated picks don't leak memory.
+    if (previewRef.current) URL.revokeObjectURL(previewRef.current);
+    const url = URL.createObjectURL(file);
+    previewRef.current = url;
+    setPreview(url);
   }
+
+  // Clean up the preview URL when leaving the page.
+  useEffect(() => {
+    const ref = previewRef;
+    return () => {
+      if (ref.current) URL.revokeObjectURL(ref.current);
+    };
+  }, []);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -52,6 +145,7 @@ export default function NewPostPage() {
     }
     setLoading(true);
     setError(null);
+    setNotice(null);
     try {
       const supabase = createClient();
       let coverImage: string | null = null;
@@ -69,7 +163,13 @@ export default function NewPostPage() {
       const slug = base || `writing-${Date.now()}`;
       const tagList = tags.split(",").map((t) => t.trim()).filter(Boolean);
 
-      const { error: insErr } = await supabase.from("posts").insert({
+      // Optional scheduling: a future time saves the piece unpublished and
+      // it goes live automatically (via /admin visits or pg_cron).
+      const scheduledDate = publishAt ? new Date(publishAt) : null;
+      const futureSchedule =
+        scheduledDate && !Number.isNaN(scheduledDate.getTime()) && scheduledDate.getTime() > Date.now();
+
+      const row: Record<string, unknown> = {
         slug,
         title: title.trim(),
         excerpt: excerpt.trim() || null,
@@ -79,9 +179,28 @@ export default function NewPostPage() {
         cover_image: coverImage,
         featured,
         reading_time: estimateReadingTime(content),
-        published,
-      });
-      if (insErr) throw new Error(insErr.message);
+        published: futureSchedule ? false : published,
+      };
+      if (futureSchedule && scheduledDate) row.scheduled_for = scheduledDate.toISOString();
+
+      const { error: insErr } = await supabase.from("posts").insert(row);
+      if (insErr) {
+        // Migration not run yet → save without scheduling instead of failing.
+        if (futureSchedule && /scheduled_for/i.test(insErr.message)) {
+          delete row.scheduled_for;
+          row.published = published;
+          const { error: retryErr } = await supabase.from("posts").insert(row);
+          if (retryErr) throw new Error(retryErr.message);
+          setNotice("Saved, but scheduling needs the DB migration — see supabase/migrate-scheduling-stats.sql.");
+        } else {
+          throw new Error(insErr.message);
+        }
+      }
+      try {
+        localStorage.removeItem(DRAFT_KEY);
+      } catch {
+        /* ignore */
+      }
       router.push("/admin");
       router.refresh();
     } catch (err) {
@@ -158,7 +277,39 @@ export default function NewPostPage() {
           </label>
         </div>
 
+        <div>
+          <label className="eyebrow">Schedule for later (optional)</label>
+          <input
+            type="datetime-local"
+            value={publishAt}
+            onChange={(e) => setPublishAt(e.target.value)}
+            className="field-underline mt-1"
+          />
+          <p className="mt-1 font-sans text-[11px] text-[var(--text-faint)]">
+            Leave empty to use the toggle above. A future time saves it unpublished and publishes it automatically.
+          </p>
+        </div>
+
+        {(restoredAt || autosavedAt) && (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--border-color)] p-4">
+            <p className="font-sans text-xs text-[var(--text-muted)]">
+              {restoredAt
+                ? `Draft restored from ${new Date(restoredAt).toLocaleString()}.`
+                : ""}
+              {autosavedAt ? ` Autosaved at ${new Date(autosavedAt).toLocaleTimeString()}.` : ""}
+            </p>
+            <button
+              type="button"
+              onClick={discardDraft}
+              className="font-sans text-[11px] font-semibold uppercase tracking-[0.18em] text-red-500 hover:underline"
+            >
+              Discard draft
+            </button>
+          </div>
+        )}
+
         {error && <p className="font-sans text-sm text-red-500">{error}</p>}
+        {notice && <p className="font-sans text-sm text-amber-600">{notice}</p>}
 
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
           <button type="button" onClick={() => router.push("/admin")} className="secondary-button px-6 py-3 text-xs uppercase tracking-[0.18em]">

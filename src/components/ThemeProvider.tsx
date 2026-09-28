@@ -2,7 +2,15 @@
 
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 
-export type Theme = "cream" | "moonlit" | "blush" | "lavender";
+export type Theme =
+  | "cream"
+  | "moonlit"
+  | "blush"
+  | "lavender"
+  | "matcha"
+  | "honey"
+  | "ocean"
+  | "sakura";
 
 interface ThemeMeta {
   id: Theme;
@@ -25,6 +33,10 @@ const THEMES: ThemeMeta[] = [
   { id: "moonlit", name: "Moonlit Ink", icon: "☾", previewColor: "#141118", kind: "dark" },
   { id: "blush", name: "Blush Letter", icon: "✿", previewColor: "#FDF4F5", kind: "light" },
   { id: "lavender", name: "Lavender Dusk", icon: "✦", previewColor: "#F4F0F8", kind: "light" },
+  { id: "matcha", name: "Matcha Calm", icon: "🍃", previewColor: "#EDF2E1", kind: "light" },
+  { id: "honey", name: "Honeyed Paper", icon: "🐝", previewColor: "#FAF0DC", kind: "light" },
+  { id: "ocean", name: "Deep Ocean", icon: "🌊", previewColor: "#0E1622", kind: "dark" },
+  { id: "sakura", name: "Sakura Night", icon: "🌸", previewColor: "#1D1218", kind: "dark" },
 ];
 
 const VALID = THEMES.map((t) => t.id);
@@ -45,20 +57,22 @@ function getInitialTheme(): Theme {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("cream");
+  const [theme, setThemeState] = useState<Theme>(() => getInitialTheme());
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setThemeState(getInitialTheme());
+    // Mount marker only (avoids applying theme transitions during SSR hydration).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
   useEffect(() => {
     if (!mounted) return;
     const root = document.documentElement;
+    const kind = THEMES.find((t) => t.id === theme)?.kind ?? "light";
     root.classList.add("theming");
     root.setAttribute("data-theme", theme);
-    root.style.colorScheme = theme === "moonlit" ? "dark" : "light";
+    root.style.colorScheme = kind === "dark" ? "dark" : "light";
     try {
       localStorage.setItem("karutoki-theme", theme);
     } catch {
@@ -70,13 +84,19 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const setTheme = useCallback((next: Theme) => setThemeState(next), []);
   const toggleDark = useCallback(
-    () => setThemeState((prev) => (prev === "moonlit" ? "cream" : "moonlit")),
+    () =>
+      setThemeState((prev) => {
+        const kind = THEMES.find((t) => t.id === prev)?.kind ?? "light";
+        return kind === "dark" ? "cream" : "moonlit";
+      }),
     []
   );
 
+  const isDark = THEMES.find((t) => t.id === theme)?.kind === "dark";
+
   return (
     <ThemeContext.Provider
-      value={{ theme, setTheme, toggleDark, isDark: theme === "moonlit", themes: THEMES }}
+      value={{ theme, setTheme, toggleDark, isDark, themes: THEMES }}
     >
       {children}
     </ThemeContext.Provider>

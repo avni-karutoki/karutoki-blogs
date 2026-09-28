@@ -26,9 +26,12 @@ export default function WritingCard({
         {/* Cover Image if available */}
         {coverImage ? (
           <div className="mb-7 overflow-hidden rounded-xl border border-[var(--border-color)] aspect-[16/10]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={coverImage}
               alt={title}
+              loading="lazy"
+              decoding="async"
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           </div>

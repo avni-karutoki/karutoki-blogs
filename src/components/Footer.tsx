@@ -42,53 +42,126 @@ const socials = [
   { label: "X", href: "https://x.com/avnikaruroki", Icon: XIcon },
 ];
 
+const exploreLinks = [
+  { label: "All writings", href: "/writings" },
+  { label: "Tags", href: "/tags" },
+  { label: "Archive", href: "/archive" },
+  { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
+  { label: "Search", href: "/search" },
+];
+
+const categoryLinks = [
+  { label: "Poems", href: "/poems" },
+  { label: "Blogs", href: "/blogs" },
+  { label: "Midnight Talks", href: "/midnight-talks" },
+  { label: "Writings", href: "/writings" },
+];
+
+function FooterHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="font-sans text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--accent)]">
+      {children}
+    </p>
+  );
+}
+
 export default function Footer() {
   return (
     <footer className="mt-24 border-t border-[var(--border-color)] bg-[var(--bg-card)]/50">
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-8 px-6 py-12 md:flex-row">
-        <Link href="/" className="flex items-center gap-3">
-          <span className="flex h-10 w-10 rotate-45 items-center justify-center border border-[var(--text-heading)]">
-            <span className="-rotate-45 font-script text-sm text-[var(--text-heading)]">K</span>
-          </span>
-          <span>
-            <span className="block font-sans text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--text-heading)]">
-              Karutoki Blogs
+      <div className="mx-auto grid max-w-6xl gap-10 px-6 py-14 sm:grid-cols-2 lg:grid-cols-[1.3fr_0.8fr_0.8fr_1fr]">
+        {/* Brand */}
+        <div>
+          <Link href="/" className="flex items-center gap-3">
+            <span className="flex h-10 w-10 rotate-45 items-center justify-center border border-[var(--text-heading)]">
+              <span className="-rotate-45 font-script text-sm text-[var(--text-heading)]">K</span>
             </span>
-            <span className="block font-script text-2xl leading-tight text-[var(--text-muted)]">
-              Words for the things left unsaid.
+            <span>
+              <span className="block font-sans text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--text-heading)]">
+                Karutoki Blogs
+              </span>
+              <span className="block font-script text-2xl leading-tight text-[var(--text-muted)]">
+                Words for the things left unsaid.
+              </span>
             </span>
-          </span>
-        </Link>
+          </Link>
+          <p className="mt-4 max-w-xs font-serif text-[0.95rem] leading-relaxed text-[var(--text-muted)]">
+            Poems, blogs and midnight thoughts by Avni Goel aka Karutoki — a little corner for everything in between.
+          </p>
+          <div className="mt-5 flex items-center gap-3">
+            {socials.map(({ label, href, Icon }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                title={label}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border-color)] text-[var(--text-muted)] transition-all duration-300 hover:-translate-y-1 hover:border-[var(--accent)] hover:text-[var(--accent)]"
+              >
+                <Icon />
+              </a>
+            ))}
+          </div>
+        </div>
 
-        <nav className="flex flex-wrap items-center justify-center gap-x-7 gap-y-3 font-sans text-[11.5px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
-          <Link href="/writings" className="ink-link">Writings</Link>
-          <Link href="/poems" className="ink-link">Poems</Link>
-          <Link href="/blogs" className="ink-link">Blogs</Link>
-          <Link href="/midnight-talks" className="ink-link">Midnight Talks</Link>
-          <Link href="/about" className="ink-link">About</Link>
+        {/* Explore */}
+        <nav aria-label="Explore">
+          <FooterHeading>Explore</FooterHeading>
+          <ul className="mt-4 space-y-2.5 font-sans text-[13px] text-[var(--text-muted)]">
+            {exploreLinks.map((l) => (
+              <li key={l.label}>
+                <Link href={l.href} className="ink-link">
+                  {l.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </nav>
 
-        <div className="flex items-center gap-4">
-          {socials.map(({ label, href, Icon }) => (
-            <a
-              key={label}
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={label}
-              title={label}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border-color)] text-[var(--text-muted)] transition-all duration-300 hover:-translate-y-1 hover:border-[var(--accent)] hover:text-[var(--accent)]"
-            >
-              <Icon />
-            </a>
-          ))}
+        {/* Categories */}
+        <nav aria-label="Categories">
+          <FooterHeading>Categories</FooterHeading>
+          <ul className="mt-4 space-y-2.5 font-sans text-[13px] text-[var(--text-muted)]">
+            {categoryLinks.map((l) => (
+              <li key={l.label}>
+                <Link href={l.href} className="ink-link">
+                  {l.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {/* Letters + contact */}
+        <div>
+          <FooterHeading>Letters, occasionally</FooterHeading>
+          <p className="mt-4 font-serif text-[0.95rem] leading-relaxed text-[var(--text-muted)]">
+            New poems and midnight thoughts, only when there&apos;s something worth sending. No spam — just words.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link href="/#newsletter" className="btn-ink">
+              Get letters →
+            </Link>
+            <Link href="/contact" className="pill-button font-sans text-xs font-semibold uppercase tracking-[0.16em]">
+              Say hello
+            </Link>
+          </div>
+          <p className="mt-4 font-sans text-xs text-[var(--text-faint)]">
+            Prefer email? <span className="text-[var(--accent)]">hello@karutoki.blog</span>
+          </p>
+        </div>
+      </div>
+
+      <div className="border-t border-[var(--border-color)]">
+        <div className="mx-auto max-w-6xl px-6 py-6 text-center">
+          <p className="font-sans text-xs text-[var(--text-faint)]">
+            Made with love by Avni Goel aka Karutoki © {new Date().getFullYear()}. All rights reserved.
+          </p>
         </div>
       </div>
       <div className="pb-8 text-center">
         <Swirl className="mx-auto text-[var(--text-faint)]" />
-        <p className="mt-2 font-sans text-xs text-[var(--text-faint)]">
-          Made with love by Avni Goel aka Karutoki © {new Date().getFullYear()}. All rights reserved.
-        </p>
       </div>
     </footer>
   );
