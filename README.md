@@ -1,8 +1,4 @@
 # ✦ Karutoki Blogs
-
-> **Repo description (for GitHub → About):**
-> `A personal writing studio for poems, blogs & midnight talks — Next.js 16 + Supabase + Resend, with an admin dashboard, scheduling, themes & newsletter.`
-
 ## About this repo
 
 **Karutoki Blogs** is Avni Goel aka Karutoki's personal corner of the internet —
