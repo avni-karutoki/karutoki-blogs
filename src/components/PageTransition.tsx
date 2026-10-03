@@ -37,18 +37,21 @@ export default function PageTransition({ children }: { children: ReactNode }) {
           className="pointer-events-none fixed inset-0 z-[80] will-change-transform"
           initial={{ scaleY: 0, transformOrigin: "bottom" }}
           animate={{ scaleY: [0, 1, 1, 0] }}
-          transition={{ duration: 0.6, ease: "easeInOut", times: [0, 0.4, 0.6, 1] }}
+          transition={{ duration: 0.45, ease: "easeInOut", times: [0, 0.4, 0.6, 1] }}
           style={{ background: "var(--text-heading)", opacity: 0.08 }}
         />
       )}
 
-      <AnimatePresence mode="wait" initial={false}>
+      {/* No mode="wait": blocking the incoming page on the exit animation
+          adds ~350ms of dead time to every navigation. Enter immediately
+          while the old page fades out underneath. */}
+      <AnimatePresence initial={false}>
         <motion.div
           key={pathname}
-          initial={{ opacity: 0, y: 14 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.35, ease: EASE }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.22, ease: EASE }}
           className="will-change-transform"
         >
           {children}

@@ -1,9 +1,9 @@
 import React from "react";
 import WritingCard from "@/components/WritingCard";
 import DecorativeDivider from "@/components/DecorativeDivider";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient as createClient } from "@/lib/supabase/server";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function PoemsPage() {
   let poems: { id: string; title: string; slug: string; excerpt: string | null; cover_image: string | null; created_at: string; reading_time?: string | null }[] = [];

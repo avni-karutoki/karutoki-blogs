@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Swirl from "@/components/Swirl";
 import Reveal from "@/components/Reveal";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient as createClient } from "@/lib/supabase/server";
 import { DEFAULT_ABOUT, getSiteSetting } from "@/lib/site";
 import type { AboutSettings } from "@/lib/types";
 

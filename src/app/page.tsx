@@ -3,7 +3,7 @@ import Hero from "@/components/Hero";
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import NewsletterForm from "@/components/NewsletterForm";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient as createClient } from "@/lib/supabase/server";
 import { DEFAULT_ABOUT, DEFAULT_HERO, getSiteSetting } from "@/lib/site";
 import type { AboutSettings, HeroSettings, Post } from "@/lib/types";
 import { categoryLabel } from "@/lib/types";
@@ -13,10 +13,13 @@ export const revalidate = 60;
 async function getHomeData() {
   try {
     const supabase = await createClient();
+    // Narrow columns: never ship the full `content` body to the homepage.
+    const LIST_COLUMNS =
+      "id, slug, title, excerpt, cover_image, category, reading_time, created_at";
     const [postsRes, hero, about, poemsCount, blogsCount, talksCount] = await Promise.all([
       supabase
         .from("posts")
-        .select("*")
+        .select(LIST_COLUMNS)
         .eq("published", true)
         .order("created_at", { ascending: false })
         .limit(8),
@@ -33,7 +36,7 @@ async function getHomeData() {
     try {
       const { data, error } = await supabase
         .from("posts")
-        .select("*")
+        .select(LIST_COLUMNS)
         .eq("published", true)
         .eq("featured", true)
         .order("created_at", { ascending: false })

@@ -95,6 +95,7 @@ export default function CursorDog() {
   const pos = useRef({ x: -100, y: -100 });
   const cursor = useRef({ x: -200, y: -200 });
   const hasCursor = useRef(false);
+  const seenRef = useRef(false);
   const frameRef = useRef(0);
   const facingRef = useRef(1);
   const lastDot = useRef({ x: -1000, y: -1000 });
@@ -136,9 +137,16 @@ export default function CursorDog() {
         }
       }
       // Always visible once the cursor has moved — including while running.
-      setSeen(true);
+      // Guard with a ref so the rAF loop doesn't schedule a React render.
+      if (!seenRef.current) {
+        seenRef.current = true;
+        setSeen(true);
+      }
     };
-    const onLeave = () => setSeen(false);
+    const onLeave = () => {
+      seenRef.current = false;
+      setSeen(false);
+    };
 
     // gentle blink every few seconds
     const blinkTimer = window.setInterval(() => {
@@ -180,7 +188,10 @@ export default function CursorDog() {
           setFrame(f);
         }
         // Keep it visible for the whole run, even if a mouseleave fired mid-chase.
-        if (running) setSeen(true);
+        if (running && !seenRef.current) {
+          seenRef.current = true;
+          setSeen(true);
+        }
 
         // leave a short dotted trail while trotting along (capped for perf)
         if (running && hasCursor.current) {
@@ -194,8 +205,15 @@ export default function CursorDog() {
             setTrail((prev) => [...prev.slice(-11), { id, x: fx, y: fy }]);
             const timer = window.setTimeout(() => {
               setTrail((prev) => prev.filter((d) => d.id !== id));
+              // drop the fired timer id so the array doesn't grow forever
+              dotTimers.current = dotTimers.current.filter((t) => t !== timer);
             }, 800);
             dotTimers.current.push(timer);
+            // hard cap: never hold more than ~12 pending timers
+            if (dotTimers.current.length > 12) {
+              const oldest = dotTimers.current.shift();
+              if (oldest !== undefined) window.clearTimeout(oldest);
+            }
           }
         }
 

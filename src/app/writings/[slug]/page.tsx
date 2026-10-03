@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient as createClient } from "@/lib/supabase/server";
 import Swirl from "@/components/Swirl";
 import LikeButton from "@/components/LikeButton";
 import ViewCounter from "@/components/ViewCounter";
@@ -9,6 +9,26 @@ import ReadingProgress from "@/components/ReadingProgress";
 import FontSizeToggle from "@/components/FontSizeToggle";
 import type { Post } from "@/lib/types";
 import { categoryLabel } from "@/lib/types";
+
+// Cache rendered posts for 60s; slugs not known at build time are
+// rendered on demand and then cached (no per-visit Supabase waterfall).
+export const revalidate = 60;
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("posts")
+      .select("slug")
+      .eq("published", true)
+      .order("created_at", { ascending: false })
+      .limit(100);
+    return ((data as { slug: string }[]) || []).map((p) => ({ slug: p.slug }));
+  } catch {
+    return [];
+  }
+}
 
 async function getPost(slug: string): Promise<Post | null> {
   const supabase = await createClient();

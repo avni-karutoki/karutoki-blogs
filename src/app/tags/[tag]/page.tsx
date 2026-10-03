@@ -1,9 +1,30 @@
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient as createClient } from "@/lib/supabase/server";
 import { categoryLabel } from "@/lib/types";
 
 export const revalidate = 60;
+
+export async function generateStaticParams() {
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("posts")
+      .select("tags")
+      .eq("published", true)
+      .limit(500);
+    const tags = new Set<string>();
+    ((data as { tags: string[] | null }[]) || []).forEach((p) =>
+      (p.tags || []).forEach((t) => {
+        const tag = t.trim();
+        if (tag) tags.add(tag);
+      })
+    );
+    return [...tags].slice(0, 100).map((tag) => ({ tag }));
+  } catch {
+    return [];
+  }
+}
 
 export default async function TagPage({
   params,

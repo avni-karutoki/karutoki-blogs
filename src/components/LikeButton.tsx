@@ -35,8 +35,6 @@ export default function LikeButton({
   const [busy, setBusy] = useState(false);
   const [bursts, setBursts] = useState<number[]>([]);
 
-  if (!available) return null;
-
   // Little heart burst when a like lands.
   function celebrate() {
     const id = Date.now();
@@ -78,6 +76,8 @@ export default function LikeButton({
       setBusy(false);
     }
   }
+
+  if (!available) return null;
 
   return (
     <button

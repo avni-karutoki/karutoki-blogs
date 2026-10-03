@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient as createClient } from "@/lib/supabase/server";
 import type { Post } from "@/lib/types";
 import { categoryLabel } from "@/lib/types";
 
@@ -14,9 +14,10 @@ const tabs = [
 async function getPosts(category: string): Promise<Post[]> {
   try {
     const supabase = await createClient();
+    // Narrow columns: the list view never needs the full `content` body.
     let query = supabase
       .from("posts")
-      .select("*")
+      .select("id, slug, title, excerpt, cover_image, category, reading_time, created_at")
       .eq("published", true)
       .order("created_at", { ascending: false });
 
