@@ -1,4 +1,5 @@
 # ✦ Karutoki Blogs
+
 ## About this repo
 
 **Karutoki Blogs** is Avni Goel aka Karutoki's personal corner of the internet —
@@ -6,23 +7,25 @@ poems, blogs, and midnight thoughts: *"words for the things left unsaid."*
 
 - **Reader site:** home with hero + featured shelf, category pages
   (`/poems`, `/blogs`, `/midnight-talks`), all-writings list (`/writings`),
-  single-writing pages (`/writings/[slug]`) with prev/next, search overlay +
-  `/search`, tags (`/tags`, `/tags/[tag]`), archive (`/archive`), about,
+  single-writing pages (`/writings/[slug]`) with prev/next, global search overlay
+  + `/search`, tags (`/tags`, `/tags/[tag]`), archive (`/archive`), about and
   contact.
 - **Admin studio (`/admin`):** password login, overview metrics
-  (published / drafts / scheduled / likes / views / unread inbox),
-  writings manager (search, filter, publish/unpublish, delete, email
-  subscribers about a post), new-post editor (`/admin/new`) with autosave
-  drafts, cover-image upload, scheduling + featured flag, edit page
-  (`/admin/edit/[id]`), contact inbox (read/unread, delete), and Hero/About
-  site-settings editors — no database touching required day-to-day.
+  (published / drafts / scheduled / likes / views / unread inbox), writings
+  manager (search, filter, publish/unpublish, delete, email subscribers about a
+  post), new-post editor (`/admin/new`) with autosave drafts, cover-image
+  upload, scheduling + featured flag, edit page (`/admin/edit/[id]`), contact
+  inbox (read/unread, delete), and Hero/About site-settings editors — no
+  database touching required day-to-day.
 - **Craft details:** 8 paper-like themes, day/night toggle, reading progress +
   font-size control, likes with burst animation, view counters, global search
-  (`Ctrl/Cmd + K`), newsletter via Resend, scheduled publishing, cursor pup,
-  hanging-melody music charm, announcement bar, page transitions.
+  (`Ctrl/Cmd + K`), newsletter via Resend, scheduled publishing, cursor dot
+  trail, hanging-melody music charm, announcement bar, page transitions and
+  scroll reveals.
 
-Live site: add your Vercel URL in GitHub → About → Website after deploying
-(see §5). Source: `https://github.com/avni-karutoki/karutoki-blogs`.
+Source: `https://github.com/avni-karutoki/karutoki-blogs`
+
+---
 
 ## Stack (all free tiers)
 
@@ -30,57 +33,76 @@ Live site: add your Vercel URL in GitHub → About → Website after deploying
 |---|---|---|
 | Framework | Next.js 16, React 19, TypeScript | App Router, Server Components + Server Actions |
 | Styling | Tailwind CSS v4 | theme tokens in `src/app/globals.css` (`@theme inline`), no `tailwind.config.js` |
-| Animation | Framer Motion 11 | page transitions, reveals, hover micro-motion |
+| Animation | Framer Motion 11 | page transitions, scroll reveals, hover micro-motion |
 | Backend / DB / Auth / Storage | Supabase | Postgres + RLS, Auth, `post-images` bucket |
 | Letters | Resend (optional) | batch email to subscribers via `/api/admin/notify` |
-| Hosting | Vercel Hobby | free, native Next.js deploys |
 | VCS | GitHub | `main` branch, repo: `avni-karutoki/karutoki-blogs` |
+
+---
 
 ## 1. Install and run
 
 ```bash
 npm install
-npm run dev      # http://localhost:3000
+cp .env.example .env.local     # then fill in your Supabase values
+npm run dev                    # http://localhost:3000
 ```
 
 Other scripts: `npm run build`, `npm start`, `npm run lint`.
 
-### Environment variables (`.env.local`)
+> **Windows / PowerShell:** if `npm` is blocked with a `PSSecurityException`,
+> your machine's execution policy blocks `npm.ps1`. Either use **Command
+> Prompt** (`cmd` then `npm run dev`), run `npx next dev`, or allow scripts for
+> the session with `Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process`.
+
+### Environment variables
+
+Copy `.env.example` to `.env.local` and fill it in. `.env.local` is
+git-ignored — never commit real keys.
 
 | Key | Required | What it is |
 |---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | yes | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | yes | Supabase publishable key (safe client-side) |
+| `NEXT_PUBLIC_SUPABASE_URL` | **yes** | Supabase project URL (Project → Settings → API) |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | **yes** | Supabase publishable key (safe client-side) |
+| `NEXT_PUBLIC_SITE_URL` | recommended | canonical URL used in email links; falls back to the request host |
 | `RESEND_API_KEY` | only for newsletter broadcast | from resend.com |
 | `RESEND_FROM` | no | defaults to `Karutoki <onboarding@resend.dev>` (test sender only delivers to your own address until you verify a domain) |
-| `NEXT_PUBLIC_SITE_URL` | no | canonical URL used in email links; falls back to request host / `http://localhost:3000` |
 
-`.env.local` is git-ignored. Never put a Supabase *secret/service-role* key in this project.
+> Never put a Supabase *secret* / *service-role* key in this project. The
+> publishable key is the only key the site uses.
+
+---
 
 ## 2. Set up the database (one-time, ~5 min)
 
-Canonical schema lives at **`src/lib/supabase/schema.sql`**
-(`supabase/schema.sql` at the repo root is a legacy draft — don't use it).
+Canonical schema: **`supabase/schema.sql`** (single source of truth).
 
 1. Supabase dashboard → **SQL Editor → New query**.
-2. Paste the entire contents of `src/lib/supabase/schema.sql` and run it.
-   Creates `posts`, `newsletter_subscribers`, `contact_messages`,
-   `site_settings` (seeded `hero` + `about`), the public `post-images`
-   storage bucket, and RLS policies: public can read published posts +
-   site settings and submit contact/newsletter forms; only admins can manage
-   content. Cover uploads are admin-only.
+2. Paste the entire contents of `supabase/schema.sql` and run it.
+   Creates the `posts`, `newsletter_subscribers`, `contact_messages` and
+   `site_settings` tables (with seeded `hero` + `about` values), the public
+   `post-images` storage bucket, and all RLS policies:
+   - public can read published posts + site settings
+   - public can submit contact messages and subscribe to the newsletter
+   - only admins can manage posts, inbox, subscribers, settings and uploads
 3. Run **`supabase/migrate-scheduling-stats.sql`** in a second query.
-   Adds `scheduled_for`, `likes`, `views` plus the
+   Adds `scheduled_for`, `likes` and `views` columns plus the
    `increment_post_views` / `change_post_likes` RPCs and an optional
    `pg_cron` snippet (every 15 min). Safe to re-run. Until you run it, the
    site keeps working — scheduling, likes and view counts just stay disabled.
 
+Both files are **idempotent** — re-running them is safe if you ever need to
+fix a policy.
+
+---
+
 ## 3. Create your admin login
 
-Admin is **not** an `admins` table — it's a flag on your Supabase Auth user:
+Admin access is a flag on your Supabase Auth user, not a database table.
 `isAdminUser()` (`src/lib/supabase/authorization.ts`) checks
-`user.app_metadata.role === "admin"`. Never use `user_metadata` for this
-(users can edit their own).
+`user.app_metadata.role === "admin"`, and every RLS policy checks
+`(auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'`. Never use
+`user_metadata` for this — signed-in users can edit their own.
 
 1. Supabase → **Authentication → Users → Add user**. Create yourself with
    email + password, and copy the user `id`.
@@ -96,10 +118,11 @@ Admin is **not** an `admins` table — it's a flag on your Supabase Auth user:
    scheduled posts on load (`publishDuePosts()` in `src/lib/publishing.ts`),
    so scheduling works even without enabling `pg_cron`.
 
+---
+
 ## 4. Push to GitHub
 
-Remote is already `https://github.com/avni-karutoki/karutoki-blogs.git`
-(`main` branch). Normal flow:
+Remote is `https://github.com/avni-karutoki/karutoki-blogs.git` (`main`).
 
 ```bash
 git status --short --branch
@@ -108,13 +131,21 @@ git commit -m "Your message"
 git push origin main
 ```
 
+Set your git identity once so commits are attributed to your profile:
+
+```bash
+git config user.name  "Avni Goel"
+git config user.email "avnigoyal2014@gmail.com"
+```
+
 ### Suggested GitHub → About settings
 
 - **Description:** `A personal writing studio for poems, blogs & midnight talks — Next.js 16 + Supabase + Resend, with an admin dashboard, scheduling, themes & newsletter.`
-- **Website:** your `https://….vercel.app` URL after §5.
-- **Topics:** `nextjs` `typescript` `tailwindcss` `supabase` `resend`
-  `blog` `poetry` `framer-motion` `vercel`
-  
+- **Website:** your live URL once you deploy.
+- **Topics:** `nextjs` `typescript` `tailwindcss` `supabase` `resend` `blog` `poetry` `framer-motion`
+
+---
+
 ## Admin cheat-sheet
 
 | I want to… | Where |
@@ -127,7 +158,28 @@ git push origin main
 | Reword homepage hero / about | `/admin` → Settings tab → `site_settings` (`hero`, `about`; fallbacks in `src/lib/site.ts`) |
 | Schedule hands-free | optional `pg_cron` block at the bottom of `migrate-scheduling-stats.sql`; otherwise just open `/admin` and due posts flip live |
 
-## Routes & project structure
+---
+
+## Routes
+
+| Route | What it does |
+|---|---|
+| `/` | Home — hero, featured shelf, counts, about preview, newsletter |
+| `/poems` `/blogs` `/midnight-talks` | Category shelves |
+| `/writings` | All writings, filterable by category (`?category=poem`) |
+| `/writings/[slug]` | Single writing — reading progress, likes, views, share, prev/next |
+| `/tags` `/tags/[tag]` | Tag index + tag shelf |
+| `/archive` | Chronological archive, grouped by month |
+| `/search` | Full search page (also the global `Ctrl/Cmd + K` overlay) |
+| `/about` `/contact` | Static-ish pages |
+| `/admin` | Dashboard (admins only) |
+| `/admin/login` `/admin/new` `/admin/edit/[id]` | Studio pages |
+| `/api/admin/notify` | `POST { slug }` — admin-only Resend broadcast |
+| `/test-db` | Dev-only Supabase connectivity check (not linked in nav) |
+
+---
+
+## Project structure
 
 ```
 src/
@@ -142,7 +194,7 @@ src/
     archive/page.tsx            Chronological archive
     search/page.tsx             Full search page (+ global Ctrl/Cmd+K overlay)
     about/page.tsx  contact/page.tsx
-    test-db/page.tsx            Dev-only Supabase connectivity check (not linked in nav)
+    test-db/page.tsx            Dev-only Supabase connectivity check
     admin/
       page.tsx                  gate (redirects non-admins) + data load
       DashboardClient.tsx       overview / writings / inbox / settings tabs
@@ -151,28 +203,34 @@ src/
       edit/[id]/page.tsx        edit existing post
       login/page.tsx  logout-button.tsx  delete-button.tsx  delete-confirmation.tsx
     api/admin/notify/route.ts   admin-only Resend broadcast to newsletter_subscribers
-  components/                   Navbar, Footer, Hero, WritingCard, RecentWritings,
-                                SearchOverlay (+SearchContext), NewsletterForm, ContactForm,
-                                ThemeProvider/Toggle, FontSizeToggle, ReadingProgress,
-                                LikeButton, ViewCounter, ShareButtons, Reveal,
-                                PageTransition, CursorDog, HangingMelody,
-                                AnnouncementBar, SectionHeading, Swirl, ScrollToTop, …
+  components/
+    Navbar.tsx  Footer.tsx  Hero.tsx  WritingCard.tsx  RecentWritings.tsx
+    SearchOverlay.tsx  SearchContext.tsx  NewsletterForm.tsx  ContactForm.tsx
+    ThemeProvider.tsx  ThemeToggle.tsx  FontSizeToggle.tsx  ReadingProgress.tsx
+    LikeButton.tsx  ViewCounter.tsx  ShareButtons.tsx
+    Reveal.tsx                  scroll-reveal primitives (Reveal, StaggeredReveal, SpringReveal)
+    MotionPrimitives.tsx        animated primitives (MotionButton, MotionLink, MotionCard, …)
+    ScrollAnimations.tsx        scroll effects (ScrollProgress, Parallax, FloatingElement, …)
+    PageTransition.tsx  CursorDog.tsx  HangingMelody.tsx  AnnouncementBar.tsx
+    SectionHeading.tsx  Swirl.tsx  ScrollToTop.tsx  DecorativeDivider.tsx  …
   lib/
     types.ts                    Post, Category ('poem'|'blog'|'midnight-talk'), Hero/AboutSettings
     site.ts                     getSiteSetting() + DEFAULT_HERO / DEFAULT_ABOUT
     publishing.ts               publishDuePosts() — flips due scheduled posts live
     email.ts                    Resend batch sender (100/chunk) + letter HTML
+    flatten-children.ts         flattens nested JSX children (stagger helpers)
     supabase/client.ts          browser client
     supabase/server.ts          server client (Server Components / Actions)
     supabase/middleware.ts      session refresh + /admin protection
     supabase/authorization.ts   isAdminUser() — app_metadata.role === 'admin'
-    supabase/schema.sql         CANONICAL schema + RLS + storage (run this one)
 middleware.ts                   wires session refresh into every request
 supabase/
+  schema.sql                    CANONICAL schema + RLS + storage (run this first)
   migrate-scheduling-stats.sql  scheduling + likes/views upgrade (run second)
-  schema.sql                    legacy draft — superseded by src/lib/supabase/schema.sql
 public/logo/                    Karutoki logo assets
 ```
+
+---
 
 ## Design notes
 
@@ -185,11 +243,28 @@ public/logo/                    Karutoki logo assets
   `layout.tsx`, persisted as `karutoki-theme` in `localStorage`.
 - **Motion:** orchestrated fade-and-rise per route (`PageTransition.tsx`),
   scroll reveals, hover underlines/card lifts; `prefers-reduced-motion` fully
-  respected; transform-only animations for the hanging charm/pup so scrolling
-  stays smooth.
+  respected; transform-only animations so scrolling stays smooth.
+- **Hydration:** anything read from `localStorage` is resolved *after* mount so
+  the server HTML and the first client render always match. The theme and
+  reading size are applied pre-hydration by the inline script in
+  `layout.tsx`, so there is no flash.
 - **Images:** folded-photo placeholders (`.photo-stack`) until you upload
   covers to the `post-images` bucket; each post's `cover_image` holds the
   public URL. `next.config.ts` allows remote images and optimizes
   `framer-motion` imports.
 - **Content model:** `content` is plain text with line breaks; likes/views go
   through `SECURITY DEFINER` RPCs so anonymous readers can only bump counters.
+
+---
+
+## Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| `npm` blocked by PowerShell | Use `cmd`, or `npx next dev`, or `Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process` |
+| `column "reading_time" does not exist` | Re-run `supabase/schema.sql` — it adds every column with `if not exists` |
+| `Module not found: '@vercel/turbopack-next/internal/font/...'` | Delete the `.next` folder and restart `npm run dev` |
+| Admin can log in but cannot save posts | The RLS policies expect `app_metadata.role = 'admin'`. Re-run `supabase/schema.sql` and confirm step 2 of §3 was run |
+| "A tree hydrated but some attributes didn't match" | A client component is reading browser-only state during render. Read it in a `useEffect` instead |
+| Likes / views / scheduling do nothing | Run `supabase/migrate-scheduling-stats.sql` |
+| Newsletter emails go only to your own inbox | Resend's test sender is limited to your address — verify a domain and set `RESEND_FROM` |

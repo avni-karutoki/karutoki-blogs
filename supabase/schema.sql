@@ -1,20 +1,28 @@
--- Run this once in your Supabase project's SQL editor (Project → SQL Editor → New query).
+-- =========================================================
+-- KARUTOKI BLOGS — SUPABASE SCHEMA (canonical)
+-- =========================================================
+-- Run this once in your Supabase project's SQL editor
+-- (Project → SQL Editor → New query).
+--
+-- Safe to re-run: every statement is `if not exists`, `drop policy if
+-- exists` + `create policy`, or `create or replace`.
+--
 -- Everything here fits comfortably in Supabase's free tier.
+-- =========================================================
 
 create extension if not exists "pgcrypto";
 
--- ---------- ADMINS ----------
--- Whoever's email is in this table can log into /admin and manage posts.
--- Add your own email as a row once you've created your Supabase Auth user
--- (Authentication → Users → Add user), then run:
---   insert into admins (email) values ('you@example.com');
-create table if not exists admins (
-  email text primary key
-);
-
-alter table admins enable row level security;
--- No policies on purpose: this table is never read from the public site,
--- only referenced inside other tables' policies below.
+-- ---------- ADMIN AUTHORIZATION ----------
+-- Administrative access is a flag on the Supabase Auth user:
+--     (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+-- which is exactly what `isAdminUser()` in
+-- src/lib/supabase/authorization.ts checks. Never use `user_metadata`
+-- for this — signed-in users can edit their own user_metadata.
+--
+-- To become an admin (Supabase → Authentication → Users → Add user first):
+--   update auth.users
+--   set raw_app_meta_data = raw_app_meta_data || '{"role":"admin"}'::jsonb
+--   where id = 'PASTE-YOUR-USER-ID';
 
 -- ---------- POSTS ----------
 create table if not exists posts (
@@ -38,25 +46,38 @@ create index if not exists posts_created_at_idx on posts (created_at desc);
 
 alter table posts enable row level security;
 
+drop policy if exists "Public can read published posts" on posts;
+drop policy if exists "Admins can read all posts" on posts;
+drop policy if exists "Admins can insert posts" on posts;
+drop policy if exists "Admins can update posts" on posts;
+drop policy if exists "Admins can delete posts" on posts;
+
+-- Anyone can read published posts.
 create policy "Public can read published posts"
   on posts for select
   using (published = true);
 
+-- Admins can read everything, including drafts.
 create policy "Admins can read all posts"
   on posts for select
-  using (exists (select 1 from admins where email = auth.jwt() ->> 'email'));
+  to authenticated
+  using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 
 create policy "Admins can insert posts"
   on posts for insert
-  with check (exists (select 1 from admins where email = auth.jwt() ->> 'email'));
+  to authenticated
+  with check ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 
 create policy "Admins can update posts"
   on posts for update
-  using (exists (select 1 from admins where email = auth.jwt() ->> 'email'));
+  to authenticated
+  using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  with check ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 
 create policy "Admins can delete posts"
   on posts for delete
-  using (exists (select 1 from admins where email = auth.jwt() ->> 'email'));
+  to authenticated
+  using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 
 -- ---------- CONTACT MESSAGES ----------
 create table if not exists contact_messages (
@@ -69,7 +90,14 @@ create table if not exists contact_messages (
   created_at timestamptz not null default now()
 );
 
+create index if not exists contact_messages_created_idx on contact_messages (created_at desc);
+
 alter table contact_messages enable row level security;
+
+drop policy if exists "Anyone can submit a contact message" on contact_messages;
+drop policy if exists "Admins can read contact messages" on contact_messages;
+drop policy if exists "Admins can update contact messages" on contact_messages;
+drop policy if exists "Admins can delete contact messages" on contact_messages;
 
 create policy "Anyone can submit a contact message"
   on contact_messages for insert
@@ -77,7 +105,19 @@ create policy "Anyone can submit a contact message"
 
 create policy "Admins can read contact messages"
   on contact_messages for select
-  using (exists (select 1 from admins where email = auth.jwt() ->> 'email'));
+  to authenticated
+  using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+
+create policy "Admins can update contact messages"
+  on contact_messages for update
+  to authenticated
+  using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  with check ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+
+create policy "Admins can delete contact messages"
+  on contact_messages for delete
+  to authenticated
+  using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 
 -- ---------- NEWSLETTER SUBSCRIBERS ----------
 create table if not exists newsletter_subscribers (
@@ -88,15 +128,21 @@ create table if not exists newsletter_subscribers (
 
 alter table newsletter_subscribers enable row level security;
 
+drop policy if exists "Anyone can subscribe" on newsletter_subscribers;
+drop policy if exists "Admins can read subscribers" on newsletter_subscribers;
+
 create policy "Anyone can subscribe"
   on newsletter_subscribers for insert
   with check (true);
 
 create policy "Admins can read subscribers"
   on newsletter_subscribers for select
-  using (exists (select 1 from admins where email = auth.jwt() ->> 'email'));
+  to authenticated
+  using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 
 -- ---------- SITE SETTINGS ----------
+-- Key/value store for the editable Hero and About copy
+-- (managed from /admin → Hero & About Managers).
 create table if not exists site_settings (
   key text primary key,
   value jsonb not null,
@@ -105,46 +151,62 @@ create table if not exists site_settings (
 
 alter table site_settings enable row level security;
 
-create policy "Anyone can read site settings"
+drop policy if exists "Public can read site settings" on site_settings;
+drop policy if exists "Admins can update site settings" on site_settings;
+
+create policy "Public can read site settings"
   on site_settings for select
   using (true);
 
 create policy "Admins can update site settings"
   on site_settings for all
-  using (exists (select 1 from admins where email = auth.jwt() ->> 'email'))
-  with check (exists (select 1 from admins where email = auth.jwt() ->> 'email'));
+  to authenticated
+  using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  with check ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 
--- Insert default site settings
+-- Seed defaults. Existing rows are left untouched.
 insert into site_settings (key, value) values
   ('hero', '{"title": "Words that were never said.", "subtitle": "Poems, blogs, and midnight thoughts — a little corner for everything in between.", "buttonText": "Explore writings"}'::jsonb),
   ('about', '{"title": "A little, about me!", "subtitle": "The girl behind the words", "bio": "Hi, I''m Avni aka Karutoki. I write in between the moments when words feel like the only thing that makes sense."}'::jsonb)
 on conflict (key) do nothing;
 
--- ---------- SAMPLE DATA (optional — delete this block if you don't want it) ----------
-insert into posts (slug, title, excerpt, content, category, reading_time)
-values
-  (
-    'tired-of-the-same-sky',
-    'Tired of the same sky.',
-    'A little poem about the nights when you feel everything but nothing.',
-    E'Some nights feel strangely familiar.\n\nThe sky hasn''t changed,\nthe stars are still somewhere above,\nand yet something feels different.\n\nMaybe it''s not the sky\nthat we get tired of looking at.\n\nMaybe it''s everything\nwe carry underneath it.',
-    'poem',
-    '3 min'
-  ),
-  (
-    'the-quiet-in-between',
-    'The quiet in between.',
-    'A few words on stillness, and what it teaches you.',
-    E'The quiet in between two thoughts is where I have learned the most about myself.',
-    'blog',
-    '4 min'
-  ),
-  (
-    'maybe-it-will-be-different',
-    'Maybe it will be different.',
-    'Midnight thoughts on starting over.',
-    E'It is 1am and I am thinking about all the ways things could still turn out fine.',
-    'midnight-talk',
-    '2 min'
+-- ---------- POST IMAGE STORAGE ----------
+-- Public bucket for cover images. The public URL is stored on
+-- posts.cover_image.
+insert into storage.buckets (id, name, public)
+values ('post-images', 'post-images', true)
+on conflict (id) do update set public = true;
+
+drop policy if exists "Public can read post images" on storage.objects;
+drop policy if exists "Admins can upload post images" on storage.objects;
+drop policy if exists "Admins can update post images" on storage.objects;
+drop policy if exists "Admins can delete post images" on storage.objects;
+
+create policy "Public can read post images"
+  on storage.objects for select
+  using (bucket_id = 'post-images');
+
+create policy "Admins can upload post images"
+  on storage.objects for insert to authenticated
+  with check (
+    bucket_id = 'post-images'
+    and (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+  );
+
+create policy "Admins can update post images"
+  on storage.objects for update to authenticated
+  using (
+    bucket_id = 'post-images'
+    and (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
   )
-on conflict (slug) do nothing;
+  with check (
+    bucket_id = 'post-images'
+    and (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+  );
+
+create policy "Admins can delete post images"
+  on storage.objects for delete to authenticated
+  using (
+    bucket_id = 'post-images'
+    and (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+  );
