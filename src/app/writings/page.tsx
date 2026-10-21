@@ -1,8 +1,10 @@
 import Link from "next/link";
-import Reveal from "@/components/Reveal";
+import Reveal, { SpringReveal } from "@/components/Reveal";
 import { createPublicClient as createClient } from "@/lib/supabase/server";
 import type { Post } from "@/lib/types";
 import { categoryLabel } from "@/lib/types";
+import { FloatingElement } from "@/components/ScrollAnimations";
+import { StaggerContainer } from "@/components/ScrollAnimations";
 
 const tabs = [
   { key: "all", label: "All" },
@@ -42,7 +44,10 @@ export default async function WritingsPage({  searchParams,
   const posts = await getPosts(active);
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-14">
+    <div className="mx-auto max-w-5xl px-6 py-14 relative">
+      <FloatingElement amplitude={20} duration={8} delay={0} className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-[var(--accent-soft)] blur-2xl opacity-30"><div /></FloatingElement>
+      <FloatingElement amplitude={15} duration={12} delay={1} className="absolute -bottom-10 -left-10 h-24 w-24 rounded-full bg-[var(--accent-soft)] blur-2xl opacity-30"><div /></FloatingElement>
+      
       <Reveal>
         <p className="eyebrow">My writings</p>
         <h1 className="mt-2">Words, I have left behind.</h1>
@@ -51,29 +56,25 @@ export default async function WritingsPage({  searchParams,
         </p>
       </Reveal>
 
-      <div className="mt-10 flex gap-7 border-b border-[var(--border-color)] font-sans text-[12px] font-semibold uppercase tracking-[0.2em]">
+      <div className="mt-10 flex gap-7 border-b border-[var(--border-color)] font-sans text-[12px] font-semibold uppercase tracking-[0.2em] relative z-10">
         {tabs.map((t) => (
           <Link
             key={t.key}
             href={t.key === "all" ? "/writings" : `/writings?category=${encodeURIComponent(t.key)}`}
-            className={`-mb-px border-b pb-3 transition-colors ${
-              active === t.key
-                ? "border-[var(--accent)] text-[var(--text-heading)]"
-                : "border-transparent text-[var(--text-faint)] hover:text-[var(--text-heading)]"
-            }`}
+            className={`-mb-px border-b pb-3 transition-colors ${active === t.key ? "border-[var(--accent)] text-[var(--text-heading)]" : "border-transparent text-[var(--text-faint)] hover:text-[var(--text-heading)]"}`}
           >
             {t.label}
           </Link>
         ))}
       </div>
 
-      <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <StaggerContainer stagger={0.08} delay={0.1} className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {posts.length === 0 && (
           <p className="body-text col-span-full">Nothing here yet under this theme.</p>
         )}
         {posts.map((post, i) => (
-          <Reveal key={post.slug} delay={Math.min(i, 5) * 0.06}>
-            <Link href={`/writings/${post.slug}`} className="vintage-card group block h-full p-5">
+          <SpringReveal key={post.slug} delay={Math.min(i, 5) * 0.06} className="vintage-card group block h-full p-5">
+            <Link href={`/writings/${post.slug}`} className="block h-full">
               {post.cover_image ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -95,9 +96,9 @@ export default async function WritingsPage({  searchParams,
                 {post.reading_time ? `${post.reading_time} read` : ""}
               </p>
             </Link>
-          </Reveal>
+          </SpringReveal>
         ))}
-      </div>
+      </StaggerContainer>
     </div>
   );
 }

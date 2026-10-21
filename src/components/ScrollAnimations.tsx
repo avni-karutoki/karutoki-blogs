@@ -1,7 +1,26 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring, type MotionValue } from "framer-motion";
+
+function omitAnimationProps<T extends object>(props: T): Omit<T, "onAnimationStart" | "onAnimationEnd" | "onAnimationIteration" | "onDragStart" | "onDrag" | "onDragEnd" | "onDragEnter" | "onDragLeave" | "onDragOver" | "onDrop" | "onHoverStart" | "onHoverEnd"> {
+  const { 
+    onAnimationStart, 
+    onAnimationEnd, 
+    onAnimationIteration, 
+    onDragStart, 
+    onDrag, 
+    onDragEnd, 
+    onDragEnter, 
+    onDragLeave, 
+    onDragOver, 
+    onDrop, 
+    onHoverStart, 
+    onHoverEnd,
+    ...rest 
+  } = props as any;
+  return rest;
+}
 
 /** Enhanced scroll progress bar with gradient and glow */
 export function ScrollProgress() {
@@ -9,6 +28,7 @@ export function ScrollProgress() {
   const progress = useSpring(scrollYProgress, { stiffness: 500, damping: 30 });
   
   const gradientX = useTransform(progress, [0, 1], ["-100%", "100%"]);
+  const scaleX = useTransform(progress, [0, 1], [0, 1]) as MotionValue<number>;
 
   return (
     <motion.div
@@ -29,7 +49,7 @@ export function ScrollProgress() {
           backgroundPositionX: gradientX,
           willChange: "transform, background-position",
         }}
-        animate={{ scaleX: progress }}
+        animate={{ scaleX: scaleX as any }}
       />
     </motion.div>
   );
@@ -61,6 +81,7 @@ export function ScrollDirectionIndicator() {
       }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       style={{ filter: "drop-shadow(0 4px 8px var(--shadow-card))" }}
+      {...omitAnimationProps({})}
     >
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--accent)]">
         <path d="M12 5v14M19 12l-7 7-7-7" />
@@ -88,7 +109,7 @@ export function Parallax({
         willChange: "transform",
         ...props.style 
       }}
-      {...props}
+      {...omitAnimationProps(props)}
     >
       {children}
     </motion.div>
@@ -117,7 +138,7 @@ export function ScrollScale({
         willChange: "transform, opacity",
         ...props.style 
       }}
-      {...props}
+      {...omitAnimationProps(props)}
     >
       {children}
     </motion.div>
@@ -142,7 +163,7 @@ export function ScrollHorizontal({
         willChange: "transform",
         ...props.style 
       }}
-      {...props}
+      {...omitAnimationProps(props)}
     >
       {children}
     </motion.div>
@@ -170,7 +191,7 @@ export function FloatingElement({
         repeatType: "loop"
       }}
       style={{ willChange: "transform", ...props.style }}
-      {...props}
+      {...omitAnimationProps(props)}
     >
       {children}
     </motion.div>
@@ -219,7 +240,7 @@ export function Magnetic({
       animate={{ x: position.x, y: position.y }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       style={{ willChange: "transform", ...props.style }}
-      {...props}
+      {...omitAnimationProps(props)}
     >
       {children}
     </motion.div>
@@ -238,7 +259,7 @@ export function TextReveal({
   const words = split === "words" ? children.split(" ") : children.split("");
   
   return (
-    <span className={`${className} inline-flex`} {...props}>
+    <span className={`${className} inline-flex`} {...omitAnimationProps(props)}>
       {words.map((word, i) => (
         <motion.span
           key={i}
@@ -280,7 +301,7 @@ export function ScrollAwareHeader({
         willChange: "transform, opacity",
         ...props.style 
       }}
-      {...props}
+      {...omitAnimationProps(props)}
     >
       {children}
     </motion.header>
@@ -298,7 +319,7 @@ export function StaggerContainer({
   const childArray = Array.isArray(children) ? children : [children];
   
   return (
-    <div className={className} {...props}>
+    <div className={className} {...omitAnimationProps(props)}>
       {childArray.map((child, i) => (
         <motion.div
           key={child.key || i}

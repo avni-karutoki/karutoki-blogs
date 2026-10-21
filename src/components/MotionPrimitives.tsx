@@ -1,10 +1,41 @@
 "use client";
 
 import { motion, type HTMLMotionProps } from "framer-motion";
-import { forwardRef, type Ref } from "react";
+import { forwardRef, useEffect, useRef, useState, type Ref } from "react";
+
+// Types that remove problematic framer-motion event handler props
+type CleanAnchorProps = Omit<
+  React.AnchorHTMLAttributes<HTMLAnchorElement>,
+  "onAnimationStart" | "onAnimationEnd" | "onAnimationIteration" | "onDragStart" | "onDrag" | "onDragEnd" | "onDragEnter" | "onDragLeave" | "onDragOver" | "onDrop" | "onHoverStart" | "onHoverEnd" | "whileHover" | "whileTap" | "whileFocus" | "whileDrag" | "animate" | "initial" | "exit" | "transition" | "variants"
+>;
+
+type CleanButtonProps = Omit<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  "onAnimationStart" | "onAnimationEnd" | "onAnimationIteration" | "onDragStart" | "onDrag" | "onDragEnd" | "onDragEnter" | "onDragLeave" | "onDragOver" | "onDrop" | "onHoverStart" | "onHoverEnd" | "whileHover" | "whileTap" | "whileFocus" | "whileDrag" | "animate" | "initial" | "exit" | "transition" | "variants"
+>;
+
+type CleanInputProps = Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "onAnimationStart" | "onAnimationEnd" | "onAnimationIteration" | "onDragStart" | "onDrag" | "onDragEnd" | "onDragEnter" | "onDragLeave" | "onDragOver" | "onDrop" | "onHoverStart" | "onHoverEnd" | "whileHover" | "whileTap" | "whileFocus" | "whileDrag" | "animate" | "initial" | "exit" | "transition" | "variants"
+>;
+
+type CleanTextareaProps = Omit<
+  React.TextareaHTMLAttributes<HTMLTextAreaElement>,
+  "onAnimationStart" | "onAnimationEnd" | "onAnimationIteration" | "onDragStart" | "onDrag" | "onDragEnd" | "onDragEnter" | "onDragLeave" | "onDragOver" | "onDrop" | "onHoverStart" | "onHoverEnd" | "whileHover" | "whileTap" | "whileFocus" | "whileDrag" | "animate" | "initial" | "exit" | "transition" | "variants"
+>;
+
+type CleanDivProps = Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  "onAnimationStart" | "onAnimationEnd" | "onAnimationIteration" | "onDragStart" | "onDrag" | "onDragEnd" | "onDragEnter" | "onDragLeave" | "onDragOver" | "onDrop" | "onHoverStart" | "onHoverEnd" | "whileHover" | "whileTap" | "whileFocus" | "whileDrag" | "animate" | "initial" | "exit" | "transition" | "variants"
+>;
+
+type CleanSpanProps = Omit<
+  React.HTMLAttributes<HTMLSpanElement>,
+  "onAnimationStart" | "onAnimationEnd" | "onAnimationIteration" | "onDragStart" | "onDrag" | "onDragEnd" | "onDragEnter" | "onDragLeave" | "onDragOver" | "onDrop" | "onHoverStart" | "onHoverEnd" | "whileHover" | "whileTap" | "whileFocus" | "whileDrag" | "animate" | "initial" | "exit" | "transition" | "variants"
+>;
 
 /** Button with press/tap animation */
-export const MotionButton = forwardRef<HTMLButtonElement, HTMLMotionProps<"button">>(
+export const MotionButton = forwardRef<HTMLButtonElement, CleanButtonProps & { whileTap?: any; whileHover?: any }>(
   ({ children, className = "", whileTap, whileHover, ...props }, ref) => (
     <motion.button
       ref={ref}
@@ -12,7 +43,7 @@ export const MotionButton = forwardRef<HTMLButtonElement, HTMLMotionProps<"butto
       whileTap={whileTap ?? { scale: 0.97 }}
       whileHover={whileHover ?? { scale: 1.02 }}
       transition={{ type: "spring", stiffness: 400, damping: 17 }}
-      style={{ willChange: "transform", ...props.style }}
+      style={{ willChange: "transform", ...(props.style as React.CSSProperties) }}
       {...props}
     >
       {children}
@@ -22,7 +53,7 @@ export const MotionButton = forwardRef<HTMLButtonElement, HTMLMotionProps<"butto
 MotionButton.displayName = "MotionButton";
 
 /** Link with press/tap animation */
-export const MotionLink = forwardRef<HTMLAnchorElement, HTMLMotionProps<"a">>(
+export const MotionLink = forwardRef<HTMLAnchorElement, CleanAnchorProps & { whileTap?: any; whileHover?: any }>(
   ({ children, className = "", whileTap, whileHover, ...props }, ref) => (
     <motion.a
       ref={ref}
@@ -30,7 +61,7 @@ export const MotionLink = forwardRef<HTMLAnchorElement, HTMLMotionProps<"a">>(
       whileTap={whileTap ?? { scale: 0.98 }}
       whileHover={whileHover ?? { scale: 1.01 }}
       transition={{ type: "spring", stiffness: 400, damping: 17 }}
-      style={{ willChange: "transform", ...props.style }}
+      style={{ willChange: "transform", ...(props.style as React.CSSProperties) }}
       {...props}
     >
       {children}
@@ -40,17 +71,22 @@ export const MotionLink = forwardRef<HTMLAnchorElement, HTMLMotionProps<"a">>(
 MotionLink.displayName = "MotionLink";
 
 /** Card with hover lift and shadow */
-export const MotionCard = forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
-  ({ children, className = "", lift = 8, ...props }, ref) => (
+interface MotionCardProps extends CleanDivProps {
+  lift?: number;
+  whileHover?: any;
+}
+
+export const MotionCard = forwardRef<HTMLDivElement, MotionCardProps>(
+  ({ children, className = "", lift = 8, whileHover, ...props }, ref) => (
     <motion.div
       ref={ref}
       className={className}
-      whileHover={{ 
+      whileHover={whileHover ?? { 
         y: -lift,
         boxShadow: "var(--shadow-card)",
         transition: { type: "spring", stiffness: 300, damping: 20 }
       }}
-      style={{ willChange: "transform, box-shadow", ...props.style }}
+      style={{ willChange: "transform, box-shadow", ...(props.style as React.CSSProperties) }}
       {...props}
     >
       {children}
@@ -60,14 +96,14 @@ export const MotionCard = forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
 MotionCard.displayName = "MotionCard";
 
 /** Input with focus animation */
-export const MotionInput = forwardRef<HTMLInputElement, HTMLMotionProps<"input">>(
+export const MotionInput = forwardRef<HTMLInputElement, CleanInputProps & { whileFocus?: any }>(
   ({ className = "", whileFocus, ...props }, ref) => (
     <motion.input
       ref={ref}
       className={className}
       whileFocus={whileFocus ?? { scale: 1.01, borderColor: "var(--accent)" }}
       transition={{ duration: 0.2 }}
-      style={{ willChange: "transform, border-color", ...props.style }}
+      style={{ willChange: "transform, border-color", ...(props.style as React.CSSProperties) }}
       {...props}
     />
   )
@@ -75,14 +111,14 @@ export const MotionInput = forwardRef<HTMLInputElement, HTMLMotionProps<"input">
 MotionInput.displayName = "MotionInput";
 
 /** Textarea with focus animation */
-export const MotionTextarea = forwardRef<HTMLTextAreaElement, HTMLMotionProps<"textarea">>(
+export const MotionTextarea = forwardRef<HTMLTextAreaElement, CleanTextareaProps & { whileFocus?: any }>(
   ({ className = "", whileFocus, ...props }, ref) => (
     <motion.textarea
       ref={ref}
       className={className}
       whileFocus={whileFocus ?? { scale: 1.01, borderColor: "var(--accent)" }}
       transition={{ duration: 0.2 }}
-      style={{ willChange: "transform, border-color", ...props.style }}
+      style={{ willChange: "transform, border-color", ...(props.style as React.CSSProperties) }}
       {...props}
     />
   )
@@ -95,7 +131,7 @@ export function MotionIcon({
   className = "", 
   animateOnHover = "rotate",
   ...props 
-}: { children: React.ReactNode; className?: string; animateOnHover?: "rotate" | "pulse" | "bounce" }) {
+}: { children: React.ReactNode; className?: string; animateOnHover?: "rotate" | "pulse" | "bounce" } & CleanSpanProps) {
   const hoverVariants = {
     rotate: { rotate: 180, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
     pulse: { scale: [1, 1.2, 1], transition: { duration: 0.5, ease: "easeInOut" } },
@@ -115,6 +151,13 @@ export function MotionIcon({
 }
 
 /** Reveal on scroll with configurable animation */
+interface ScrollRevealProps extends CleanDivProps {
+  children: React.ReactNode;
+  variant?: "fadeUp" | "fadeDown" | "fadeLeft" | "fadeRight" | "scale" | "flip" | "blur";
+  delay?: number;
+  duration?: number;
+}
+
 export function ScrollReveal({
   children,
   className = "",
@@ -122,13 +165,7 @@ export function ScrollReveal({
   delay = 0,
   duration = 0.6,
   ...props
-}: { 
-  children: React.ReactNode; 
-  className?: string; 
-  variant?: "fadeUp" | "fadeDown" | "fadeLeft" | "fadeRight" | "scale" | "flip" | "blur";
-  delay?: number;
-  duration?: number;
-} & React.HTMLAttributes<HTMLDivElement>) {
+}: ScrollRevealProps) {
   const variants = {
     fadeUp: { initial: { opacity: 0, y: 30 }, animate: { opacity: 1, y: 0 } },
     fadeDown: { initial: { opacity: 0, y: -30 }, animate: { opacity: 1, y: 0 } },
@@ -157,6 +194,13 @@ export function ScrollReveal({
 }
 
 /** Staggered children reveal */
+interface StaggerGroupProps extends CleanDivProps {
+  children: React.ReactNode;
+  stagger?: number;
+  delay?: number;
+  variant?: "fadeUp" | "fadeDown" | "fadeLeft" | "fadeRight" | "scale" | "flip" | "blur";
+}
+
 export function StaggerGroup({
   children,
   className = "",
@@ -164,13 +208,7 @@ export function StaggerGroup({
   delay = 0,
   variant = "fadeUp",
   ...props
-}: { 
-  children: React.ReactNode; 
-  className?: string; 
-  stagger?: number; 
-  delay?: number;
-  variant?: "fadeUp" | "fadeDown" | "fadeLeft" | "fadeRight" | "scale" | "flip" | "blur";
-} & React.HTMLAttributes<HTMLDivElement>) {
+}: StaggerGroupProps) {
   const childArray = Array.isArray(children) ? children : [children];
 
   return (
@@ -194,7 +232,7 @@ export function PageEntrance({
   className = "",
   delay = 0,
   ...props 
-}: { children: React.ReactNode; className?: string; delay?: number } & React.HTMLAttributes<HTMLDivElement>) {
+}: { children: React.ReactNode; className?: string; delay?: number } & CleanDivProps) {
   return (
     <motion.div
       className={className}
@@ -220,7 +258,7 @@ export function Skeleton({
   height = "1rem",
   borderRadius = "0.5rem",
   ...props 
-}: { className?: string; width?: string; height?: string; borderRadius?: string } & React.HTMLAttributes<HTMLDivElement>) {
+}: { className?: string; width?: string; height?: string; borderRadius?: string } & CleanDivProps) {
   return (
     <motion.div
       className={className}
@@ -248,7 +286,7 @@ export function CountUp({
   delay = 0,
   formatter = (v: number) => v.toLocaleString(),
   ...props 
-}: { value: number; className?: string; duration?: number; delay?: number; formatter?: (v: number) => string } & React.HTMLAttributes<HTMLSpanElement>) {
+}: { value: number; className?: string; duration?: number; delay?: number; formatter?: (v: number) => string } & CleanSpanProps) {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -257,7 +295,7 @@ export function CountUp({
     const animate = () => {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / (duration * 1000), 1);
-      const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+      const eased = 1 - Math.pow(1 - progress, 3);
       setCount(Math.floor(value * eased));
       if (progress < 1) frame = requestAnimationFrame(animate);
       else setCount(value);
@@ -277,7 +315,7 @@ export function Typewriter({
   delay = 0,
   cursor = true,
   ...props 
-}: { text: string; className?: string; speed?: number; delay?: number; cursor?: boolean } & React.HTMLAttributes<HTMLSpanElement>) {
+}: { text: string; className?: string; speed?: number; delay?: number; cursor?: boolean } & CleanSpanProps) {
   const [displayText, setDisplayText] = useState("");
 
   useEffect(() => {
@@ -311,7 +349,7 @@ export function FloatingLabelInput({
   onChange,
   className = "",
   ...props
-}: { label: string; value: string; onChange: (v: string) => void; className?: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+}: { label: string; value: string; onChange: (v: string) => void; className?: string } & CleanInputProps) {
   const [focused, setFocused] = useState(false);
   const hasValue = value.length > 0;
 

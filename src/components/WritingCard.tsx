@@ -1,6 +1,7 @@
-import React from "react";
-import Link from "next/link";
-import { MotionCard, ScrollReveal } from "./MotionPrimitives";
+"use client";
+
+import { motion } from "framer-motion";
+import { MotionCard, MotionLink, ScrollReveal } from "./MotionPrimitives";
 
 interface WritingCardProps {
   category: string;

@@ -1,9 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { ReactNode, HTMLAttributes } from "react";
+import type { ReactNode } from "react";
 
-interface RevealProps extends HTMLAttributes<HTMLDivElement> {
+type CleanHTMLProps<Element extends HTMLElement> = Omit<
+  React.HTMLAttributes<Element>,
+  "onAnimationStart" | "onAnimationEnd" | "onAnimationIteration" | "onDragStart" | "onDrag" | "onDragEnd" | "onDragEnter" | "onDragLeave" | "onDragOver" | "onDrop" | "onHoverStart" | "onHoverEnd"
+>;
+
+interface RevealProps extends CleanHTMLProps<HTMLDivElement> {
   children: ReactNode;
   delay?: number;
   y?: number;
@@ -45,12 +50,7 @@ export default function Reveal({
       style={{ willChange: "transform, opacity" }}
       {...props}
     >
-      {typeof children === "function" ? children({ stagger }) : 
-       Array.isArray(children) ? children.map((child, i) => 
-         React.cloneElement(child as React.ReactElement<any>, {
-           style: { ...child.props.style, transitionDelay: `${delay + i * stagger}s` }
-         })) : 
-       children}
+      {children}
     </motion.div>
   );
 }
