@@ -245,7 +245,7 @@ export default function Navbar() {
           <p className="mb-3 font-sans text-[11px] uppercase tracking-[0.22em] text-[var(--text-faint)]">Follow</p>
           <div className="flex gap-4 font-sans text-[11px] font-semibold tracking-[0.14em] text-[var(--accent)]">
             <MotionLink href="https://www.instagram.com/avni.karutoki/" target="_blank" rel="noreferrer" whileHover={{ y: -2 }} whileTap={{ scale: 0.9 }}>IG</MotionLink>
-            <MotionLink href="https://pin.it/1WBBgualJ" target="_blank" rel="noreferrer" whileHover={{ y: -2 }} whileTap={{ scale: 0.9 }}>PIN</MotionLink>
+            <MotionLink href="https://substack.com/@karutoki" target="_blank" rel="noreferrer" whileHover={{ y: -2 }} whileTap={{ scale: 0.9 }}>SUB</MotionLink>
             <MotionLink href="https://www.linkedin.com/in/avni-karutoki" target="_blank" rel="noreferrer" whileHover={{ y: -2 }} whileTap={{ scale: 0.9 }}>IN</MotionLink>
             <MotionLink href="https://x.com/avnikaruroki" target="_blank" rel="noreferrer" whileHover={{ y: -2 }} whileTap={{ scale: 0.9 }}>X</MotionLink>
           </div>
