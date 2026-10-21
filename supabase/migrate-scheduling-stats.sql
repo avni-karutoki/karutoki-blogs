@@ -6,6 +6,7 @@
 
 -- ---------- 1. SCHEDULING ----------
 alter table posts
+  add column if not exists reading_time text,
   add column if not exists scheduled_for timestamptz;
 
 create index if not exists posts_scheduled_for_idx

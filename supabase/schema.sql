@@ -23,11 +23,14 @@ create table if not exists posts (
   title text not null,
   excerpt text,
   content text not null,
-  category text not null default 'poems', -- 'poems' | 'blogs' | 'midnight talks'
+  category text not null default 'poem', -- 'poem' | 'blog' | 'midnight-talk'
   cover_image text,                        -- public Supabase Storage URL, optional
   reading_time text,                       -- e.g. '3 min'
+  tags text[] default '{}',
+  featured boolean not null default false,
   published boolean not null default true,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 
 create index if not exists posts_category_idx on posts (category);
@@ -62,6 +65,7 @@ create table if not exists contact_messages (
   email text not null,
   subject text,
   message text not null,
+  read boolean not null default false,
   created_at timestamptz not null default now()
 );
 
@@ -75,22 +79,46 @@ create policy "Admins can read contact messages"
   on contact_messages for select
   using (exists (select 1 from admins where email = auth.jwt() ->> 'email'));
 
--- ---------- NEWSLETTER SIGNUPS ----------
-create table if not exists newsletter_signups (
+-- ---------- NEWSLETTER SUBSCRIBERS ----------
+create table if not exists newsletter_subscribers (
   id uuid primary key default gen_random_uuid(),
   email text unique not null,
   created_at timestamptz not null default now()
 );
 
-alter table newsletter_signups enable row level security;
+alter table newsletter_subscribers enable row level security;
 
-create policy "Anyone can sign up"
-  on newsletter_signups for insert
+create policy "Anyone can subscribe"
+  on newsletter_subscribers for insert
   with check (true);
 
-create policy "Admins can read newsletter signups"
-  on newsletter_signups for select
+create policy "Admins can read subscribers"
+  on newsletter_subscribers for select
   using (exists (select 1 from admins where email = auth.jwt() ->> 'email'));
+
+-- ---------- SITE SETTINGS ----------
+create table if not exists site_settings (
+  key text primary key,
+  value jsonb not null,
+  updated_at timestamptz not null default now()
+);
+
+alter table site_settings enable row level security;
+
+create policy "Anyone can read site settings"
+  on site_settings for select
+  using (true);
+
+create policy "Admins can update site settings"
+  on site_settings for all
+  using (exists (select 1 from admins where email = auth.jwt() ->> 'email'))
+  with check (exists (select 1 from admins where email = auth.jwt() ->> 'email'));
+
+-- Insert default site settings
+insert into site_settings (key, value) values
+  ('hero', '{"title": "Words that were never said.", "subtitle": "Poems, blogs, and midnight thoughts — a little corner for everything in between.", "buttonText": "Explore writings"}'::jsonb),
+  ('about', '{"title": "A little, about me!", "subtitle": "The girl behind the words", "bio": "Hi, I''m Avni aka Karutoki. I write in between the moments when words feel like the only thing that makes sense."}'::jsonb)
+on conflict (key) do nothing;
 
 -- ---------- SAMPLE DATA (optional — delete this block if you don't want it) ----------
 insert into posts (slug, title, excerpt, content, category, reading_time)
@@ -100,7 +128,7 @@ values
     'Tired of the same sky.',
     'A little poem about the nights when you feel everything but nothing.',
     E'Some nights feel strangely familiar.\n\nThe sky hasn''t changed,\nthe stars are still somewhere above,\nand yet something feels different.\n\nMaybe it''s not the sky\nthat we get tired of looking at.\n\nMaybe it''s everything\nwe carry underneath it.',
-    'poems',
+    'poem',
     '3 min'
   ),
   (
@@ -108,7 +136,7 @@ values
     'The quiet in between.',
     'A few words on stillness, and what it teaches you.',
     E'The quiet in between two thoughts is where I have learned the most about myself.',
-    'blogs',
+    'blog',
     '4 min'
   ),
   (
@@ -116,7 +144,7 @@ values
     'Maybe it will be different.',
     'Midnight thoughts on starting over.',
     E'It is 1am and I am thinking about all the ways things could still turn out fine.',
-    'midnight talks',
+    'midnight-talk',
     '2 min'
   )
 on conflict (slug) do nothing;

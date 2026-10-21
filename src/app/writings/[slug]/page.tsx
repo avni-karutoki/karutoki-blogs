@@ -31,14 +31,19 @@ export async function generateStaticParams() {
 }
 
 async function getPost(slug: string): Promise<Post | null> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("posts")
-    .select("*")
-    .eq("slug", slug)
-    .eq("published", true)
-    .single();
-  return data as Post | null;
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("posts")
+      .select("*")
+      .eq("slug", slug)
+      .eq("published", true)
+      .single();
+    if (error || !data) return null;
+    return data as Post;
+  } catch {
+    return null;
+  }
 }
 
 async function getNeighbours(createdAt: string) {
