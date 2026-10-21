@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ScrollReveal, StaggerGroup, FloatingElement, MotionLink } from "./MotionPrimitives";
+import { FloatingElement as FloatingElementScroll } from "./ScrollAnimations";
 import type { HeroSettings, Post } from "@/lib/types";
 import { categoryLabel } from "@/lib/types";
 
@@ -25,8 +26,8 @@ export default function Hero({
     <section className="relative overflow-hidden">
       {/* ambient glows — static, GPU-composited (no infinite repaint) */}
       <div aria-hidden className="pointer-events-none absolute inset-0">
-        <FloatingElement amplitude={20} duration={8} delay={0} className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[var(--accent-soft)] blur-2xl" />
-        <FloatingElement amplitude={15} duration={10} delay={1} className="absolute -right-24 top-24 h-80 w-80 rounded-full bg-[var(--accent-soft)] blur-2xl" />
+        <FloatingElementScroll amplitude={20} duration={8} delay={0} className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[var(--accent-soft)] blur-2xl" />
+        <FloatingElementScroll amplitude={15} duration={10} delay={1} className="absolute -right-24 top-24 h-80 w-80 rounded-full bg-[var(--accent-soft)] blur-2xl" />
       </div>
 
       <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-6 pb-14 pt-14 md:grid-cols-[1.05fr_0.95fr] md:pb-20 md:pt-20">
@@ -108,7 +109,7 @@ export default function Hero({
 
           {/* floating cards — float only when motion is allowed */}
           {latest && (
-            <FloatingElement amplitude={8} duration={5} delay={0.5} className="vintage-card absolute -left-4 top-8 max-w-[210px] rounded-2xl! p-4 motion-safe:animate-float sm:-left-10">
+            <FloatingElementScroll amplitude={8} duration={5} delay={0.5} className="vintage-card absolute -left-4 top-8 max-w-[210px] rounded-2xl! p-4 motion-safe:animate-float sm:-left-10">
               <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
                 {categoryLabel(latest.category)} · Latest
               </p>
@@ -118,7 +119,7 @@ export default function Hero({
             </FloatingElement>
           )}
           {second && (
-            <FloatingElement amplitude={6} duration={7} delay={1.2} className="vintage-card absolute -bottom-5 -right-2 max-w-[200px] rounded-2xl! p-4 motion-safe:animate-float sm:-right-6">
+            <FloatingElementScroll amplitude={6} duration={7} delay={1.2} className="vintage-card absolute -bottom-5 -right-2 max-w-[200px] rounded-2xl! p-4 motion-safe:animate-float sm:-right-6">
               <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
                 {categoryLabel(second.category)}
               </p>
