@@ -15,7 +15,9 @@ interface WritingPost {
   created_at: string;
 }
 
-// Fallback items if Supabase table is empty during development
+// Fallback items if Supabase table is empty during development.
+// NOTE: `created_at` is a fixed string — using `new Date()` at module scope
+// would produce different values on the server and the client.
 const defaultWritings: WritingPost[] = [
   {
     id: "1",
@@ -24,7 +26,7 @@ const defaultWritings: WritingPost[] = [
     category: "poem",
     excerpt: "A little poem about the nights when you feel everything, yet somehow feel nothing at all.",
     content: "Some nights feel strangely familiar...",
-    created_at: new Date().toISOString(),
+    created_at: "2026-01-01T00:00:00.000Z",
   },
   {
     id: "2",
@@ -33,7 +35,7 @@ const defaultWritings: WritingPost[] = [
     category: "blog",
     excerpt: "Sometimes the moments between everything are the ones worth remembering.",
     content: "There is a quietness to early mornings...",
-    created_at: new Date().toISOString(),
+    created_at: "2026-01-01T00:00:00.000Z",
   },
   {
     id: "3",
@@ -42,7 +44,7 @@ const defaultWritings: WritingPost[] = [
     category: "midnight-talk",
     excerpt: "A midnight thought about hope, uncertainty, and the possibility of tomorrow.",
     content: "When the clock strikes 2 AM...",
-    created_at: new Date().toISOString(),
+    created_at: "2026-01-01T00:00:00.000Z",
   },
   {
     id: "4",
@@ -51,7 +53,7 @@ const defaultWritings: WritingPost[] = [
     category: "poem",
     excerpt: "Some feelings remain between the lines, waiting for someone to read them.",
     content: "Words spoken in silence...",
-    created_at: new Date().toISOString(),
+    created_at: "2026-01-01T00:00:00.000Z",
   },
 ];
 

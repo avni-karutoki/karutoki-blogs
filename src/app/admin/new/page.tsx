@@ -47,31 +47,18 @@ function estimateReadingTime(content: string) {
 
 export default function NewPostPage() {
   const router = useRouter();
-  const [title, setTitle] = useState(() =>
-    typeof window === "undefined" ? "" : (loadDraft()?.title ?? "")
-  );
-  const [excerpt, setExcerpt] = useState(() =>
-    typeof window === "undefined" ? "" : (loadDraft()?.excerpt ?? "")
-  );
-  const [content, setContent] = useState(() =>
-    typeof window === "undefined" ? "" : (loadDraft()?.content ?? "")
-  );
-  const [category, setCategory] = useState<Category>(() =>
-    typeof window === "undefined" ? "poem" : (loadDraft()?.category ?? "poem")
-  );
-  const [tags, setTags] = useState(() =>
-    typeof window === "undefined" ? "" : (loadDraft()?.tags ?? "")
-  );
-  const [featured, setFeatured] = useState(() =>
-    typeof window === "undefined" ? false : (loadDraft()?.featured ?? false)
-  );
-  const [published, setPublished] = useState(() =>
-    typeof window === "undefined" ? true : (loadDraft()?.published ?? true)
-  );
+  // The draft lives in localStorage, so it can only be restored after mount.
+  // Reading it during render would make the server HTML differ from the
+  // first client render and trigger a hydration mismatch.
+  const [title, setTitle] = useState("");
+  const [excerpt, setExcerpt] = useState("");
+  const [content, setContent] = useState("");
+  const [category, setCategory] = useState<Category>("poem");
+  const [tags, setTags] = useState("");
+  const [featured, setFeatured] = useState(false);
+  const [published, setPublished] = useState(true);
   const [publishAt, setPublishAt] = useState("");
-  const [restoredAt, setRestoredAt] = useState<string | null>(() =>
-    typeof window === "undefined" ? null : (loadDraft()?.savedAt ?? null)
-  );
+  const [restoredAt, setRestoredAt] = useState<string | null>(null);
   const [autosavedAt, setAutosavedAt] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [preview, setPreview] = useState("");
@@ -79,9 +66,27 @@ export default function NewPostPage() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [restored, setRestored] = useState(false);
+
+  // Restore the autosaved draft once mounted.
+  useEffect(() => {
+    const draft = loadDraft();
+    if (draft) {
+      setTitle(draft.title ?? "");
+      setExcerpt(draft.excerpt ?? "");
+      setContent(draft.content ?? "");
+      setCategory(draft.category ?? "poem");
+      setTags(draft.tags ?? "");
+      setFeatured(!!draft.featured);
+      setPublished(draft.published ?? true);
+      setRestoredAt(draft.savedAt ?? null);
+    }
+    setRestored(true);
+  }, []);
 
   // Autosave text fields (covers can't be persisted) a beat after you stop typing.
   useEffect(() => {
+    if (!restored) return;
     if (!title && !excerpt && !content && !tags) return;
     const t = window.setTimeout(() => {
       try {
@@ -96,7 +101,7 @@ export default function NewPostPage() {
       }
     }, 800);
     return () => window.clearTimeout(t);
-  }, [title, excerpt, content, category, tags, featured, published]);
+  }, [restored, title, excerpt, content, category, tags, featured, published]);
 
   function discardDraft() {
     try {

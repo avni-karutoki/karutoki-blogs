@@ -14,24 +14,30 @@ const OPTIONS: { id: Size; label: string; title: string }[] = [
 
 /** Text-size toggle for long reads. Persisted per browser. */
 export default function FontSizeToggle() {
-  const [size, setSize] = useState<Size>(() => {
-    if (typeof window === "undefined") return "comfortable";
-    try {
-      const saved = localStorage.getItem(KEY) as Size | null;
-      return saved === "large" || saved === "compact" ? saved : "comfortable";
-    } catch {
-      return "comfortable";
-    }
-  });
+  // The initial value must match the server render exactly, otherwise React
+  // reports a hydration mismatch. The saved size is read after mount.
+  const [size, setSize] = useState<Size>("comfortable");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    try {
+      const saved = localStorage.getItem(KEY) as Size | null;
+      if (saved === "large" || saved === "compact") setSize(saved);
+    } catch {
+      /* ignore */
+    }
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     document.documentElement.dataset.readingSize = size;
     try {
       localStorage.setItem(KEY, size);
     } catch {
       /* ignore */
     }
-  }, [size]);
+  }, [size, mounted]);
 
   return (
     <div className="flex items-center gap-1" role="group" aria-label="Text size">

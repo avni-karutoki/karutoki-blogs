@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { isAdminUser } from "@/lib/supabase/authorization";
@@ -61,7 +61,9 @@ export default function EditPostPage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
-  const supabase = createClient();
+  // The browser Supabase client must not be created during render — that
+  // also happens on the server and touches `document`. Create it lazily.
+  const supabase = useMemo(() => createClient(), []);
 
   const [post, setPost] = useState<Post | null>(null);
   const [title, setTitle] = useState("");

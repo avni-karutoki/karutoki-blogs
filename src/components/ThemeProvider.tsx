@@ -57,12 +57,16 @@ function getInitialTheme(): Theme {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => getInitialTheme());
+  // IMPORTANT: the initial state must be identical on the server and on the
+  // first client render, otherwise React reports a hydration mismatch.
+  // The saved theme is therefore resolved AFTER mount — the visual theme is
+  // already correct because the inline script in layout.tsx sets
+  // `data-theme` on <html> before React hydrates.
+  const [theme, setThemeState] = useState<Theme>("cream");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Mount marker only (avoids applying theme transitions during SSR hydration).
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setThemeState(getInitialTheme());
     setMounted(true);
   }, []);
 

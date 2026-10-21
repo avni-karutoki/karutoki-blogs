@@ -68,6 +68,12 @@ const themeInitScript = `
   } catch (e) {
     document.documentElement.setAttribute("data-theme", "cream");
   }
+  try {
+    var size = localStorage.getItem("karutoki-reading-size");
+    if (size === "large" || size === "compact") {
+      document.documentElement.setAttribute("data-reading-size", size);
+    }
+  } catch (e) {}
 })();
 `;
 

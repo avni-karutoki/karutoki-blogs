@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 function likedKey(slug: string) {
@@ -28,12 +28,17 @@ export default function LikeButton({
   initialLikes?: number;
 }) {
   const [likes, setLikes] = useState(initialLikes);
-  const [liked, setLiked] = useState(() =>
-    typeof window === "undefined" ? false : wasLiked(slug)
-  );
+  // The liked state lives in localStorage, so it can only be read after
+  // mount — reading it during render would differ between the server HTML
+  // and the client and trigger a hydration mismatch.
+  const [liked, setLiked] = useState(false);
   const [available, setAvailable] = useState(true);
   const [busy, setBusy] = useState(false);
   const [bursts, setBursts] = useState<number[]>([]);
+
+  useEffect(() => {
+    setLiked(wasLiked(slug));
+  }, [slug]);
 
   // Little heart burst when a like lands.
   function celebrate() {

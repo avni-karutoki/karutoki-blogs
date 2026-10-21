@@ -38,16 +38,16 @@ export default function Hero({
         {/* Copy */}
         <div>
           <StaggerGroup stagger={0.08} delay={0}>
-            <ScrollReveal variant="fadeUp" className="eyebrow">
+            <ScrollReveal as="p" variant="fadeUp" className="eyebrow">
               ✦ Poems · Blogs · Midnight talks
             </ScrollReveal>
-            <ScrollReveal variant="fadeUp" className="mt-4">
+            <ScrollReveal as="h1" variant="fadeUp" className="mt-4">
               {hero.title}
             </ScrollReveal>
-            <ScrollReveal variant="fadeUp" className="lead mt-5 max-w-md">
+            <ScrollReveal as="p" variant="fadeUp" className="lead mt-5 max-w-md">
               {hero.subtitle}
             </ScrollReveal>
-            <ScrollReveal variant="fadeUp" className="mt-8 flex flex-wrap items-center gap-4">
+            <ScrollReveal as="div" variant="fadeUp" className="mt-8 flex flex-wrap items-center gap-4">
               <MotionLink href="/writings" className="btn-ink" whileHover={{ scale: 1.03 }}>
                 {hero.buttonText || "Explore writings"} →
               </MotionLink>
@@ -57,9 +57,9 @@ export default function Hero({
                 </MotionLink>
               )}
             </ScrollReveal>
-            
+
             {/* stats */}
-            <ScrollReveal variant="fadeUp" className="mt-10 flex items-center gap-8 border-t border-[var(--border-color)] pt-6">
+            <ScrollReveal as="dl" variant="fadeUp" className="mt-10 flex items-center gap-8 border-t border-[var(--border-color)] pt-6">
               {[
                 { n: counts.poems, label: "Poems" },
                 { n: counts.blogs, label: "Blogs" },

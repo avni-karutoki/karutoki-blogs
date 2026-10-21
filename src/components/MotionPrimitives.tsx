@@ -157,6 +157,8 @@ interface ScrollRevealProps extends CleanDivProps {
   variant?: "fadeUp" | "fadeDown" | "fadeLeft" | "fadeRight" | "scale" | "flip" | "blur";
   delay?: number;
   duration?: number;
+  /** Render as a different element (e.g. "h1", "p", "dl"). */
+  as?: "div" | "h1" | "h2" | "h3" | "p" | "span" | "section" | "ul" | "ol" | "dl" | "figure";
 }
 
 export function ScrollReveal({
@@ -165,6 +167,7 @@ export function ScrollReveal({
   variant = "fadeUp",
   delay = 0,
   duration = 0.6,
+  as = "div",
   ...props
 }: ScrollRevealProps) {
   const variants = {
@@ -178,9 +181,10 @@ export function ScrollReveal({
   };
 
   const { initial, animate } = variants[variant];
+  const Tag = motion[as] as typeof motion.div;
 
   return (
-    <motion.div
+    <Tag
       className={className}
       initial={initial}
       whileInView={animate}
@@ -190,7 +194,7 @@ export function ScrollReveal({
       style={{ willChange: "transform, opacity, filter", ...props.style }}
     >
       {children}
-    </motion.div>
+    </Tag>
   );
 }
 

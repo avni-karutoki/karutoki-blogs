@@ -47,18 +47,22 @@ export default function HangingMelody() {
   const loadedSrc = useRef<string | null>(null);
   const [open, setOpen] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [trackId, setTrackId] = useState<string>(() =>
-    typeof window === "undefined" ? "calm-9" : (load(TRACK_KEY) || "calm-9")
-  );
-  const [customUrl, setCustomUrl] = useState(() =>
-    typeof window === "undefined" ? "" : (load(CUSTOM_KEY) || "")
-  );
-  const [volume, setVolume] = useState(() => {
-    if (typeof window === "undefined") return 0.5;
-    const v = parseFloat(load(VOLUME_KEY) || "NaN");
-    return Number.isNaN(v) ? 0.5 : Math.min(1, Math.max(0, v));
-  });
+  // Saved preferences come from localStorage, so they can only be read after
+  // mount — reading them during render would differ between the server HTML
+  // and the client and trigger a hydration mismatch.
+  const [trackId, setTrackId] = useState<string>("calm-9");
+  const [customUrl, setCustomUrl] = useState("");
+  const [volume, setVolume] = useState(0.5);
   const [failed, setFailed] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setTrackId(load(TRACK_KEY) || "calm-9");
+    setCustomUrl(load(CUSTOM_KEY) || "");
+    const v = parseFloat(load(VOLUME_KEY) || "NaN");
+    setVolume(Number.isNaN(v) ? 0.5 : Math.min(1, Math.max(0, v)));
+    setHydrated(true);
+  }, []);
 
   // The audio element mounts only when the popup opens, so apply the saved
   // volume at mount time too (the effect below only runs when volume changes).
@@ -68,11 +72,12 @@ export default function HangingMelody() {
   };
 
   useEffect(() => {
+    if (!hydrated) return;
     const audio = audioRef.current;
     if (!audio) return;
     audio.volume = volume;
     save(VOLUME_KEY, String(volume));
-  }, [volume]);
+  }, [volume, hydrated]);
 
   // Escape closes the popup.
   useEffect(() => {

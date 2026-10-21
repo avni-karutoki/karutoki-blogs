@@ -1,21 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * Share row: post to X / WhatsApp, or copy the link.
- * URL is read from the browser so it always matches the live address.
+ * The URL is read from the browser after mount — reading it during render
+ * would produce different `href`s on the server and the client, which
+ * React reports as a hydration mismatch.
  */
 export default function ShareButtons({ title }: { title: string }) {
   const [copied, setCopied] = useState(false);
+  const [url, setUrl] = useState("");
 
-  function pageUrl(): string {
-    return typeof window === "undefined" ? "" : window.location.href;
-  }
+  useEffect(() => {
+    setUrl(window.location.href);
+  }, []);
 
   async function copyLink() {
     try {
-      await navigator.clipboard.writeText(pageUrl());
+      await navigator.clipboard.writeText(url);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -23,7 +26,6 @@ export default function ShareButtons({ title }: { title: string }) {
     }
   }
 
-  const url = pageUrl();
   const text = title;
   const links = [
     {
