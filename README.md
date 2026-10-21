@@ -114,15 +114,7 @@ git push origin main
 - **Website:** your `https://….vercel.app` URL after §5.
 - **Topics:** `nextjs` `typescript` `tailwindcss` `supabase` `resend`
   `blog` `poetry` `framer-motion` `vercel`
-
-## 5. Deploy for free on Vercel
-
-1. vercel.com → sign up with GitHub → Add New Project → import
-   `avni-karutoki/karutoki-blogs`.
-2. Add the env vars from `.env.local` (Settings → Environment Variables).
-3. Deploy — you get a free `.vercel.app` URL. Point GitHub About → Website
-   at it.
-
+  
 ## Admin cheat-sheet
 
 | I want to… | Where |
