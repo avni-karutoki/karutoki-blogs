@@ -2,6 +2,7 @@
 
 import { motion, type HTMLMotionProps } from "framer-motion";
 import { forwardRef, useEffect, useRef, useState, type Ref } from "react";
+import { flattenChildren } from "@/lib/flatten-children";
 
 // Types that remove problematic framer-motion event handler props
 type CleanAnchorProps = Omit<
@@ -43,8 +44,8 @@ export const MotionButton = forwardRef<HTMLButtonElement, CleanButtonProps & { w
       whileTap={whileTap ?? { scale: 0.97 }}
       whileHover={whileHover ?? { scale: 1.02 }}
       transition={{ type: "spring", stiffness: 400, damping: 17 }}
-      style={{ willChange: "transform", ...(props.style as React.CSSProperties) }}
       {...props}
+      style={{ willChange: "transform", ...(props.style as React.CSSProperties) }}
     >
       {children}
     </motion.button>
@@ -61,8 +62,8 @@ export const MotionLink = forwardRef<HTMLAnchorElement, CleanAnchorProps & { whi
       whileTap={whileTap ?? { scale: 0.98 }}
       whileHover={whileHover ?? { scale: 1.01 }}
       transition={{ type: "spring", stiffness: 400, damping: 17 }}
-      style={{ willChange: "transform", ...(props.style as React.CSSProperties) }}
       {...props}
+      style={{ willChange: "transform", ...(props.style as React.CSSProperties) }}
     >
       {children}
     </motion.a>
@@ -86,8 +87,8 @@ export const MotionCard = forwardRef<HTMLDivElement, MotionCardProps>(
         boxShadow: "var(--shadow-card)",
         transition: { type: "spring", stiffness: 300, damping: 20 }
       }}
-      style={{ willChange: "transform, box-shadow", ...(props.style as React.CSSProperties) }}
       {...props}
+      style={{ willChange: "transform, box-shadow", ...(props.style as React.CSSProperties) }}
     >
       {children}
     </motion.div>
@@ -103,8 +104,8 @@ export const MotionInput = forwardRef<HTMLInputElement, CleanInputProps & { whil
       className={className}
       whileFocus={whileFocus ?? { scale: 1.01, borderColor: "var(--accent)" }}
       transition={{ duration: 0.2 }}
-      style={{ willChange: "transform, border-color", ...(props.style as React.CSSProperties) }}
       {...props}
+      style={{ willChange: "transform, border-color", ...(props.style as React.CSSProperties) }}
     />
   )
 );
@@ -118,8 +119,8 @@ export const MotionTextarea = forwardRef<HTMLTextAreaElement, CleanTextareaProps
       className={className}
       whileFocus={whileFocus ?? { scale: 1.01, borderColor: "var(--accent)" }}
       transition={{ duration: 0.2 }}
-      style={{ willChange: "transform, border-color", ...(props.style as React.CSSProperties) }}
       {...props}
+      style={{ willChange: "transform, border-color", ...(props.style as React.CSSProperties) }}
     />
   )
 );
@@ -142,8 +143,8 @@ export function MotionIcon({
     <motion.span
       className={className}
       whileHover={hoverVariants[animateOnHover]}
-      style={{ display: "inline-block", willChange: "transform", ...props.style }}
       {...props}
+      style={{ display: "inline-block", willChange: "transform", ...props.style }}
     >
       {children}
     </motion.span>
@@ -185,8 +186,8 @@ export function ScrollReveal({
       whileInView={animate}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration, delay, ease: [0.22, 1, 0.36, 1] }}
-      style={{ willChange: "transform, opacity, filter", ...props.style }}
       {...props}
+      style={{ willChange: "transform, opacity, filter", ...props.style }}
     >
       {children}
     </motion.div>
@@ -209,13 +210,13 @@ export function StaggerGroup({
   variant = "fadeUp",
   ...props
 }: StaggerGroupProps) {
-  const childArray = Array.isArray(children) ? children : [children];
+  const childArray = flattenChildren(children);
 
   return (
     <div className={className} {...props}>
       {childArray.map((child, i) => (
         <ScrollReveal 
-          key={child.key || i} 
+          key={i} 
           delay={delay + i * stagger}
           variant={variant}
         >
@@ -243,8 +244,8 @@ export function PageEntrance({
         delay,
         ease: [0.22, 1, 0.36, 1] 
       }}
-      style={{ willChange: "transform, opacity", ...props.style }}
       {...props}
+      style={{ willChange: "transform, opacity", ...props.style }}
     >
       {children}
     </motion.div>
@@ -262,6 +263,9 @@ export function Skeleton({
   return (
     <motion.div
       className={className}
+      animate={{ backgroundPositionX: ["-200%", "200%"] }}
+      transition={{ duration: 1.5, ease: "linear", repeat: Infinity }}
+      {...props}
       style={{ 
         width, 
         height, 
@@ -271,9 +275,6 @@ export function Skeleton({
         willChange: "background-position",
         ...props.style 
       }}
-      animate={{ backgroundPositionX: ["-200%", "200%"] }}
-      transition={{ duration: 1.5, ease: "linear", repeat: Infinity }}
-      {...props}
     />
   );
 }

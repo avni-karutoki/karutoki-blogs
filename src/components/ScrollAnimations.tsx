@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, useSpring, type MotionValue } from "framer-motion";
+import { flattenChildren } from "@/lib/flatten-children";
 
-function omitAnimationProps<T extends object>(props: T): Omit<T, "onAnimationStart" | "onAnimationEnd" | "onAnimationIteration" | "onDragStart" | "onDrag" | "onDragEnd" | "onDragEnter" | "onDragLeave" | "onDragOver" | "onDrop" | "onHoverStart" | "onHoverEnd"> {
+function omitAnimationProps<T extends object>(props: T): Omit<T, "onAnimationStart" | "onAnimationEnd" | "onAnimationIteration" | "onDragStart" | "onDrag" | "onDragEnd" | "onDragEnter" | "onDragLeave" | "onDragOver" | "onDrop" | "onHoverStart" | "onHoverEnd" | "style"> {
   const { 
     onAnimationStart, 
     onAnimationEnd, 
@@ -17,6 +18,7 @@ function omitAnimationProps<T extends object>(props: T): Omit<T, "onAnimationSta
     onDrop, 
     onHoverStart, 
     onHoverEnd,
+    style: _style,
     ...rest 
   } = props as any;
   return rest;
@@ -327,13 +329,13 @@ export function StaggerContainer({
   itemClassName = "",
   ...props 
 }: { children: React.ReactNode; className?: string; stagger?: number; delay?: number; itemClassName?: string } & React.HTMLAttributes<HTMLDivElement>) {
-  const childArray = Array.isArray(children) ? children : [children];
+  const childArray = flattenChildren(children);
   
   return (
     <div className={className} {...omitAnimationProps(props)}>
       {childArray.map((child, i) => (
         <motion.div
-          key={child.key || i}
+          key={i}
           className={itemClassName}
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}

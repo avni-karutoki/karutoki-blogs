@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
+import { flattenChildren } from "@/lib/flatten-children";
 
 type CleanHTMLProps<Element extends HTMLElement> = Omit<
   React.HTMLAttributes<Element>,
@@ -47,8 +48,8 @@ export default function Reveal({
         delay: Math.min(delay, 0.4), 
         ease: [0.22, 1, 0.36, 1] 
       }}
-      style={{ willChange: "transform, opacity" }}
       {...props}
+      style={{ willChange: "transform, opacity" }}
     >
       {children}
     </motion.div>
@@ -62,13 +63,13 @@ export function StaggeredReveal({
   stagger = 0.08,
   ...props 
 }: { children: ReactNode; delay?: number; stagger?: number } & Omit<RevealProps, "children" | "delay" | "stagger">) {
-  const childArray = Array.isArray(children) ? children : [children];
+  const childArray = flattenChildren(children);
   
   return (
     <>
       {childArray.map((child, i) => (
         <Reveal 
-          key={child.key || i} 
+          key={i} 
           delay={delay + i * stagger}
           {...props}
         >
@@ -99,8 +100,8 @@ export function SpringReveal({
         stiffness: 120, 
         delay: Math.min(delay, 0.3) 
       }}
-      style={{ willChange: "transform, opacity" }}
       {...props}
+      style={{ willChange: "transform, opacity" }}
     >
       {children}
     </motion.div>
