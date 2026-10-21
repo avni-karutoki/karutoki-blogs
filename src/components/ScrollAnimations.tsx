@@ -117,6 +117,9 @@ export function Parallax({
       className={className}
       style={{ 
         y: springY,
+        // framer-motion needs a non-static position on the scroll target to
+        // calculate offsets correctly.
+        position: "relative",
         willChange: "transform",
         ...props.style 
       }}
