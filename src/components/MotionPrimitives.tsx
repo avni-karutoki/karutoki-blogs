@@ -1,0 +1,346 @@
+"use client";
+
+import { motion, type HTMLMotionProps } from "framer-motion";
+import { forwardRef, type Ref } from "react";
+
+/** Button with press/tap animation */
+export const MotionButton = forwardRef<HTMLButtonElement, HTMLMotionProps<"button">>(
+  ({ children, className = "", whileTap, whileHover, ...props }, ref) => (
+    <motion.button
+      ref={ref}
+      className={className}
+      whileTap={whileTap ?? { scale: 0.97 }}
+      whileHover={whileHover ?? { scale: 1.02 }}
+      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      style={{ willChange: "transform", ...props.style }}
+      {...props}
+    >
+      {children}
+    </motion.button>
+  )
+);
+MotionButton.displayName = "MotionButton";
+
+/** Link with press/tap animation */
+export const MotionLink = forwardRef<HTMLAnchorElement, HTMLMotionProps<"a">>(
+  ({ children, className = "", whileTap, whileHover, ...props }, ref) => (
+    <motion.a
+      ref={ref}
+      className={className}
+      whileTap={whileTap ?? { scale: 0.98 }}
+      whileHover={whileHover ?? { scale: 1.01 }}
+      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      style={{ willChange: "transform", ...props.style }}
+      {...props}
+    >
+      {children}
+    </motion.a>
+  )
+);
+MotionLink.displayName = "MotionLink";
+
+/** Card with hover lift and shadow */
+export const MotionCard = forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
+  ({ children, className = "", lift = 8, ...props }, ref) => (
+    <motion.div
+      ref={ref}
+      className={className}
+      whileHover={{ 
+        y: -lift,
+        boxShadow: "var(--shadow-card)",
+        transition: { type: "spring", stiffness: 300, damping: 20 }
+      }}
+      style={{ willChange: "transform, box-shadow", ...props.style }}
+      {...props}
+    >
+      {children}
+    </motion.div>
+  )
+);
+MotionCard.displayName = "MotionCard";
+
+/** Input with focus animation */
+export const MotionInput = forwardRef<HTMLInputElement, HTMLMotionProps<"input">>(
+  ({ className = "", whileFocus, ...props }, ref) => (
+    <motion.input
+      ref={ref}
+      className={className}
+      whileFocus={whileFocus ?? { scale: 1.01, borderColor: "var(--accent)" }}
+      transition={{ duration: 0.2 }}
+      style={{ willChange: "transform, border-color", ...props.style }}
+      {...props}
+    />
+  )
+);
+MotionInput.displayName = "MotionInput";
+
+/** Textarea with focus animation */
+export const MotionTextarea = forwardRef<HTMLTextAreaElement, HTMLMotionProps<"textarea">>(
+  ({ className = "", whileFocus, ...props }, ref) => (
+    <motion.textarea
+      ref={ref}
+      className={className}
+      whileFocus={whileFocus ?? { scale: 1.01, borderColor: "var(--accent)" }}
+      transition={{ duration: 0.2 }}
+      style={{ willChange: "transform, border-color", ...props.style }}
+      {...props}
+    />
+  )
+);
+MotionTextarea.displayName = "MotionTextarea";
+
+/** Icon with spin/pulse on hover */
+export function MotionIcon({ 
+  children, 
+  className = "", 
+  animateOnHover = "rotate",
+  ...props 
+}: { children: React.ReactNode; className?: string; animateOnHover?: "rotate" | "pulse" | "bounce" }) {
+  const hoverVariants = {
+    rotate: { rotate: 180, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
+    pulse: { scale: [1, 1.2, 1], transition: { duration: 0.5, ease: "easeInOut" } },
+    bounce: { y: [-5, 0, -5, 0], transition: { duration: 0.6, ease: "easeInOut" } },
+  };
+
+  return (
+    <motion.span
+      className={className}
+      whileHover={hoverVariants[animateOnHover]}
+      style={{ display: "inline-block", willChange: "transform", ...props.style }}
+      {...props}
+    >
+      {children}
+    </motion.span>
+  );
+}
+
+/** Reveal on scroll with configurable animation */
+export function ScrollReveal({
+  children,
+  className = "",
+  variant = "fadeUp",
+  delay = 0,
+  duration = 0.6,
+  ...props
+}: { 
+  children: React.ReactNode; 
+  className?: string; 
+  variant?: "fadeUp" | "fadeDown" | "fadeLeft" | "fadeRight" | "scale" | "flip" | "blur";
+  delay?: number;
+  duration?: number;
+} & React.HTMLAttributes<HTMLDivElement>) {
+  const variants = {
+    fadeUp: { initial: { opacity: 0, y: 30 }, animate: { opacity: 1, y: 0 } },
+    fadeDown: { initial: { opacity: 0, y: -30 }, animate: { opacity: 1, y: 0 } },
+    fadeLeft: { initial: { opacity: 0, x: 30 }, animate: { opacity: 1, x: 0 } },
+    fadeRight: { initial: { opacity: 0, x: -30 }, animate: { opacity: 1, x: 0 } },
+    scale: { initial: { opacity: 0, scale: 0.9 }, animate: { opacity: 1, scale: 1 } },
+    flip: { initial: { opacity: 0, rotateY: 90 }, animate: { opacity: 1, rotateY: 0 } },
+    blur: { initial: { opacity: 0, filter: "blur(10px)" }, animate: { opacity: 1, filter: "blur(0px)" } },
+  };
+
+  const { initial, animate } = variants[variant];
+
+  return (
+    <motion.div
+      className={className}
+      initial={initial}
+      whileInView={animate}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration, delay, ease: [0.22, 1, 0.36, 1] }}
+      style={{ willChange: "transform, opacity, filter", ...props.style }}
+      {...props}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/** Staggered children reveal */
+export function StaggerGroup({
+  children,
+  className = "",
+  stagger = 0.08,
+  delay = 0,
+  variant = "fadeUp",
+  ...props
+}: { 
+  children: React.ReactNode; 
+  className?: string; 
+  stagger?: number; 
+  delay?: number;
+  variant?: "fadeUp" | "fadeDown" | "fadeLeft" | "fadeRight" | "scale" | "flip" | "blur";
+} & React.HTMLAttributes<HTMLDivElement>) {
+  const childArray = Array.isArray(children) ? children : [children];
+
+  return (
+    <div className={className} {...props}>
+      {childArray.map((child, i) => (
+        <ScrollReveal 
+          key={child.key || i} 
+          delay={delay + i * stagger}
+          variant={variant}
+        >
+          {child}
+        </ScrollReveal>
+      ))}
+    </div>
+  );
+}
+
+/** Page entrance animation */
+export function PageEntrance({ 
+  children, 
+  className = "",
+  delay = 0,
+  ...props 
+}: { children: React.ReactNode; className?: string; delay?: number } & React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ 
+        duration: 0.5, 
+        delay,
+        ease: [0.22, 1, 0.36, 1] 
+      }}
+      style={{ willChange: "transform, opacity", ...props.style }}
+      {...props}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/** Loading skeleton with shimmer */
+export function Skeleton({ 
+  className = "", 
+  width = "100%", 
+  height = "1rem",
+  borderRadius = "0.5rem",
+  ...props 
+}: { className?: string; width?: string; height?: string; borderRadius?: string } & React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <motion.div
+      className={className}
+      style={{ 
+        width, 
+        height, 
+        borderRadius,
+        background: "linear-gradient(90deg, var(--border-color) 25%, var(--accent-soft) 50%, var(--border-color) 75%)",
+        backgroundSize: "200% 100%",
+        willChange: "background-position",
+        ...props.style 
+      }}
+      animate={{ backgroundPositionX: ["-200%", "200%"] }}
+      transition={{ duration: 1.5, ease: "linear", repeat: Infinity }}
+      {...props}
+    />
+  );
+}
+
+/** Number counter animation */
+export function CountUp({ 
+  value, 
+  className = "",
+  duration = 1,
+  delay = 0,
+  formatter = (v: number) => v.toLocaleString(),
+  ...props 
+}: { value: number; className?: string; duration?: number; delay?: number; formatter?: (v: number) => string } & React.HTMLAttributes<HTMLSpanElement>) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let frame = 0;
+    const startTime = Date.now();
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / (duration * 1000), 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+      setCount(Math.floor(value * eased));
+      if (progress < 1) frame = requestAnimationFrame(animate);
+      else setCount(value);
+    };
+    const timeout = setTimeout(() => { frame = requestAnimationFrame(animate); }, delay * 1000);
+    return () => { cancelAnimationFrame(frame); clearTimeout(timeout); };
+  }, [value, duration, delay]);
+
+  return <span className={className} {...props}>{formatter(count)}</span>;
+}
+
+/** Typing animation for text */
+export function Typewriter({ 
+  text, 
+  className = "",
+  speed = 30,
+  delay = 0,
+  cursor = true,
+  ...props 
+}: { text: string; className?: string; speed?: number; delay?: number; cursor?: boolean } & React.HTMLAttributes<HTMLSpanElement>) {
+  const [displayText, setDisplayText] = useState("");
+
+  useEffect(() => {
+    let i = 0;
+    const timeout = setTimeout(() => {
+      const interval = setInterval(() => {
+        if (i < text.length) {
+          setDisplayText(text.slice(0, i + 1));
+          i++;
+        } else {
+          clearInterval(interval);
+        }
+      }, speed);
+      return () => clearInterval(interval);
+    }, delay * 1000);
+    return () => clearTimeout(timeout);
+  }, [text, speed, delay]);
+
+  return (
+    <span className={className} {...props}>
+      {displayText}
+      {cursor && <span className="ml-1 animate-pulse">|</span>}
+    </span>
+  );
+}
+
+/** Floating label input */
+export function FloatingLabelInput({
+  label,
+  value,
+  onChange,
+  className = "",
+  ...props
+}: { label: string; value: string; onChange: (v: string) => void; className?: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+  const [focused, setFocused] = useState(false);
+  const hasValue = value.length > 0;
+
+  return (
+    <div className="relative" {...props}>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        className={`
+          w-full bg-transparent border-b border-[var(--border-color)] 
+          px-0 py-3 text-[var(--text-primary)] placeholder-transparent
+          outline-none transition-all duration-300
+          ${focused || hasValue ? "border-[var(--accent)]" : ""}
+          ${className}
+        `}
+        placeholder=" "
+      />
+      <label className={`
+        absolute left-0 pointer-events-none transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]
+        text-[var(--text-muted)]
+        ${focused || hasValue 
+          ? "top-0 text-[11px] text-[var(--accent)]" 
+          : "top-3 text-[var(--text-primary)]"
+        }
+      `}>
+        {label}
+      </label>
+    </div>
+  );
+}
