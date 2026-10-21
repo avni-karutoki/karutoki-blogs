@@ -887,11 +887,10 @@ body::after {
   background: radial-gradient(120% 90% at 50% 40%, transparent 60%, var(--vignette) 100%);
 }
 
-/* Below-the-fold cards can be skipped by the renderer until near viewport */
-.vintage-card {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 320px;
-}
+/* NOTE: `content-visibility: auto` was previously applied to .vintage-card to
+   skip off-screen rendering. It caused layout shift — cards collapsed to a
+   320px placeholder and snapped to their real height on scroll, which
+   dislocated the surrounding grid. Scroll reveals are handled in JS now. */
 
 /* ————— Reading comfort (FontSizeToggle) ————— */
 .reading-body {

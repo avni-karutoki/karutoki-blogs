@@ -90,19 +90,28 @@ export function ScrollDirectionIndicator() {
   );
 }
 
-/** Parallax wrapper for background elements */
+/** Parallax wrapper for background elements.
+ *  Uses element-relative scroll offsets so the element drifts only slightly
+ *  while it is on screen — a page-level scroll range would pull grid items
+ *  out of their column. */
 export function Parallax({ 
   children, 
   speed = 0.3, 
   className,
   ...props 
 }: { children: React.ReactNode; speed?: number; className?: string } & React.HTMLAttributes<HTMLDivElement>) {
-  const { scrollY } = useScroll();
-  const y = useTransform(scrollY, [0, 2000], [0, -2000 * speed]);
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+  // Total drift stays small (max ~24px at speed 0.1) so layout never shifts.
+  const y = useTransform(scrollYProgress, [0, 1], [24 * speed, -24 * speed]);
   const springY = useSpring(y, { stiffness: 100, damping: 30 });
 
   return (
     <motion.div
+      ref={ref}
       className={className}
       style={{ 
         y: springY,
@@ -308,14 +317,16 @@ export function ScrollAwareHeader({
   );
 }
 
-/** Intersection observer based stagger for lists */
+/** Intersection observer based stagger for lists.
+ *  `itemClassName` lets grid items stretch to the tallest sibling. */
 export function StaggerContainer({ 
   children, 
   className,
   stagger = 0.1,
   delay = 0,
+  itemClassName = "",
   ...props 
-}: { children: React.ReactNode; className?: string; stagger?: number; delay?: number } & React.HTMLAttributes<HTMLDivElement>) {
+}: { children: React.ReactNode; className?: string; stagger?: number; delay?: number; itemClassName?: string } & React.HTMLAttributes<HTMLDivElement>) {
   const childArray = Array.isArray(children) ? children : [children];
   
   return (
@@ -323,6 +334,7 @@ export function StaggerContainer({
       {childArray.map((child, i) => (
         <motion.div
           key={child.key || i}
+          className={itemClassName}
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}

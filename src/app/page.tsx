@@ -75,25 +75,28 @@ export default async function HomePage() {
       <div className="mx-auto max-w-6xl px-6">
         {/* Featured writings */}
         <section className="py-16">
-          <StaggerContainer stagger={0.08} className="mb-10">
-            <Reveal>
-              <div className="flex flex-wrap items-end justify-between gap-4">
-                <SectionHeading
-                  eyebrow={shelfEyebrow}
-                  title="Featured writings"
-                  sub={shelfSub}
-                />
-                <Link
-                  href="/writings"
-                  className="ink-link font-sans text-[12px] font-semibold uppercase tracking-[0.2em]"
-                >
-                  See all writings →
-                </Link>
-              </div>
-            </Reveal>
-          </StaggerContainer>
+          <Reveal className="mb-10">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <SectionHeading
+                eyebrow={shelfEyebrow}
+                title="Featured writings"
+                sub={shelfSub}
+              />
+              <Link
+                href="/writings"
+                className="ink-link font-sans text-[12px] font-semibold uppercase tracking-[0.2em]"
+              >
+                See all writings →
+              </Link>
+            </div>
+          </Reveal>
 
-          <StaggerContainer stagger={0.1} delay={0.2} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <StaggerContainer
+            stagger={0.1}
+            delay={0.15}
+            itemClassName="h-full"
+            className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
+          >
             {shelf.length === 0 && (
               <p className="body-text col-span-full">
                 No writings yet — the admin can publish the first piece from{" "}
@@ -101,10 +104,14 @@ export default async function HomePage() {
               </p>
             )}
             {shelf.map((post, i) => (
-              <SpringReveal key={post.slug} delay={i * 0.08} className="vintage-card group block h-full p-5">
+              <SpringReveal
+                key={post.slug}
+                delay={i * 0.08}
+                className="vintage-card group flex h-full flex-col p-5"
+              >
                 <Link
                   href={`/writings/${post.slug}`}
-                  className="block h-full"
+                  className="flex h-full flex-col"
                 >
                   {post.cover_image ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -136,24 +143,26 @@ export default async function HomePage() {
 
         {/* About teaser */}
         <section className="grid items-center gap-10 border-t border-[var(--border-color)] py-16 md:grid-cols-2">
-          <Parallax speed={0.15} className="relative order-2 md:order-1">
-            <Reveal className="relative order-2 md:order-1">
-              <div className="photo-stack mx-auto max-w-xs">
-                <div className="layer" />
-                <div className="layer" />
-                <div className="layer flex aspect-square items-center justify-center p-8 text-center">
-                  {about.imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={about.imageUrl} alt="About" className="absolute inset-0 h-full w-full rounded-md object-cover" />
-                  ) : (
-                    <p className="font-script text-4xl text-[var(--text-heading)]">{about.title}</p>
-                  )}
+          <div className="relative order-2 md:order-1">
+            <Parallax speed={0.1} className="mx-auto max-w-xs">
+              <Reveal>
+                <div className="photo-stack">
+                  <div className="layer" />
+                  <div className="layer" />
+                  <div className="layer flex aspect-square items-center justify-center p-8 text-center">
+                    {about.imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={about.imageUrl} alt="About" className="absolute inset-0 h-full w-full rounded-md object-cover" />
+                    ) : (
+                      <p className="font-script text-4xl text-[var(--text-heading)]">{about.title}</p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </Reveal>
-            <FloatingElement amplitude={20} duration={8} delay={0} className="absolute -top-10 -right-10 h-24 w-24 rounded-full bg-[var(--accent-soft)] blur-xl"><div /></FloatingElement>
-            <FloatingElement amplitude={15} duration={10} delay={1} className="absolute -bottom-10 -left-10 h-20 w-20 rounded-full bg-[var(--accent-soft)] blur-xl"><div /></FloatingElement>
-          </Parallax>
+              </Reveal>
+            </Parallax>
+            <FloatingElement amplitude={20} duration={8} delay={0} className="pointer-events-none absolute -right-6 -top-10 h-24 w-24 rounded-full bg-[var(--accent-soft)] blur-xl"><div /></FloatingElement>
+            <FloatingElement amplitude={15} duration={10} delay={1} className="pointer-events-none absolute -bottom-10 -left-8 h-20 w-20 rounded-full bg-[var(--accent-soft)] blur-xl"><div /></FloatingElement>
+          </div>
           <Reveal delay={0.12} className="order-1 md:order-2">
             <p className="eyebrow">{about.subtitle}</p>
             <h2 className="mt-2">{about.title}</h2>

@@ -23,8 +23,8 @@ export default function WritingCard({
   coverImage,
 }: WritingCardProps) {
   return (
-    <ScrollReveal variant="fadeUp">
-      <MotionCard className="group flex flex-col justify-between p-6 sm:p-8 h-full" lift={10}>
+    <ScrollReveal variant="fadeUp" className="h-full">
+      <MotionCard className="group flex h-full flex-col justify-between p-6 sm:p-8" lift={10}>
         <div>
           {/* Cover Image if available */}
           {coverImage ? (

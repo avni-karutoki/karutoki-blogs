@@ -68,13 +68,22 @@ export default async function WritingsPage({  searchParams,
         ))}
       </div>
 
-      <StaggerContainer stagger={0.08} delay={0.1} className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <StaggerContainer
+        stagger={0.08}
+        delay={0.1}
+        itemClassName="h-full"
+        className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+      >
         {posts.length === 0 && (
           <p className="body-text col-span-full">Nothing here yet under this theme.</p>
         )}
         {posts.map((post, i) => (
-          <SpringReveal key={post.slug} delay={Math.min(i, 5) * 0.06} className="vintage-card group block h-full p-5">
-            <Link href={`/writings/${post.slug}`} className="block h-full">
+          <SpringReveal
+            key={post.slug}
+            delay={Math.min(i, 5) * 0.06}
+            className="vintage-card group flex h-full flex-col p-5"
+          >
+            <Link href={`/writings/${post.slug}`} className="flex h-full flex-col">
               {post.cover_image ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
