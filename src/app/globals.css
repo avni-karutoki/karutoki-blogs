@@ -204,8 +204,6 @@
 
 html {
   scroll-padding-top: 84px;
-  /* Prevent horizontal overflow on mobile */
-  overflow-x: hidden;
 }
 
 @media (prefers-reduced-motion: no-preference) {

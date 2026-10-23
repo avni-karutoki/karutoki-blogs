@@ -1,6 +1,8 @@
 import React from "react";
 import WritingCard from "@/components/WritingCard";
 import DecorativeDivider from "@/components/DecorativeDivider";
+import Reveal, { SpringReveal } from "@/components/Reveal";
+import { StaggerContainer } from "@/components/ScrollAnimations";
 import { createPublicClient as createClient } from "@/lib/supabase/server";
 
 export const revalidate = 60;
@@ -46,36 +48,44 @@ export default async function BlogsPage() {
   return (
     <div className="min-h-screen pb-24">
       <section className="mx-auto max-w-4xl px-6 pt-16 text-center sm:px-8">
-        <span className="font-sans text-xs font-semibold tracking-[0.25em] text-[var(--accent-pink)] uppercase">
-          STORIES & ESSAYS
-        </span>
+        <Reveal>
+          <span className="font-sans text-xs font-semibold tracking-[0.25em] text-[var(--accent-pink)] uppercase">
+            STORIES & ESSAYS
+          </span>
 
-        <h1 className="mt-3 font-script text-5xl sm:text-6xl text-[var(--text-heading)]">
-          Blogs
-        </h1>
+          <h1 className="mt-3 font-script text-5xl sm:text-6xl text-[var(--text-heading)]">
+            Blogs
+          </h1>
 
-        <p className="mx-auto mt-4 max-w-xl font-serif text-base sm:text-lg text-[var(--text-muted)] leading-relaxed">
-          Reflections on life, stories, observations, and little moments worth remembering.
-        </p>
+          <p className="mx-auto mt-4 max-w-xl font-serif text-base sm:text-lg text-[var(--text-muted)] leading-relaxed">
+            Reflections on life, stories, observations, and little moments worth remembering.
+          </p>
 
-        <DecorativeDivider />
+          <DecorativeDivider />
+        </Reveal>
       </section>
 
       <section className="mx-auto max-w-[1320px] px-6 sm:px-10 lg:px-16 mt-12">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {blogs.map((blog) => (
-            <WritingCard
-              key={blog.id}
-              category="BLOG"
-              title={blog.title}
-              excerpt={blog.excerpt}
-              href={`/writings/${blog.slug}`}
-              coverImage={blog.cover_image}
-              date={new Date(blog.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
-              readTime={blog.reading_time ? `${blog.reading_time} read` : undefined}
-            />
+        <StaggerContainer
+          stagger={0.08}
+          delay={0.1}
+          itemClassName="h-full"
+          className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          {blogs.map((blog, i) => (
+            <SpringReveal key={blog.id} delay={Math.min(i, 5) * 0.06}>
+              <WritingCard
+                category="BLOG"
+                title={blog.title}
+                excerpt={blog.excerpt}
+                href={`/writings/${blog.slug}`}
+                coverImage={blog.cover_image}
+                date={new Date(blog.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                readTime={blog.reading_time ? `${blog.reading_time} read` : undefined}
+              />
+            </SpringReveal>
           ))}
-        </div>
+        </StaggerContainer>
       </section>
     </div>
   );

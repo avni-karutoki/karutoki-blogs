@@ -81,6 +81,7 @@ export default async function WritingsPage({  searchParams,
           <SpringReveal
             key={post.slug}
             delay={Math.min(i, 5) * 0.06}
+            whileHover={{ y: -8, boxShadow: "var(--shadow-card)" }}
             className="vintage-card group flex h-full flex-col p-5"
           >
             <Link href={`/writings/${post.slug}`} className="flex h-full flex-col">

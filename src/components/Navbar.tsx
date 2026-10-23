@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import KarutokiLogo from "./KarutokiLogo";
@@ -41,6 +41,21 @@ export default function Navbar() {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [themesOpen, setThemesOpen] = useState(false);
+
+  // Close the mobile menu with Escape and lock page scroll while it is open.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [menuOpen]);
 
   const isActive = (path: string) =>
     path === "/" ? pathname === "/" : pathname === path || pathname.startsWith(path + "/");
@@ -112,25 +127,13 @@ export default function Navbar() {
           <MotionButton
             type="button"
             onClick={openSearch}
+            title="Search (Ctrl/Cmd + K)"
             aria-label="Open search"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-transparent text-[var(--text-primary)] transition-all duration-300 hover:-translate-y-px hover:border-[var(--border-color)] hover:bg-[var(--bg-card)] hover:text-[var(--accent)]"
-            whileHover={{ scale: 1.1, rotate: 12 }}
+            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)]/70 px-3 py-2 font-sans text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)] shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-px hover:border-[var(--accent)] hover:text-[var(--accent)]"
+            whileHover={{ scale: 1.03 }}
           >
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
-              <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.7" />
-              <line x1="16.2" y1="16.2" x2="21" y2="21" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-            </svg>
-          </MotionButton>
-          <MotionButton
-            type="button"
-            onClick={openSearch}
-            title="Search (⌘K)"
-            aria-label="Open search with Control K"
-            className="hidden items-center gap-1 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)]/70 px-2.5 py-1.5 font-sans text-[10px] font-semibold tracking-[0.08em] text-[var(--text-faint)] shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-px hover:border-[var(--accent)] hover:text-[var(--accent)] lg:inline-flex"
-            whileHover={{ scale: 1.05 }}
-          >
-            <kbd className="font-sans">⌘</kbd>
-            <kbd className="font-sans">K</kbd>
+            Search
+            <kbd className="border-l border-[var(--border-color)] pl-1.5 font-sans">⌘K</kbd>
           </MotionButton>
 
           <MotionButton
@@ -151,12 +154,9 @@ export default function Navbar() {
             type="button"
             onClick={openSearch}
             aria-label="Open search"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-[var(--text-primary)] touch-manipulation"
+            className="rounded-full px-3 py-2 font-sans text-[12px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)] transition hover:bg-[var(--accent-soft)] hover:text-[var(--accent)] touch-manipulation"
           >
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
-              <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.7" />
-              <line x1="16.2" y1="16.2" x2="21" y2="21" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-            </svg>
+            Search
           </button>
           <button
             type="button"
@@ -186,7 +186,7 @@ export default function Navbar() {
         aria-hidden
         className={`fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm transition-opacity duration-300 md:hidden touch-none ${menuOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
       />
-      <aside className={`fixed right-0 top-0 z-[70] flex h-full w-[300px] max-w-[85vw] flex-col overflow-y-auto border-l border-[var(--border-color)] bg-[var(--bg-card)] p-6 shadow-2xl transition-transform duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] md:hidden ${menuOpen ? "translate-x-0" : "translate-x-full"}`}>
+      <aside className={`fixed right-0 top-0 z-[70] flex h-full w-[300px] max-w-[85vw] flex-col overflow-y-auto border-l border-[var(--border-color)] bg-[var(--bg-card)] p-6 shadow-2xl transition-[transform,visibility] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] md:hidden ${menuOpen ? "visible translate-x-0" : "invisible translate-x-full"}`}>
         <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-4">
           <KarutokiLogo />
           <button

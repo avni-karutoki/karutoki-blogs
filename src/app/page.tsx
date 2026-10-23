@@ -107,6 +107,7 @@ export default async function HomePage() {
               <SpringReveal
                 key={post.slug}
                 delay={i * 0.08}
+                whileHover={{ y: -8, boxShadow: "var(--shadow-card)" }}
                 className="vintage-card group flex h-full flex-col p-5"
               >
                 <Link
@@ -142,7 +143,7 @@ export default async function HomePage() {
         </section>
 
         {/* About teaser */}
-        <section className="grid items-center gap-10 border-t border-[var(--border-color)] py-16 md:grid-cols-2">
+        <section className="grid items-center gap-10 overflow-x-clip border-t border-[var(--border-color)] py-16 md:grid-cols-2">
           <div className="relative order-2 md:order-1">
             <Parallax speed={0.1} className="mx-auto max-w-xs">
               <Reveal>

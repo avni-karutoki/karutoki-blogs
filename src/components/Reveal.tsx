@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
-import type { ReactNode } from "react";
+import { motion, useScroll, useTransform, useReducedMotion, type TargetAndTransition } from "framer-motion";
+import { useRef, type ReactNode } from "react";
 import { flattenChildren } from "@/lib/flatten-children";
 
 type CleanHTMLProps<Element extends HTMLElement> = Omit<
@@ -85,15 +85,17 @@ export function SpringReveal({
   children,
   delay = 0,
   y = 30,
+  whileHover,
   className,
   ...props
-}: Omit<RevealProps, "duration" | "ease">) {
+}: Omit<RevealProps, "duration" | "ease"> & { whileHover?: TargetAndTransition }) {
   return (
     <motion.div
       className={className}
       initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-100px" }}
+      whileHover={whileHover}
       transition={{ 
         type: "spring", 
         damping: 20, 
@@ -103,6 +105,42 @@ export function SpringReveal({
       {...props}
       style={{ willChange: "transform, opacity" }}
     >
+      {children}
+    </motion.div>
+  );
+}
+
+/**
+ * Scroll-linked fade in/out: content fades up as it enters the viewport and
+ * gently fades away again as it leaves, so scrolling through a page always
+ * feels animated. Pure opacity — transform work is left to the layout, so
+ * scrolling stays smooth.
+ */
+export function ScrollFade({
+  children,
+  className,
+  range = 0.12,
+}: {
+  children: ReactNode;
+  className?: string;
+  /** How much of the viewport passage is spent fading at each edge. */
+  range?: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const reduceMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+  const hi = Math.min(1 - range, 0.8);
+  const opacity = useTransform(scrollYProgress, [range * 0.5, hi, 1 - range, 1], [0, 1, 1, 0.25]);
+
+  if (reduceMotion) {
+    return <div className={className}>{children}</div>;
+  }
+
+  return (
+    <motion.div ref={ref} style={{ opacity, willChange: "opacity" }} className={className}>
       {children}
     </motion.div>
   );
