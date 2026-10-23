@@ -41,7 +41,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Karutoki — Words for the things left unsaid",
+  title: "Karutoki Blogs",
   description:
     "Poems, blogs and midnight thoughts by Avni Goel aka Karutoki. Words that were never said, left behind here instead.",
 };
