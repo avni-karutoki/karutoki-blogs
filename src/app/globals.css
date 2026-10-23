@@ -685,6 +685,11 @@ button {
     transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.3s ease;
 }
+/* is-revealed pins transform: none — re-assert the hover lift above it */
+.js .reveal.hover-lift.is-revealed:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-card);
+}
 @media (prefers-reduced-motion: reduce) {
   .js .reveal {
     opacity: 1 !important;
@@ -692,6 +697,15 @@ button {
     filter: none !important;
     transition: none !important;
   }
+}
+
+/* While the mobile menu drawer is open, let the melody charm step aside */
+.hanging-melody {
+  transition: opacity 0.3s ease;
+}
+body:has(aside.visible) .hanging-melody {
+  opacity: 0;
+  pointer-events: none;
 }
 
 @keyframes float-var {

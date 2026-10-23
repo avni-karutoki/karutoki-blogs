@@ -19,7 +19,7 @@ function KineticTitle({ text }: { text: string }) {
         /^\s+$/.test(word) ? (
           <span key={i}> </span>
         ) : (
-          <span key={i} aria-hidden className="inline-block overflow-hidden pb-[0.12em] align-bottom">
+          <span key={i} aria-hidden className="inline-block overflow-hidden px-[0.14em] py-[0.14em] -mx-[0.06em] -my-[0.04em] align-bottom">
             <motion.span
               className="inline-block"
               initial={{ y: "115%" }}

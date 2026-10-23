@@ -61,7 +61,8 @@ export default function Navbar() {
     path === "/" ? pathname === "/" : pathname === path || pathname.startsWith(path + "/");
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-[var(--border-color)] bg-[var(--bg-primary)]/85 backdrop-blur-md transition-colors duration-300">
+    <>
+      <header className="sticky top-0 z-50 w-full border-b border-[var(--border-color)] bg-[var(--bg-primary)]/85 backdrop-blur-md transition-colors duration-300">
       <nav className="relative mx-auto flex h-16 md:h-[72px] max-w-6xl items-center justify-between px-4 md:px-6">
         <MotionLink href="/" className="relative z-10 flex items-center" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
           <KarutokiLogo />
@@ -178,15 +179,19 @@ export default function Navbar() {
           </button>
         </div>
       </nav>
+    </header>
 
-      {/* Mobile drawer backdrop */}
-      <div
-        onClick={() => setMenuOpen(false)}
-        onTouchStart={(e) => e.stopPropagation()}
-        aria-hidden
-        className={`fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm transition-opacity duration-300 md:hidden touch-none ${menuOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
-      />
-      <aside className={`fixed right-0 top-0 z-[70] flex h-full w-[300px] max-w-[85vw] flex-col overflow-y-auto border-l border-[var(--border-color)] bg-[var(--bg-card)] p-6 shadow-2xl transition-[transform,visibility] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] md:hidden ${menuOpen ? "visible translate-x-0" : "invisible translate-x-full"}`}>
+    {/* Mobile drawer backdrop — OUTSIDE the header on purpose: the header's
+        backdrop-filter turns it into the containing block for position:fixed
+        children, which collapsed the fixed drawer to the header's height and
+        made all menu items clip out of view (the "menu won't open" bug). */}
+    <div
+      onClick={() => setMenuOpen(false)}
+      onTouchStart={(e) => e.stopPropagation()}
+      aria-hidden
+      className={`fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm transition-opacity duration-300 md:hidden touch-none ${menuOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
+    />
+    <aside className={`fixed right-0 top-0 z-[70] flex h-full w-[300px] max-w-[85vw] flex-col overflow-y-auto border-l border-[var(--border-color)] bg-[var(--bg-card)] p-6 shadow-2xl transition-[transform,visibility] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] md:hidden ${menuOpen ? "visible translate-x-0" : "invisible translate-x-full"}`}>
         <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-4">
           <KarutokiLogo />
           <button
@@ -253,6 +258,6 @@ export default function Navbar() {
           </div>
         </div>
       </aside>
-    </header>
+    </>
   );
 }

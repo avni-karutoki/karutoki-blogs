@@ -69,7 +69,7 @@ export default async function AboutPage() {
             <Link
               key={item.href}
               href={item.href}
-              className="vintage-card group flex items-center justify-between gap-4 p-5"
+              className="vintage-card hover-lift group flex items-center justify-between gap-4 p-5"
             >
               <span className="font-serif text-lg leading-relaxed">{item.label}</span>
               <span className="shrink-0 font-sans text-[var(--accent)] transition-transform duration-300 group-hover:translate-x-1">→</span>

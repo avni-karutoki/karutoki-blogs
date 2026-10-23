@@ -73,7 +73,7 @@ export default async function TagPage({
       <div className="mt-10 space-y-4">
         {posts.map((p, i) => (
           <Reveal key={p.slug} delay={Math.min(i, 5) * 0.06}>
-            <Link href={`/writings/${p.slug}`} className="vintage-card group block p-6">
+            <Link href={`/writings/${p.slug}`} className="vintage-card hover-lift group block p-6">
               <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
                 {categoryLabel(p.category)}
               </p>
