@@ -72,8 +72,8 @@ export default function Hero({
 
   return (
     <section ref={sectionRef} className="relative overflow-hidden">
-      {/* ambient glows — static, GPU-composited (no infinite repaint) */}
-      <div aria-hidden className="pointer-events-none absolute inset-0">
+      {/* ambient glows — desktop only; mobile keeps things minimal */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 hidden md:block">
         <motion.div style={{ y: reduceMotion ? 0 : glowDrift }} className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[var(--accent-soft)] blur-2xl">
           <div style={{ animation: reduceMotion ? undefined : "float 8s ease-in-out infinite" }} />
         </motion.div>

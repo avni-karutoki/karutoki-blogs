@@ -199,10 +199,15 @@ export default function Navbar() {
           </button>
         </div>
 
-        <StaggerGroup stagger={0.06} className="mt-6 flex flex-col gap-1">
+        <StaggerGroup stagger={0.05} className="mt-6 flex flex-col gap-1">
           {[
             { href: "/", label: "Home" },
             { href: "/writings", label: "Writings" },
+            { href: "/poems", label: "Poems" },
+            { href: "/blogs", label: "Blogs" },
+            { href: "/midnight-talks", label: "Midnight talks" },
+            { href: "/archive", label: "Archive" },
+            { href: "/tags", label: "Tags" },
             { href: "/about", label: "About" },
             { href: "/contact", label: "Contact" },
           ].map((l) => (

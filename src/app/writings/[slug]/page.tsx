@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createPublicClient as createClient } from "@/lib/supabase/server";
 import Swirl from "@/components/Swirl";
+import Reveal, { ScrollFade } from "@/components/Reveal";
 import LikeButton from "@/components/LikeButton";
 import ViewCounter from "@/components/ViewCounter";
 import ShareButtons from "@/components/ShareButtons";
@@ -99,27 +100,31 @@ export default async function WritingDetailPage({
   return (
     <div className="mx-auto max-w-2xl px-6 py-14">
       <ReadingProgress />
-      <p className="eyebrow text-center">{categoryLabel(post.category)}</p>
-      <h1 className="mt-3 text-center">{post.title}</h1>
-      <p className="mt-4 text-center font-sans text-[12px] uppercase tracking-[0.18em] text-[var(--text-faint)]">
-        {new Date(post.created_at).toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        })}
-        {post.reading_time ? ` · ${post.reading_time} read` : ""}
-      </p>
-      <div className="mt-4 flex justify-center">
-        <Swirl className="text-[var(--accent)]" />
-      </div>
+      <Reveal>
+        <p className="eyebrow text-center">{categoryLabel(post.category)}</p>
+        <h1 className="mt-3 text-center">{post.title}</h1>
+        <p className="mt-4 text-center font-sans text-[12px] uppercase tracking-[0.18em] text-[var(--text-faint)]">
+          {new Date(post.created_at).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })}
+          {post.reading_time ? ` · ${post.reading_time} read` : ""}
+        </p>
+        <div className="mt-4 flex justify-center">
+          <Swirl className="text-[var(--accent)]" />
+        </div>
+      </Reveal>
 
       {post.cover_image ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={post.cover_image}
-          alt={post.title}
-          className="mt-8 aspect-[16/9] w-full rounded-2xl border border-[var(--border-color)] object-cover shadow-[var(--shadow-card)]"
-        />
+        <Reveal>
+          <img
+            src={post.cover_image}
+            alt={post.title}
+            className="mt-8 aspect-[16/9] w-full rounded-2xl border border-[var(--border-color)] object-cover shadow-[var(--shadow-card)]"
+          />
+        </Reveal>
       ) : null}
 
       {post.excerpt && (
@@ -149,35 +154,39 @@ export default async function WritingDetailPage({
         <FontSizeToggle />
       </div>
 
-      <article className="reading-body mt-10 whitespace-pre-line font-serif leading-[1.85] text-[var(--text-primary)]">
-        {post.content}
-      </article>
+      <ScrollFade>
+        <article className="reading-body mt-10 whitespace-pre-line font-serif leading-[1.85] text-[var(--text-primary)]">
+          {post.content}
+        </article>
 
-      <div className="mt-10">
-        <ShareButtons key={`s-${post.slug}`} title={post.title} />
-      </div>
+        <div className="mt-10">
+          <ShareButtons key={`s-${post.slug}`} title={post.title} />
+        </div>
+      </ScrollFade>
 
       {related.length > 0 && (
-        <section className="mt-14 border-t border-[var(--border-color)] pt-10">
-          <p className="eyebrow text-center">Keep reading</p>
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            {related.map((r) => (
-              <Link key={r.slug} href={`/writings/${r.slug}`} className="vintage-card group block p-5">
-                <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
-                  {categoryLabel(post.category)}
-                </p>
-                <p className="mt-2 font-script text-2xl leading-tight text-[var(--text-heading)] transition-colors group-hover:text-[var(--accent)]">
-                  {r.title}
-                </p>
-                {r.excerpt && (
-                  <p className="mt-2 line-clamp-2 font-serif text-sm leading-relaxed text-[var(--text-muted)]">
-                    {r.excerpt}
+        <ScrollFade>
+          <section className="mt-14 border-t border-[var(--border-color)] pt-10">
+            <p className="eyebrow text-center">Keep reading</p>
+            <div className="mt-6 grid gap-4 sm:grid-cols-3">
+              {related.map((r) => (
+                <Link key={r.slug} href={`/writings/${r.slug}`} className="vintage-card group block p-5">
+                  <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
+                    {categoryLabel(post.category)}
                   </p>
-                )}
-              </Link>
-            ))}
-          </div>
-        </section>
+                  <p className="mt-2 font-script text-2xl leading-tight text-[var(--text-heading)] transition-colors group-hover:text-[var(--accent)]">
+                    {r.title}
+                  </p>
+                  {r.excerpt && (
+                    <p className="mt-2 line-clamp-2 font-serif text-sm leading-relaxed text-[var(--text-muted)]">
+                      {r.excerpt}
+                    </p>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </section>
+        </ScrollFade>
       )}
 
       <div className="mt-16 grid gap-4 border-t border-[var(--border-color)] pt-8 sm:grid-cols-3 sm:items-center">

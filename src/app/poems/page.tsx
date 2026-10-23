@@ -1,7 +1,7 @@
 import React from "react";
 import WritingCard from "@/components/WritingCard";
 import DecorativeDivider from "@/components/DecorativeDivider";
-import Reveal, { SpringReveal } from "@/components/Reveal";
+import Reveal, { SpringReveal, ScrollFade } from "@/components/Reveal";
 import { StaggerContainer } from "@/components/ScrollAnimations";
 import { createPublicClient as createClient } from "@/lib/supabase/server";
 
@@ -65,28 +65,30 @@ export default async function PoemsPage() {
         </Reveal>
       </section>
 
-      <section className="mx-auto max-w-[1320px] px-6 sm:px-10 lg:px-16 mt-12">
-        <StaggerContainer
-          stagger={0.08}
-          delay={0.1}
-          itemClassName="h-full"
-          className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3"
-        >
-          {poems.map((poem, i) => (
-            <SpringReveal key={poem.id} delay={Math.min(i, 5) * 0.06}>
-              <WritingCard
-                category="POEM"
-                title={poem.title}
-                excerpt={poem.excerpt}
-                href={`/writings/${poem.slug}`}
-                coverImage={poem.cover_image}
-                date={new Date(poem.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
-                readTime={poem.reading_time ? `${poem.reading_time} read` : undefined}
-              />
-            </SpringReveal>
-          ))}
-        </StaggerContainer>
-      </section>
+      <ScrollFade>
+        <section className="mx-auto max-w-[1320px] px-6 sm:px-10 lg:px-16 mt-12">
+          <StaggerContainer
+            stagger={0.08}
+            delay={0.1}
+            itemClassName="h-full"
+            className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3"
+          >
+            {poems.map((poem, i) => (
+              <SpringReveal key={poem.id} delay={Math.min(i, 5) * 0.06}>
+                <WritingCard
+                  category="POEM"
+                  title={poem.title}
+                  excerpt={poem.excerpt}
+                  href={`/writings/${poem.slug}`}
+                  coverImage={poem.cover_image}
+                  date={new Date(poem.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                  readTime={poem.reading_time ? `${poem.reading_time} read` : undefined}
+                />
+              </SpringReveal>
+            ))}
+          </StaggerContainer>
+        </section>
+      </ScrollFade>
     </div>
   );
 }
