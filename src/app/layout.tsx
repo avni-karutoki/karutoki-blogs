@@ -44,6 +44,10 @@ export const metadata: Metadata = {
   title: "Karutoki Blogs",
   description:
     "Poems, blogs and midnight thoughts by Avni Goel aka Karutoki. Words that were never said, left behind here instead.",
+  icons: {
+    icon: "/logo/karutoki-logo.png",
+    apple: "/logo/karutoki-logo.png",
+  },
 };
 
 export const viewport: Viewport = {

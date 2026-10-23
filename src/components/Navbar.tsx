@@ -47,7 +47,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[var(--border-color)] bg-[var(--bg-primary)]/85 backdrop-blur-md transition-colors duration-300">
-      <nav className="relative mx-auto flex h-[72px] max-w-6xl items-center justify-between px-6">
+      <nav className="relative mx-auto flex h-16 md:h-[72px] max-w-6xl items-center justify-between px-4 md:px-6">
         <MotionLink href="/" className="relative z-10 flex items-center" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
           <KarutokiLogo />
         </MotionLink>
@@ -147,59 +147,56 @@ export default function Navbar() {
 
         {/* Mobile */}
         <div className="flex items-center gap-2 md:hidden">
-          <MotionButton
+          <button
             type="button"
             onClick={openSearch}
             aria-label="Open search"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-[var(--text-primary)]"
-            whileHover={{ scale: 1.1, rotate: 12 }}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-[var(--text-primary)] touch-manipulation"
           >
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
               <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.7" />
               <line x1="16.2" y1="16.2" x2="21" y2="21" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
             </svg>
-          </MotionButton>
-          <MotionButton
+          </button>
+          <button
             type="button"
             onClick={toggleDark}
             aria-label="Toggle dark mode"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-[15px]"
-            whileHover={{ scale: 1.1, rotate: 15 }}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-[15px] touch-manipulation"
           >
             {isDark ? "☼" : "☾"}
-          </MotionButton>
-          <MotionButton
+          </button>
+          <button
             type="button"
             aria-label="Open menu"
             onClick={() => setMenuOpen(true)}
-            className="flex h-10 w-10 flex-col items-center justify-center gap-1.5 rounded-full transition hover:bg-[var(--accent-soft)]"
-            whileHover={{ scale: 1.05 }}
+            className="flex h-10 w-10 flex-col items-center justify-center gap-1.5 rounded-full transition hover:bg-[var(--accent-soft)] touch-manipulation"
           >
             <span className="block h-0.5 w-5 bg-[var(--text-primary)]" />
             <span className="block h-0.5 w-5 bg-[var(--text-primary)]" />
             <span className="block h-0.5 w-3.5 self-end mr-2.5 bg-[var(--accent)]" />
-          </MotionButton>
+          </button>
         </div>
       </nav>
 
-      {/* Mobile drawer */}
+      {/* Mobile drawer backdrop */}
       <div
         onClick={() => setMenuOpen(false)}
+        onTouchStart={(e) => e.stopPropagation()}
         aria-hidden
-        className={`fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm transition-opacity duration-300 md:hidden ${menuOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm transition-opacity duration-300 md:hidden touch-none ${menuOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
       />
       <aside className={`fixed right-0 top-0 z-[70] flex h-full w-[300px] max-w-[85vw] flex-col overflow-y-auto border-l border-[var(--border-color)] bg-[var(--bg-card)] p-6 shadow-2xl transition-transform duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] md:hidden ${menuOpen ? "translate-x-0" : "translate-x-full"}`}>
         <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-4">
           <KarutokiLogo />
-          <MotionButton
+          <button
             type="button"
             aria-label="Close menu"
             onClick={() => setMenuOpen(false)}
-            className="flex h-9 w-9 items-center justify-center rounded-full text-lg transition hover:bg-[var(--accent-soft)]"
-            whileHover={{ rotate: 90, scale: 1.1 }}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-lg transition hover:bg-[var(--accent-soft)] touch-manipulation"
           >
             ✕
-          </MotionButton>
+          </button>
         </div>
 
         <StaggerGroup stagger={0.06} className="mt-6 flex flex-col gap-1">
