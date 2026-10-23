@@ -106,7 +106,7 @@ export default function Hero({
         </motion.div>
       </div>
 
-      <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-6 pb-14 pt-4 md:grid-cols-[0.9fr_1.1fr] md:pb-20 md:pt-6">
+      <div className="relative mx-auto grid max-w-6xl items-center justify-items-center gap-12 px-6 pb-14 pt-4 text-center md:justify-items-start md:grid-cols-[0.9fr_1.1fr] md:pb-20 md:pt-6 md:text-left">
         {/* Copy - Left side */}
         <motion.div style={{ y: reduceMotion ? 0 : copyY, opacity: reduceMotion ? 1 : copyOpacity }}>
           <StaggerGroup stagger={0.08} delay={0}>
@@ -120,10 +120,10 @@ export default function Hero({
                 <KineticTitle text={hero.title} />
               )}
             </ScrollReveal>
-            <ScrollReveal as="p" variant="fadeUp" className="lead mt-5 max-w-md">
+            <ScrollReveal as="p" variant="fadeUp" className="lead mt-5 max-w-md md:mx-0 mx-auto">
               {hero.subtitle}
             </ScrollReveal>
-            <ScrollReveal as="div" variant="fadeUp" className="mt-8 flex flex-wrap items-center gap-4">
+            <ScrollReveal as="div" variant="fadeUp" className="mt-8 flex flex-wrap items-center justify-center gap-4 md:justify-start">
               <MotionLink href="/writings" className="btn-ink" whileHover={{ scale: 1.03 }}>
                 {hero.buttonText || "Explore writings"} →
               </MotionLink>
@@ -135,7 +135,7 @@ export default function Hero({
             </ScrollReveal>
 
             {/* stats */}
-            <ScrollReveal as="dl" variant="fadeUp" className="mt-10 flex items-center gap-8 border-t border-[var(--border-color)] pt-6">
+            <ScrollReveal as="dl" variant="fadeUp" className="mt-10 flex items-center justify-center gap-8 border-t border-[var(--border-color)] pt-6 md:justify-start md:w-auto w-full max-w-sm">
               {[
                 { n: counts.poems, label: "Poems" },
                 { n: counts.blogs, label: "Blogs" },

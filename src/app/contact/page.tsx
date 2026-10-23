@@ -24,9 +24,11 @@ export default function ContactPage() {
         </div>
       </Reveal>
 
-      <p className="mt-12 text-center font-serif text-lg italic text-[var(--text-muted)]">
-        Words are better, when they&apos;re shared.
-      </p>
+      <Reveal>
+        <p className="mt-12 text-center font-serif text-lg italic text-[var(--text-muted)]">
+          Words are better, when they&apos;re shared.
+        </p>
+      </Reveal>
     </div>
   );
 }

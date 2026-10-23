@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
+import Reveal from "@/components/Reveal";
 import { createClient } from "@/lib/supabase/client";
 import type { Post } from "@/lib/types";
 import { categoryLabel } from "@/lib/types";
@@ -53,9 +54,12 @@ export default function SearchPage() {
 
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-xl flex-col items-center px-6 pt-16">
-      <p className="eyebrow">Search</p>
-      <h1 className="mt-2 text-center">What are you looking for?</h1>
-      <form
+      <Reveal>
+        <p className="eyebrow">Search</p>
+        <h1 className="mt-2 text-center">What are you looking for?</h1>
+      </Reveal>
+      <Reveal delay={0.08} className="w-full">
+        <form
         onSubmit={handleSubmit}
         className="mt-8 flex w-full items-end gap-3 border-b-2 border-[var(--text-heading)] pb-3"
       >
@@ -77,23 +81,25 @@ export default function SearchPage() {
           </svg>
         </button>
       </form>
+      </Reveal>
 
       <div className="mt-10 w-full space-y-2">
         {searched && !loading && results.length === 0 && (
           <p className="body-text text-center">No writings match that, yet.</p>
         )}
-        {results.map((r) => (
-          <Link
-            key={r.slug}
-            href={`/writings/${r.slug}`}
-            className="group block border-b border-[var(--border-color)] py-5 transition-colors"
-          >
-            <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
-              {categoryLabel(r.category)}
-            </p>
-            <h3 className="mt-1 transition-colors group-hover:text-[var(--accent)]">{r.title}</h3>
-            <p className="mt-1 line-clamp-2 font-serif text-[1rem] text-[var(--text-muted)]">{r.excerpt}</p>
-          </Link>
+        {results.map((r, i) => (
+          <Reveal key={r.slug} delay={Math.min(i, 8) * 0.05}>
+            <Link
+              href={`/writings/${r.slug}`}
+              className="group block border-b border-[var(--border-color)] py-5 transition-colors"
+            >
+              <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
+                {categoryLabel(r.category)}
+              </p>
+              <h3 className="mt-1 transition-colors group-hover:text-[var(--accent)]">{r.title}</h3>
+              <p className="mt-1 line-clamp-2 font-serif text-[1rem] text-[var(--text-muted)]">{r.excerpt}</p>
+            </Link>
+          </Reveal>
         ))}
       </div>
     </div>

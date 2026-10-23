@@ -128,39 +128,49 @@ export default async function WritingDetailPage({
       ) : null}
 
       {post.excerpt && (
-        <p className="mt-8 text-center font-serif text-xl italic leading-relaxed text-[var(--text-muted)]">
-          “{post.excerpt}”
-        </p>
+        <Reveal>
+          <p className="mt-8 text-center font-serif text-xl italic leading-relaxed text-[var(--text-muted)]">
+            “{post.excerpt}”
+          </p>
+        </Reveal>
       )}
 
       {post.tags && post.tags.length > 0 && (
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
-          {post.tags.map((tag) => (
-            <Link
-              key={tag}
-              href={`/tags/${encodeURIComponent(tag)}`}
-              className="rounded-full border border-[var(--border-color)] bg-[var(--accent-soft)] px-3 py-1 font-sans text-[11px] font-medium text-[var(--accent)] transition-colors hover:border-[var(--accent)]"
-            >
-              #{tag}
-            </Link>
-          ))}
-        </div>
+        <Reveal>
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
+            {post.tags.map((tag) => (
+              <Link
+                key={tag}
+                href={`/tags/${encodeURIComponent(tag)}`}
+                className="rounded-full border border-[var(--border-color)] bg-[var(--accent-soft)] px-3 py-1 font-sans text-[11px] font-medium text-[var(--accent)] transition-colors hover:border-[var(--accent)]"
+              >
+                #{tag}
+              </Link>
+            ))}
+          </div>
+        </Reveal>
       )}
 
-      <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-3">
-        {/* keyed by slug so counts reset when navigating between posts */}
-        <ViewCounter key={`v-${post.slug}`} slug={post.slug} initialViews={post.views ?? 0} />
-        <LikeButton key={`l-${post.slug}`} slug={post.slug} initialLikes={post.likes ?? 0} />
-        <FontSizeToggle />
-      </div>
+      <Reveal>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-3">
+          {/* keyed by slug so counts reset when navigating between posts */}
+          <ViewCounter key={`v-${post.slug}`} slug={post.slug} initialViews={post.views ?? 0} />
+          <LikeButton key={`l-${post.slug}`} slug={post.slug} initialLikes={post.likes ?? 0} />
+          <FontSizeToggle />
+        </div>
+      </Reveal>
 
-      <article className="reading-body mt-10 whitespace-pre-line font-serif leading-[1.85] text-[var(--text-primary)]">
-        {post.content}
-      </article>
+      <Reveal>
+        <article className="reading-body mt-10 whitespace-pre-line font-serif leading-[1.85] text-[var(--text-primary)]">
+          {post.content}
+        </article>
+      </Reveal>
 
-      <div className="mt-10">
-        <ShareButtons key={`s-${post.slug}`} title={post.title} />
-      </div>
+      <Reveal>
+        <div className="mt-10">
+          <ShareButtons key={`s-${post.slug}`} title={post.title} />
+        </div>
+      </Reveal>
 
       {related.length > 0 && (
         <section className="mt-14 border-t border-[var(--border-color)] pt-10">
@@ -189,37 +199,39 @@ export default async function WritingDetailPage({
         </section>
       )}
 
-      <div className="mt-16 grid gap-4 border-t border-[var(--border-color)] pt-8 sm:grid-cols-3 sm:items-center">
-        <div>
-          {prev ? (
-            <Link href={`/writings/${prev.slug}`} className="group block">
-              <span className="font-sans text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-faint)]">← Previous</span>
-              <span className="mt-1 block font-script text-2xl leading-tight text-[var(--text-heading)] transition-colors group-hover:text-[var(--accent)]">
-                {prev.title}
-              </span>
+      <Reveal>
+        <div className="mt-16 grid gap-4 border-t border-[var(--border-color)] pt-8 sm:grid-cols-3 sm:items-center">
+          <div>
+            {prev ? (
+              <Link href={`/writings/${prev.slug}`} className="group block">
+                <span className="font-sans text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-faint)]">← Previous</span>
+                <span className="mt-1 block font-script text-2xl leading-tight text-[var(--text-heading)] transition-colors group-hover:text-[var(--accent)]">
+                  {prev.title}
+                </span>
+              </Link>
+            ) : (
+              <span />
+            )}
+          </div>
+          <div className="text-center">
+            <Link href="/writings" className="ink-link font-sans text-[12px] font-semibold uppercase tracking-[0.2em]">
+              All writings
             </Link>
-          ) : (
-            <span />
-          )}
+          </div>
+          <div className="sm:text-right">
+            {next ? (
+              <Link href={`/writings/${next.slug}`} className="group block">
+                <span className="font-sans text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-faint)]">Next →</span>
+                <span className="mt-1 block font-script text-2xl leading-tight text-[var(--text-heading)] transition-colors group-hover:text-[var(--accent)]">
+                  {next.title}
+                </span>
+              </Link>
+            ) : (
+              <span />
+            )}
+          </div>
         </div>
-        <div className="text-center">
-          <Link href="/writings" className="ink-link font-sans text-[12px] font-semibold uppercase tracking-[0.2em]">
-            All writings
-          </Link>
-        </div>
-        <div className="sm:text-right">
-          {next ? (
-            <Link href={`/writings/${next.slug}`} className="group block">
-              <span className="font-sans text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-faint)]">Next →</span>
-              <span className="mt-1 block font-script text-2xl leading-tight text-[var(--text-heading)] transition-colors group-hover:text-[var(--accent)]">
-                {next.title}
-              </span>
-            </Link>
-          ) : (
-            <span />
-          )}
-        </div>
-      </div>
+      </Reveal>
     </div>
   );
 }
