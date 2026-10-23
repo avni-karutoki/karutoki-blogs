@@ -3,11 +3,37 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import Link from "next/link";
-import { ScrollReveal, StaggerGroup, MotionLink } from "./MotionPrimitives";
+import KarutokiLogo from "./KarutokiLogo";
+import { CountUp, ScrollReveal, StaggerGroup, MotionLink } from "./MotionPrimitives";
 import type { HeroSettings, Post } from "@/lib/types";
 import { categoryLabel } from "@/lib/types";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+/** Kinetic headline: each word springs up out of its own mask, one after another. */
+function KineticTitle({ text }: { text: string }) {
+  const words = text.split(/(\s+)/);
+  return (
+    <span aria-label={text} role="text">
+      {words.map((word, i) =>
+        /^\s+$/.test(word) ? (
+          <span key={i}> </span>
+        ) : (
+          <span key={i} aria-hidden className="inline-block overflow-hidden pb-[0.12em] align-bottom">
+            <motion.span
+              className="inline-block"
+              initial={{ y: "115%" }}
+              animate={{ y: "0%" }}
+              transition={{ type: "spring", stiffness: 110, damping: 16, mass: 0.9, delay: 0.15 + i * 0.07 }}
+            >
+              {word}
+            </motion.span>
+          </span>
+        ),
+      )}
+    </span>
+  );
+}
 
 // Collect up to 5 images for the slideshow: hero.imageUrl + featured posts' cover_images
 function getSlideshowImages(hero: HeroSettings, featured: Post[]): string[] {
@@ -19,10 +45,8 @@ function getSlideshowImages(hero: HeroSettings, featured: Post[]): string[] {
     }
     if (images.length >= 5) break;
   }
-  // Fallback if no images
-  if (images.length === 0) {
-    images.push("/logo/karutoki-logo.png");
-  }
+  // Fallback: if nothing is set, the slideshow frame simply shows nothing —
+  // the decorative frame handles its own empty state.
   return images;
 }
 
@@ -90,7 +114,11 @@ export default function Hero({
               ✦ Poems · Blogs · Midnight talks
             </ScrollReveal>
             <ScrollReveal as="h1" variant="fadeUp" className="mt-4">
-              {hero.title}
+              {reduceMotion ? (
+                hero.title
+              ) : (
+                <KineticTitle text={hero.title} />
+              )}
             </ScrollReveal>
             <ScrollReveal as="p" variant="fadeUp" className="lead mt-5 max-w-md">
               {hero.subtitle}
@@ -116,7 +144,7 @@ export default function Hero({
                 <motion.div key={s.label} whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 300 }}>
                   <dt className="sr-only">{s.label}</dt>
                   <dd className="font-script text-4xl leading-none text-[var(--text-heading)]">
-                    {s.n}
+                    {reduceMotion ? s.n : <CountUp value={s.n} duration={1.1} delay={0.5} />}
                   </dd>
                   <dd className="mt-1 font-sans text-[10.5px] font-semibold uppercase tracking-[0.2em] text-[var(--text-faint)]">
                     {s.label}
@@ -134,23 +162,29 @@ export default function Hero({
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            {/* Slideshow images */}
+            {/* Slideshow images (or an empty frame when no images exist) */}
             <div className="absolute inset-0">
-              {images.map((src, i) => (
-                <motion.img
-                  key={src}
-                  src={src}
-                  alt={`Hero slide ${i + 1}`}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: currentIndex === i ? 1 : 0 }}
-                  transition={{ duration: 0.8, ease: EASE }}
-                  style={{ y: reduceMotion ? 0 : imgY, scale: reduceMotion ? 1 : imgScale, willChange: "transform" }}
-                  loading={i === 0 ? "eager" : "lazy"}
-                  decoding="async"
-                  fetchPriority={i === 0 ? "high" : "low"}
-                />
-              ))}
+              {images.length > 0 ? (
+                images.map((src, i) => (
+                  <motion.img
+                    key={src}
+                    src={src}
+                    alt={`Hero slide ${i + 1}`}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: currentIndex === i ? 1 : 0 }}
+                    transition={{ duration: 0.8, ease: EASE }}
+                    style={{ y: reduceMotion ? 0 : imgY, scale: reduceMotion ? 1 : imgScale, willChange: "transform" }}
+                    loading={i === 0 ? "eager" : "lazy"}
+                    decoding="async"
+                    fetchPriority={i === 0 ? "high" : "low"}
+                  />
+                ))
+              ) : (
+                <div className="absolute inset-0 grid place-items-center">
+                  <KarutokiLogo className="w-24 h-24 text-[var(--text-faint)]" />
+                </div>
+              )}
             </div>
 
             {/* Gradient overlay */}

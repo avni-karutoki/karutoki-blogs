@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createPublicClient as createClient } from "@/lib/supabase/server";
 import Swirl from "@/components/Swirl";
-import Reveal, { ScrollFade } from "@/components/Reveal";
+import Reveal, { SpringReveal } from "@/components/Reveal";
 import LikeButton from "@/components/LikeButton";
 import ViewCounter from "@/components/ViewCounter";
 import ShareButtons from "@/components/ShareButtons";
@@ -154,23 +154,23 @@ export default async function WritingDetailPage({
         <FontSizeToggle />
       </div>
 
-      <ScrollFade>
-        <article className="reading-body mt-10 whitespace-pre-line font-serif leading-[1.85] text-[var(--text-primary)]">
-          {post.content}
-        </article>
+      <article className="reading-body mt-10 whitespace-pre-line font-serif leading-[1.85] text-[var(--text-primary)]">
+        {post.content}
+      </article>
 
-        <div className="mt-10">
-          <ShareButtons key={`s-${post.slug}`} title={post.title} />
-        </div>
-      </ScrollFade>
+      <div className="mt-10">
+        <ShareButtons key={`s-${post.slug}`} title={post.title} />
+      </div>
 
       {related.length > 0 && (
-        <ScrollFade>
-          <section className="mt-14 border-t border-[var(--border-color)] pt-10">
+        <section className="mt-14 border-t border-[var(--border-color)] pt-10">
+          <Reveal>
             <p className="eyebrow text-center">Keep reading</p>
-            <div className="mt-6 grid gap-4 sm:grid-cols-3">
-              {related.map((r) => (
-                <Link key={r.slug} href={`/writings/${r.slug}`} className="vintage-card group block p-5">
+          </Reveal>
+          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+            {related.map((r, i) => (
+              <SpringReveal key={r.slug} delay={i * 0.08} whileHover={{ y: -6 }}>
+                <Link href={`/writings/${r.slug}`} className="vintage-card group block p-5">
                   <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
                     {categoryLabel(post.category)}
                   </p>
@@ -183,10 +183,10 @@ export default async function WritingDetailPage({
                     </p>
                   )}
                 </Link>
-              ))}
-            </div>
-          </section>
-        </ScrollFade>
+              </SpringReveal>
+            ))}
+          </div>
+        </section>
       )}
 
       <div className="mt-16 grid gap-4 border-t border-[var(--border-color)] pt-8 sm:grid-cols-3 sm:items-center">

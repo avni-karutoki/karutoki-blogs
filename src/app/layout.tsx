@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { SearchProvider } from "@/components/SearchContext";
 import SearchOverlay from "@/components/SearchOverlay";
 import ScrollToTop from "@/components/ScrollToTop";
+import ScrollProgressBar from "@/components/ScrollProgressBar";
 import CursorDog from "@/components/CursorDog";
 import HangingMelody from "@/components/HangingMelody";
 import AnnouncementBar from "@/components/AnnouncementBar";
@@ -45,8 +46,8 @@ export const metadata: Metadata = {
   description:
     "Poems, blogs and midnight thoughts by Avni Goel aka Karutoki. Words that were never said, left behind here instead.",
   icons: {
-    icon: "/logo/favicon.png",
-    apple: "/logo/favicon.png",
+    icon: "/favicon.ico",
+    apple: "/favicon.ico",
   },
 };
 
@@ -93,6 +94,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           <SearchProvider>
             <div className="vignette-veil" aria-hidden />
+            <ScrollProgressBar />
             <AnnouncementBar />
             <Navbar />
             <main className="min-h-[72vh]">

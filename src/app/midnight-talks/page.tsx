@@ -1,7 +1,7 @@
 import React from "react";
 import WritingCard from "@/components/WritingCard";
 import DecorativeDivider from "@/components/DecorativeDivider";
-import Reveal, { SpringReveal, ScrollFade } from "@/components/Reveal";
+import Reveal, { SpringReveal } from "@/components/Reveal";
 import { StaggerContainer } from "@/components/ScrollAnimations";
 import { createPublicClient as createClient } from "@/lib/supabase/server";
 
@@ -65,30 +65,28 @@ export default async function MidnightTalksPage() {
         </Reveal>
       </section>
 
-      <ScrollFade>
-        <section className="mx-auto max-w-[1320px] px-6 sm:px-10 lg:px-16 mt-12">
-          <StaggerContainer
-            stagger={0.08}
-            delay={0.1}
-            itemClassName="h-full"
-            className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3"
-          >
-            {talks.map((talk, i) => (
-              <SpringReveal key={talk.id} delay={Math.min(i, 5) * 0.06}>
-                <WritingCard
-                  category="MIDNIGHT TALK"
-                  title={talk.title}
-                  excerpt={talk.excerpt}
-                  href={`/writings/${talk.slug}`}
-                  coverImage={talk.cover_image}
-                  date={new Date(talk.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
-                  readTime={talk.reading_time ? `${talk.reading_time} read` : undefined}
-                />
-              </SpringReveal>
-            ))}
-          </StaggerContainer>
-        </section>
-      </ScrollFade>
+      <section className="mx-auto max-w-[1320px] px-6 sm:px-10 lg:px-16 mt-12">
+        <StaggerContainer
+          stagger={0.08}
+          delay={0.1}
+          itemClassName="h-full"
+          className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          {talks.map((talk, i) => (
+            <SpringReveal key={talk.id} delay={Math.min(i, 5) * 0.06} whileHover={{ y: -8, boxShadow: "var(--shadow-card)" }}>
+              <WritingCard
+                category="MIDNIGHT TALK"
+                title={talk.title}
+                excerpt={talk.excerpt}
+                href={`/writings/${talk.slug}`}
+                coverImage={talk.cover_image}
+                date={new Date(talk.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                readTime={talk.reading_time ? `${talk.reading_time} read` : undefined}
+              />
+            </SpringReveal>
+          ))}
+        </StaggerContainer>
+      </section>
     </div>
   );
 }

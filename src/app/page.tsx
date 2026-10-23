@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Hero from "@/components/Hero";
-import Reveal, { SpringReveal, ScrollFade } from "@/components/Reveal";
+import Reveal, { SpringReveal } from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import NewsletterForm from "@/components/NewsletterForm";
 import { createPublicClient as createClient } from "@/lib/supabase/server";
@@ -74,9 +74,8 @@ export default async function HomePage() {
 
       <div className="mx-auto max-w-6xl px-6">
         {/* Featured writings */}
-        <ScrollFade>
-          <section className="py-16">
-            <Reveal className="mb-10">
+        <section className="py-16">
+          <Reveal className="mb-10">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <SectionHeading
                 eyebrow={shelfEyebrow}
@@ -142,11 +141,9 @@ export default async function HomePage() {
             ))}
           </StaggerContainer>
           </section>
-        </ScrollFade>
 
         {/* About teaser */}
-        <ScrollFade>
-          <section className="grid items-center gap-10 overflow-x-clip border-t border-[var(--border-color)] py-16 md:grid-cols-2">
+        <section className="grid items-center gap-10 overflow-x-clip border-t border-[var(--border-color)] py-16 md:grid-cols-2">
           <div className="relative order-2 md:order-1">
             <Parallax speed={0.1} className="mx-auto max-w-xs">
               <Reveal>
@@ -179,11 +176,9 @@ export default async function HomePage() {
             </Link>
           </Reveal>
           </section>
-        </ScrollFade>
 
         {/* Newsletter */}
-        <ScrollFade>
-          <section id="newsletter" className="scroll-mt-24 border-t border-[var(--border-color)] py-16 text-center relative">
+        <section id="newsletter" className="scroll-mt-24 border-t border-[var(--border-color)] py-16 text-center relative">
           <FloatingElement amplitude={30} duration={12} delay={0} className="absolute -top-20 left-1/2 -translate-x-1/2 h-40 w-40 rounded-full bg-[var(--accent-soft)] blur-2xl opacity-50"><div /></FloatingElement>
           <FloatingElement amplitude={25} duration={15} delay={2} className="absolute -bottom-20 right-10 h-32 w-32 rounded-full bg-[var(--accent-soft)] blur-2xl opacity-50"><div /></FloatingElement>
           <StaggerContainer stagger={0.12} className="relative z-10">
@@ -201,7 +196,6 @@ export default async function HomePage() {
             </Reveal>
           </StaggerContainer>
           </section>
-        </ScrollFade>
       </div>
     </div>
   );
