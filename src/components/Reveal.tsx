@@ -1,7 +1,6 @@
 "use client";
 
-import { motion, type TargetAndTransition } from "framer-motion";
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { flattenChildren } from "@/lib/flatten-children";
 
 type CleanHTMLProps<Element extends HTMLElement> = Omit<
@@ -23,6 +22,61 @@ interface RevealProps extends CleanHTMLProps<HTMLDivElement> {
   className?: string;
 }
 
+/**
+ * CSS + IntersectionObserver scroll reveals.
+ *
+ * Elements start hidden via the `.reveal` class (only active when
+ * `document.documentElement` has the `js` class, added by the inline head
+ * script), and gain `.is-revealed` the first time they scroll into view.
+ * This deliberately avoids framer-motion's whileInView — it works reliably
+ * regardless of hydration state, and no-JS visitors still see all content.
+ */
+function useReveal(once: boolean, rootMargin: string) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setRevealed(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setRevealed(true);
+            if (once) io.disconnect();
+          } else if (!once) {
+            setRevealed(false);
+          }
+        }
+      },
+      { rootMargin },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [once, rootMargin]);
+
+  return { ref, revealed };
+}
+
+function revealStyle(opts: {
+  delay?: number;
+  y?: number;
+  x?: number;
+  scale?: number;
+}): CSSProperties {
+  const style: Record<string, string | number> = {
+    transitionDelay: `${Math.max(opts.delay ?? 0, 0)}s`,
+    "--reveal-y": `${opts.y ?? 0}px`,
+    "--reveal-x": `${opts.x ?? 0}px`,
+    "--reveal-scale": String(opts.scale ?? 1),
+  };
+  return style as CSSProperties;
+}
+
 export default function Reveal({
   children,
   delay = 0,
@@ -37,39 +91,35 @@ export default function Reveal({
   className,
   ...props
 }: RevealProps) {
+  const { ref, revealed } = useReveal(once, viewportMargin);
+  const { style: styleProp, ...rest } = props;
+
   return (
-    <motion.div
-      className={className}
-      initial={{ opacity: 0, y, x, scale, rotate }}
-      whileInView={{ opacity: 1, y: 0, x: 0, scale: 1, rotate: 0 }}
-      viewport={{ once, margin: viewportMargin }}
-      transition={{ 
-        duration, 
-        delay: Math.min(delay, 0.4), 
-        ease: [0.22, 1, 0.36, 1] 
-      }}
-      {...props}
-      style={{ willChange: "transform, opacity" }}
+    <div
+      ref={ref}
+      className={`reveal ${revealed ? "is-revealed" : ""} ${className ?? ""}`}
+      style={{ ...revealStyle({ delay, y, x, scale }), ...((styleProp as CSSProperties) ?? {}) }}
+      {...rest}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 
 // Staggered reveal for lists
-export function StaggeredReveal({ 
-  children, 
-  delay = 0, 
+export function StaggeredReveal({
+  children,
+  delay = 0,
   stagger = 0.08,
-  ...props 
+  ...props
 }: { children: ReactNode; delay?: number; stagger?: number } & Omit<RevealProps, "children" | "delay" | "stagger">) {
   const childArray = flattenChildren(children);
-  
+
   return (
     <>
       {childArray.map((child, i) => (
-        <Reveal 
-          key={i} 
+        <Reveal
+          key={i}
           delay={delay + i * stagger}
           {...props}
         >
@@ -80,32 +130,29 @@ export function StaggeredReveal({
   );
 }
 
-// Reveal with spring animation for more organic feel
+// Reveal with a hover lift for cards. `whileHover` is kept for API
+// compatibility with previous framer-motion-based call sites; when provided
+// the element also gets the `.hover-lift` CSS micro-interaction.
 export function SpringReveal({
   children,
   delay = 0,
   y = 30,
   whileHover,
+  viewportMargin = "-60px",
   className,
   ...props
-}: Omit<RevealProps, "duration" | "ease"> & { whileHover?: TargetAndTransition }) {
+}: Omit<RevealProps, "duration" | "ease"> & { whileHover?: unknown }) {
+  const { ref, revealed } = useReveal(true, viewportMargin);
+  const { style: styleProp, ...rest } = props;
+
   return (
-    <motion.div
-      className={className}
-      initial={{ opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      whileHover={whileHover}
-      transition={{ 
-        type: "spring", 
-        damping: 20, 
-        stiffness: 120, 
-        delay: Math.min(delay, 0.3) 
-      }}
-      {...props}
-      style={{ willChange: "transform, opacity" }}
+    <div
+      ref={ref}
+      className={`reveal ${revealed ? "is-revealed" : ""} ${whileHover ? "hover-lift" : ""} ${className ?? ""}`}
+      style={{ ...revealStyle({ delay, y }), ...((styleProp as CSSProperties) ?? {}) }}
+      {...rest}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }

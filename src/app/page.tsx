@@ -144,7 +144,7 @@ export default async function HomePage() {
 
         {/* About teaser */}
         <section className="grid items-center gap-10 overflow-x-clip border-t border-[var(--border-color)] py-16 md:grid-cols-2">
-          <div className="relative order-2 md:order-1">
+          <div className="relative order-2 hidden md:order-1 md:block">
             <Parallax speed={0.1} className="mx-auto max-w-xs">
               <Reveal>
                 <div className="photo-stack">

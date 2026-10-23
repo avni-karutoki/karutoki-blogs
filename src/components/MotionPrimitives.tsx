@@ -151,7 +151,9 @@ export function MotionIcon({
   );
 }
 
-/** Reveal on scroll with configurable animation */
+/** Reveal on scroll — CSS-class based (IntersectionObserver in Reveal.tsx).
+ *  Works reliably without framer-motion hydration; no-JS visitors see all
+ *  content because the hidden state is gated behind the html `js` class. */
 interface ScrollRevealProps extends CleanDivProps {
   children: React.ReactNode;
   variant?: "fadeUp" | "fadeDown" | "fadeLeft" | "fadeRight" | "scale" | "flip" | "blur";
@@ -160,6 +162,19 @@ interface ScrollRevealProps extends CleanDivProps {
   /** Render as a different element (e.g. "h1", "p", "dl"). */
   as?: "div" | "h1" | "h2" | "h3" | "p" | "span" | "section" | "ul" | "ol" | "dl" | "figure";
 }
+
+const VARIANT_OFFSETS: Record<
+  "fadeUp" | "fadeDown" | "fadeLeft" | "fadeRight" | "scale" | "flip" | "blur",
+  { y: number; x: number; scale: number; css?: string }
+> = {
+  fadeUp: { y: 30, x: 0, scale: 1, css: "" },
+  fadeDown: { y: -30, x: 0, scale: 1, css: "" },
+  fadeLeft: { y: 0, x: 30, scale: 1, css: "" },
+  fadeRight: { y: 0, x: -30, scale: 1, css: "" },
+  scale: { y: 0, x: 0, scale: 0.92, css: "" },
+  flip: { y: 30, x: 0, scale: 1, css: "" },
+  blur: { y: 20, x: 0, scale: 1, css: "sr-blur" },
+};
 
 export function ScrollReveal({
   children,
@@ -170,28 +185,48 @@ export function ScrollReveal({
   as = "div",
   ...props
 }: ScrollRevealProps) {
-  const variants = {
-    fadeUp: { initial: { opacity: 0, y: 30 }, animate: { opacity: 1, y: 0 } },
-    fadeDown: { initial: { opacity: 0, y: -30 }, animate: { opacity: 1, y: 0 } },
-    fadeLeft: { initial: { opacity: 0, x: 30 }, animate: { opacity: 1, x: 0 } },
-    fadeRight: { initial: { opacity: 0, x: -30 }, animate: { opacity: 1, x: 0 } },
-    scale: { initial: { opacity: 0, scale: 0.9 }, animate: { opacity: 1, scale: 1 } },
-    flip: { initial: { opacity: 0, rotateY: 90 }, animate: { opacity: 1, rotateY: 0 } },
-    blur: { initial: { opacity: 0, filter: "blur(10px)" }, animate: { opacity: 1, filter: "blur(0px)" } },
-  };
+  const [revealed, setRevealed] = useState(false);
+  const ref = useRef<HTMLDivElement | null>(null);
+  // JSX typing: cast the intrinsic element union.
+  const Tag = as as "div";
 
-  const { initial, animate } = variants[variant];
-  const Tag = motion[as] as typeof motion.div;
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setRevealed(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setRevealed(true);
+            io.disconnect();
+          }
+        }
+      },
+      { rootMargin: "-60px 0px -60px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  const { style: styleProp, ...rest } = props;
+  const offset = VARIANT_OFFSETS[variant];
 
   return (
     <Tag
-      className={className}
-      initial={initial}
-      whileInView={animate}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration, delay, ease: [0.22, 1, 0.36, 1] }}
-      {...props}
-      style={{ willChange: "transform, opacity, filter", ...props.style }}
+      ref={ref}
+      className={`reveal ${revealed ? "is-revealed" : ""} ${offset.css} ${className}`}
+      style={{
+        transitionDelay: `${delay}s`,
+        "--reveal-y": `${offset.y}px`,
+        "--reveal-x": `${offset.x}px`,
+        "--reveal-scale": String(offset.scale),
+        ...((styleProp as React.CSSProperties) ?? {}),
+      } as React.CSSProperties}
+      {...rest}
     >
       {children}
     </Tag>
@@ -219,8 +254,8 @@ export function StaggerGroup({
   return (
     <div className={className} {...props}>
       {childArray.map((child, i) => (
-        <ScrollReveal 
-          key={i} 
+        <ScrollReveal
+          key={i}
           delay={delay + i * stagger}
           variant={variant}
         >

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, useSpring, type MotionValue } from "framer-motion";
 import { flattenChildren } from "@/lib/flatten-children";
+import Reveal from "@/components/Reveal";
 
 function omitAnimationProps<T extends object>(props: T): Omit<T, "onAnimationStart" | "onAnimationEnd" | "onAnimationIteration" | "onDragStart" | "onDrag" | "onDragEnd" | "onDragEnter" | "onDragLeave" | "onDragOver" | "onDrop" | "onHoverStart" | "onHoverEnd" | "style"> {
   const { 
@@ -184,31 +185,28 @@ export function ScrollHorizontal({
   );
 }
 
-/** Floating animation for decorative elements */
-export function FloatingElement({ 
-  children, 
+/** Floating animation for decorative elements (CSS keyframes, no framer) */
+export function FloatingElement({
+  children,
   className,
   amplitude = 15,
   duration = 6,
   delay = 0,
-  ...props 
+  ...props
 }: { children: React.ReactNode; className?: string; amplitude?: number; duration?: number; delay?: number } & React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <motion.div
+    <div
       className={className}
-      animate={{ y: [0, -amplitude, 0] }}
-      transition={{ 
-        duration, 
-        delay,
-        ease: "easeInOut",
-        repeat: Infinity,
-        repeatType: "loop"
-      }}
-      style={{ willChange: "transform", ...props.style }}
+      style={{
+        "--float-amp": `${amplitude}px`,
+        animation: `float-var ${duration}s ease-in-out ${delay}s infinite`,
+        willChange: "transform",
+        ...props.style,
+      } as React.CSSProperties}
       {...omitAnimationProps(props)}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -323,35 +321,29 @@ export function ScrollAwareHeader({
 }
 
 /** Intersection observer based stagger for lists.
- *  `itemClassName` lets grid items stretch to the tallest sibling. */
-export function StaggerContainer({ 
-  children, 
+ *  `itemClassName` lets grid items stretch to the tallest sibling.
+ *  Uses the CSS `.reveal` system (see Reveal.tsx) so it works reliably
+ *  regardless of framer-motion hydration state. */
+export function StaggerContainer({
+  children,
   className,
   stagger = 0.1,
   delay = 0,
   itemClassName = "",
-  ...props 
+  ...props
 }: { children: React.ReactNode; className?: string; stagger?: number; delay?: number; itemClassName?: string } & React.HTMLAttributes<HTMLDivElement>) {
   const childArray = flattenChildren(children);
-  
+
   return (
     <div className={className} {...omitAnimationProps(props)}>
       {childArray.map((child, i) => (
-        <motion.div
+        <Reveal
           key={i}
+          delay={delay + i * stagger}
           className={itemClassName}
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ 
-            duration: 0.6, 
-            delay: delay + i * stagger,
-            ease: [0.22, 1, 0.36, 1]
-          }}
-          style={{ willChange: "transform, opacity" }}
         >
           {child}
-        </motion.div>
+        </Reveal>
       ))}
     </div>
   );

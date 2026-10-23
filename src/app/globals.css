@@ -204,6 +204,10 @@
 
 html {
   scroll-padding-top: 84px;
+  /* WebKit (iPhone Safari/in-app browsers) expands the layout viewport when
+   * anything overflows horizontally, zooming the whole page out ("blank
+   * space on one side"). Clip it so the layout always stays the phone width. */
+  overflow-x: clip;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -228,6 +232,7 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   transition: background-color 0.45s ease, color 0.45s ease;
+  overflow-x: clip;
 }
 
 ::selection {
@@ -649,6 +654,54 @@ button {
 .hover-lift:hover {
   transform: translateY(-6px);
   box-shadow: var(--shadow-card);
+}
+
+/* ── Scroll reveal system (IntersectionObserver + CSS, framer-free) ─────
+   Hidden state is only active when the document has the `js` class (set by
+   the inline head script), so content is never lost without JavaScript. */
+.js .reveal {
+  opacity: 0;
+  transform: translate(var(--reveal-x, 0px), var(--reveal-y, 24px)) scale(var(--reveal-scale, 1));
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.js .reveal.is-revealed {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+.js .reveal.sr-blur {
+  filter: blur(10px);
+}
+.js .reveal.sr-blur.is-revealed {
+  filter: none;
+}
+/* When the same element also lifts on hover, keep the hover transform snappy */
+.js .reveal.hover-lift {
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.3s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+}
+
+@keyframes float-var {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(calc(-1 * var(--float-amp, 12px)));
+  }
 }
 
 /* Smooth focus ring */
