@@ -45,8 +45,8 @@ export const metadata: Metadata = {
   description:
     "Poems, blogs and midnight thoughts by Avni Goel aka Karutoki. Words that were never said, left behind here instead.",
   icons: {
-    icon: "/logo/karutoki-logo.png",
-    apple: "/logo/karutoki-logo.png",
+    icon: "/logo/favicon.png",
+    apple: "/logo/favicon.png",
   },
 };
 
