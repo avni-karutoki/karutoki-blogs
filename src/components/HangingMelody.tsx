@@ -307,16 +307,21 @@ export default function HangingMelody() {
             </p>
           )}
 
-          {/* Lazily-loaded looping audio: nothing downloads until you press play. */}
-          <audio
-            ref={attachAudio}
-            loop
-            preload="none"
-            onPause={() => setPlaying(false)}
-            onError={() => setFailed(true)}
-          />
         </div>
       )}
+
+      {/* Always-mounted looping audio. It lives OUTSIDE the popup so closing
+          the popup doesn't unmount (and kill) the music. HangingMelody is
+          rendered once in the root layout, so playback also continues across
+          page navigation until the user pauses or changes the track. Nothing
+          downloads until the user presses play. */}
+      <audio
+        ref={attachAudio}
+        loop
+        preload="none"
+        onPause={() => setPlaying(false)}
+        onError={() => setFailed(true)}
+      />
     </div>
   );
 }
