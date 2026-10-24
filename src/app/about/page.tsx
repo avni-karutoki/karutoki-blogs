@@ -8,6 +8,10 @@ import type { AboutSettings } from "@/lib/types";
 import { FloatingElement, Parallax } from "@/components/ScrollAnimations";
 import { StaggerContainer } from "@/components/ScrollAnimations";
 
+// The About page is database-driven (bio + gallery of desk scraps); re-render
+// it at most a minute after content changes, matching the homepage.
+export const revalidate = 60;
+
 export default async function AboutPage() {
   let about = DEFAULT_ABOUT;
   try {
