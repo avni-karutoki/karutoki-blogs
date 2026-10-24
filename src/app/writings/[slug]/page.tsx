@@ -9,6 +9,7 @@ import ShareButtons from "@/components/ShareButtons";
 import ReadingProgress from "@/components/ReadingProgress";
 import FontSizeToggle from "@/components/FontSizeToggle";
 import WritingComments from "@/components/WritingComments";
+import ReadAloud from "@/components/ReadAloud";
 import type { Post } from "@/lib/types";
 import { categoryLabel } from "@/lib/types";
 
@@ -158,6 +159,11 @@ export default async function WritingDetailPage({
           <ViewCounter key={`v-${post.slug}`} slug={post.slug} initialViews={post.views ?? 0} />
           <LikeButton key={`l-${post.slug}`} slug={post.slug} initialLikes={post.likes ?? 0} />
           <FontSizeToggle />
+          <ReadAloud
+            key={`r-${post.slug}`}
+            title={post.title}
+            text={post.content.replace(/[#*]/g, "")}
+          />
         </div>
       </Reveal>
 
