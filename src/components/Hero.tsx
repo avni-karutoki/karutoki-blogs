@@ -52,9 +52,15 @@ function getSlideshowSlides(
 
   if (hero.imageUrl) push(hero.imageUrl);
 
-  for (const post of featured) {
-    if (post.cover_image) push(post.cover_image, post.slug);
-    if (slides.length >= 5) break;
+  // Featured writings' covers only fill the show when the admin curated
+  // nothing themselves. With a hand-picked list the autofill kept re-adding
+  // pictures that were already shown (e.g. a cover picked from the same
+  // picture — different upload URL, so dedup can't catch it).
+  if (adminImages.length === 0) {
+    for (const post of featured) {
+      if (post.cover_image) push(post.cover_image, post.slug);
+      if (slides.length >= 5) break;
+    }
   }
   // Featured covers keep their own writing as click target; slides without a
   // link (admin images with no link set, the plain hero image) stay unclickable.
