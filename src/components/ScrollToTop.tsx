@@ -48,7 +48,7 @@ export default function ScrollToTop() {
       onClick={scrollToTop}
       aria-label="Scroll to top"
       title={`Back to top — ${Math.round(progress * 100)}% through the page`}
-      className={`fixed bottom-6 right-6 z-40 relative flex h-12 w-12 items-center justify-center rounded-full bg-[var(--bg-card)] text-[var(--text-heading)] shadow-lg transition-all duration-300 hover:bg-[var(--accent-pink)] hover:text-white hover:-translate-y-1 ${
+      className={`fixed bottom-6 right-6 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--bg-card)] text-[var(--text-heading)] shadow-lg transition-all duration-300 hover:bg-[var(--accent-pink)] hover:text-white hover:-translate-y-1 ${
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
       }`}
     >
