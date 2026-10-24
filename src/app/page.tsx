@@ -7,6 +7,7 @@ import { createPublicClient as createClient } from "@/lib/supabase/server";
 import { DEFAULT_ABOUT, DEFAULT_HERO, getSiteSetting } from "@/lib/site";
 import type { AboutSettings, HeroSettings, Post } from "@/lib/types";
 import { categoryLabel } from "@/lib/types";
+import { firstTextBlock, InlineText } from "@/components/RichText";
 import { FloatingElement, Parallax } from "@/components/ScrollAnimations";
 import { StaggerContainer } from "@/components/ScrollAnimations";
 
@@ -145,18 +146,22 @@ export default async function HomePage() {
         {/* About teaser */}
         <section className="grid items-center gap-10 overflow-x-clip border-t border-[var(--border-color)] py-16 md:grid-cols-2">
           <div className="relative order-2 hidden md:order-1 md:block">
-            <Parallax speed={0.1} className="mx-auto max-w-xs">
+            <Parallax speed={0.1} className="mx-auto w-fit">
               <Reveal>
-                <div className="photo-stack">
-                  <div className="layer" />
-                  <div className="layer" />
-                  <div className="layer flex aspect-square items-center justify-center p-8 text-center">
+                <div className="relative mx-auto w-64 lg:w-72">
+                  {/* offset accent ring behind */}
+                  <div aria-hidden className="absolute inset-0 translate-x-3 translate-y-3 rounded-full border-2 border-[var(--accent)] opacity-40" />
+                  {/* slow dashed orbit + star riding its rim */}
+                  <div aria-hidden className="portrait-orbit absolute -inset-4">
+                    <div className="h-full w-full rounded-full border border-dashed border-[var(--accent)] opacity-45" />
+                    <span className="absolute left-1/2 -top-2 -translate-x-1/2 text-[var(--accent)]">✦</span>
+                  </div>
+                  {/* the circle itself (photo drops in via Admin → About) */}
+                  <div className="relative aspect-square overflow-hidden rounded-full border-4 border-[var(--bg-card)] shadow-[var(--shadow-card)] ring-1 ring-[var(--accent)]/50 bg-[linear-gradient(160deg,var(--accent-soft),transparent_70%)]">
                     {about.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={about.imageUrl} alt="About" className="absolute inset-0 h-full w-full rounded-md object-cover" />
-                    ) : (
-                      <p className="font-script text-4xl text-[var(--text-heading)]">{about.title}</p>
-                    )}
+                      <img src={about.imageUrl} alt="About" className="absolute inset-0 h-full w-full object-cover" />
+                    ) : null}
                   </div>
                 </div>
               </Reveal>
@@ -167,7 +172,10 @@ export default async function HomePage() {
           <Reveal delay={0.12} className="order-1 md:order-2">
             <p className="eyebrow">{about.subtitle}</p>
             <h2 className="mt-2">{about.title}</h2>
-            <p className="lead mt-4 max-w-md">{about.bio}</p>
+            {/* Just the opening lines — the full story lives on /about */}
+            <p className="lead mt-4 max-w-md whitespace-pre-line">
+              <InlineText text={firstTextBlock(about.bio)} />
+            </p>
             <Link
               href="/about"
               className="ink-link mt-6 inline-block font-sans text-[12.5px] font-semibold uppercase tracking-[0.2em]"
