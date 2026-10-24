@@ -3,6 +3,10 @@ import Hero from "@/components/Hero";
 import Reveal, { SpringReveal } from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import NewsletterForm from "@/components/NewsletterForm";
+import QuoteMarquee from "@/components/home/QuoteMarquee";
+import CategoryTrio from "@/components/home/CategoryTrio";
+import NightSky from "@/components/home/NightSky";
+import FilmRoll from "@/components/home/FilmRoll";
 import { createPublicClient as createClient } from "@/lib/supabase/server";
 import { DEFAULT_ABOUT, DEFAULT_HERO, getSiteSetting } from "@/lib/site";
 import type { AboutSettings, HeroSettings, Post } from "@/lib/types";
@@ -68,10 +72,14 @@ export default async function HomePage() {
     featuredPosts.length > 0
       ? "The pieces I'd press into your hands."
       : "A few words, no longer than they need to be.";
+  // Lines for the marquee — the newest poems.
+  const poems = posts.filter((p) => p.category === "poem");
 
   return (
     <div>
       <Hero hero={hero} featured={posts} counts={counts} />
+
+      <QuoteMarquee poems={poems} />
 
       <div className="mx-auto max-w-6xl px-6">
         {/* Featured writings */}
@@ -143,6 +151,9 @@ export default async function HomePage() {
           </StaggerContainer>
           </section>
 
+        {/* Fresh frames — the latest covers on a film strip */}
+        <FilmRoll posts={posts} />
+
         {/* About teaser */}
         <section className="grid items-center gap-10 overflow-x-clip border-t border-[var(--border-color)] py-16 md:grid-cols-2">
           <div className="relative order-2 hidden md:order-1 md:block">
@@ -184,6 +195,14 @@ export default async function HomePage() {
             </Link>
           </Reveal>
           </section>
+      </div>
+
+      {/* The midnight band — fixed dark sky, stars breathing */}
+      <NightSky />
+
+      <div className="mx-auto max-w-6xl px-6">
+        {/* Pick a mood — category browsing cards */}
+        <CategoryTrio counts={counts} />
 
         {/* Newsletter */}
         <section id="newsletter" className="scroll-mt-24 border-t border-[var(--border-color)] py-16 text-center relative">
