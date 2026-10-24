@@ -8,6 +8,7 @@ import ViewCounter from "@/components/ViewCounter";
 import ShareButtons from "@/components/ShareButtons";
 import ReadingProgress from "@/components/ReadingProgress";
 import FontSizeToggle from "@/components/FontSizeToggle";
+import WritingComments from "@/components/WritingComments";
 import type { Post } from "@/lib/types";
 import { categoryLabel } from "@/lib/types";
 
@@ -171,6 +172,9 @@ export default async function WritingDetailPage({
           <ShareButtons key={`s-${post.slug}`} title={post.title} />
         </div>
       </Reveal>
+
+      {/* Threaded comments — replies allowed, everyone reads everyone */}
+      <WritingComments postId={post.id} />
 
       {related.length > 0 && (
         <section className="mt-14 border-t border-[var(--border-color)] pt-10">
