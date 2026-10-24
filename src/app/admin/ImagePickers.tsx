@@ -100,29 +100,44 @@ export function ImagePicker({
   );
 }
 
-/** List of images (hero slideshow / about gallery): add, remove, reorder. */
+/** List of images (hero slideshow): add, remove, reorder — with an optional
+ *  click-link per image that stays aligned through all edits. */
 export function ImageListPicker({
   label,
   value,
   onChange,
+  links,
+  onLinksChange,
   folder,
   max = 12,
   hint,
+  linkPlaceholder,
 }: {
   label: string;
   value: string[];
   onChange: (urls: string[]) => void;
+  /** When provided, a link input is rendered per image and kept in sync. */
+  links?: string[];
+  onLinksChange?: (links: string[]) => void;
   folder: string;
   max?: number;
   hint?: string;
+  linkPlaceholder?: string;
 }) {
   const [urlDraft, setUrlDraft] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
 
-  function update(next: string[]) {
-    onChange(next.filter((u) => u.trim() !== ""));
+  const withLinks = onLinksChange !== undefined;
+  const linkAt = (i: number) => (links ?? [])[i] ?? "";
+
+  function commit(nextUrls: string[], nextLinks: string[]) {
+    // keep only pairs whose url is a non-empty string, links filtered in lockstep
+    const pairs = nextUrls
+      .map((url, i) => ({ url: url.trim(), link: (nextLinks[i] ?? "").trim() }))
+      .filter((p) => p.url !== "");
+    onChange(pairs.map((p) => p.url));
+    if (onLinksChange) onLinksChange(pairs.map((p) => p.link));
   }
 
   async function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
@@ -136,12 +151,12 @@ export function ImageListPicker({
     setError("");
     setBusy(true);
     try {
-      const urls: string[] = [];
+      const added: string[] = [];
       for (const file of files) {
-        if (value.length + urls.length >= max) break;
-        urls.push(await uploadFile(file, folder));
+        if (value.length + added.length >= max) break;
+        added.push(await uploadFile(file, folder));
       }
-      update([...value, ...urls]);
+      commit([...value, ...added], [...(links ?? []), ...added.map(() => "")]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed.");
     } finally {
@@ -154,16 +169,22 @@ export function ImageListPicker({
     if (!url) return;
     if (value.length >= max) return setError(`Maximum is ${max} images.`);
     setError("");
-    update([...value, url]);
+    commit([...value, url], [...(links ?? []), ""]);
     setUrlDraft("");
   }
 
   function move(index: number, delta: number) {
-    const next = [...value];
     const target = index + delta;
-    if (target < 0 || target >= next.length) return;
-    [next[index], next[target]] = [next[target], next[index]];
-    update(next);
+    if (target < 0 || target >= value.length) return;
+    const urls = [...value];
+    const nextLinks = [...(links ?? [])];
+    [urls[index], urls[target]] = [urls[target], urls[index]];
+    [nextLinks[index], nextLinks[target]] = [nextLinks[target], nextLinks[index]];
+    commit(urls, nextLinks);
+  }
+
+  function removeAt(index: number) {
+    commit(value.filter((_, i) => i !== index), (links ?? []).filter((_, i) => i !== index));
   }
 
   const full = value.length >= max;
@@ -191,8 +212,23 @@ export function ImageListPicker({
             alt=""
             className="h-12 w-16 shrink-0 rounded-lg border border-[var(--border-color)] object-cover"
           />
-          <span className="min-w-0 flex-1 truncate font-mono text-[10px] text-[var(--text-muted)]">
-            {url}
+          <span className="min-w-0 flex-1 space-y-1">
+            <span className="block truncate font-mono text-[10px] text-[var(--text-muted)]">
+              {url}
+            </span>
+            {withLinks && (
+              <input
+                type="text"
+                value={linkAt(i)}
+                onChange={(e) => {
+                  const nextLinks = [...(links ?? [])];
+                  nextLinks[i] = e.target.value;
+                  commit(value, nextLinks);
+                }}
+                placeholder={linkPlaceholder ?? "/writings/slug — page opened on click"}
+                className="w-full rounded-lg border border-[var(--border-color)] bg-[var(--bg-card)] px-2 py-1 font-mono text-[10px] text-[var(--text-primary)] outline-none focus:border-[var(--accent-pink)]"
+              />
+            )}
           </span>
           <span className="flex shrink-0 gap-1">
             <button
@@ -215,7 +251,7 @@ export function ImageListPicker({
             </button>
             <button
               type="button"
-              onClick={() => update(value.filter((_, j) => j !== i))}
+              onClick={() => removeAt(i)}
               title="Remove"
               className="rounded-md px-1.5 py-0.5 text-xs text-red-500 hover:underline"
             >
@@ -246,7 +282,6 @@ export function ImageListPicker({
       </div>
 
       <input
-        ref={fileRef}
         type="file"
         accept="image/*"
         multiple

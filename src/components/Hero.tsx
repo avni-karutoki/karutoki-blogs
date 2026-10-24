@@ -35,23 +35,30 @@ function KineticTitle({ text }: { text: string }) {
   );
 }
 
-// Collect up to 5 images for the slideshow. Priority: the admin-curated
-// slideshow list → the single hero image → featured writings' cover images.
-function getSlideshowImages(hero: HeroSettings, featured: Post[]): string[] {
-  const images: string[] = [];
-  for (const src of hero.slideshowImages ?? []) {
-    if (src && !images.includes(src)) images.push(src);
-  }
-  if (hero.imageUrl && !images.includes(hero.imageUrl)) images.push(hero.imageUrl);
+// Collect up to 5 slides for the slideshow together with click targets.
+// Priority: the admin-curated playlist → the single hero image → featured
+// writings' covers. Slides open their linked writing when clicked.
+function getSlideshowSlides(
+  hero: HeroSettings,
+  featured: Post[],
+): { src: string; href?: string }[] {
+  const slides: { src: string; href?: string }[] = [];
+  const push = (src: string, href?: string) => {
+    if (src && !slides.some((s) => s.src === src) && slides.length < 5) slides.push({ src, href });
+  };
+
+  const adminImages = (hero.slideshowImages ?? []).filter(Boolean);
+  adminImages.forEach((src, i) => push(src, (hero.slideshowLinks ?? [])[i]));
+
+  if (hero.imageUrl) push(hero.imageUrl);
+
   for (const post of featured) {
-    if (images.length >= 5) break;
-    if (post.cover_image && !images.includes(post.cover_image)) {
-      images.push(post.cover_image);
-    }
+    if (post.cover_image) push(post.cover_image, post.slug);
+    if (slides.length >= 5) break;
   }
-  // Fallback: if nothing is set, the slideshow frame simply shows nothing —
-  // the decorative frame handles its own empty state.
-  return images;
+  // Fallback so every slide is still clickable even without an explicit link.
+  const latestSlug = featured[0]?.slug;
+  return slides.map((s) => ({ src: s.src, href: s.href ?? latestSlug }));
 }
 
 export default function Hero({
@@ -63,9 +70,10 @@ export default function Hero({
   featured: Post[];
   counts: { poems: number; blogs: number; talks: number };
 }) {
-  const images = getSlideshowImages(hero, featured);
+  const slides = getSlideshowSlides(hero, featured);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const images = slides.map((s) => s.src);
 
   // Scroll-linked parallax: as the page scrolls, the hero image drifts and
   // zooms gently inside its frame while the copy column lifts away.
@@ -173,22 +181,31 @@ export default function Hero({
           >
             {/* Slideshow images (or an empty frame when no images exist) */}
             <div className="absolute inset-0">
-              {images.length > 0 ? (
-                images.map((src, i) => (
-                  <motion.img
-                    key={src}
-                    src={src}
-                    alt={`Hero slide ${i + 1}`}
-                    className="absolute inset-0 w-full h-full"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: currentIndex === i ? 1 : 0 }}
-                    transition={{ duration: 0.8, ease: EASE }}
-                    style={{ objectFit: fit, objectPosition: focus, y: reduceMotion ? 0 : imgY, scale: reduceMotion ? zoomPct : imgScale, willChange: "transform" }}
-                    loading={i === 0 ? "eager" : "lazy"}
-                    decoding="async"
-                    fetchPriority={i === 0 ? "high" : "low"}
-                  />
-                ))
+              {slides.length > 0 ? (
+                slides.map((slide, i) => {
+                  const img = (
+                    <motion.img
+                      key={slide.src}
+                      src={slide.src}
+                      alt={`Hero slide ${i + 1}`}
+                      className={`absolute inset-0 w-full h-full ${slide.href ? "cursor-pointer" : ""}`}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: currentIndex === i ? 1 : 0 }}
+                      transition={{ duration: 0.8, ease: EASE }}
+                      style={{ objectFit: fit, objectPosition: focus, y: reduceMotion ? 0 : imgY, scale: reduceMotion ? zoomPct : imgScale, willChange: "transform" }}
+                      loading={i === 0 ? "eager" : "lazy"}
+                      decoding="async"
+                      fetchPriority={i === 0 ? "high" : "low"}
+                    />
+                  );
+                  return slide.href ? (
+                    <Link key={slide.src} href={slide.href} title="Read this piece →">
+                      {img}
+                    </Link>
+                  ) : (
+                    img
+                  );
+                })
               ) : (
                 <div className="absolute inset-0 grid place-items-center">
                   <KarutokiLogo className="w-24 h-24 text-[var(--text-faint)]" />

@@ -38,6 +38,8 @@ export interface HeroSettings {
   imageUrl?: string;
   /** Ordered slideshow pictures; the first five are shown on the homepage. */
   slideshowImages?: string[];
+  /** Optional link (e.g. /writings/slug) opened when that slide is clicked. */
+  slideshowLinks?: string[];
   /** How the picture is cropped/positioned inside the frame. */
   imageFit?: "cover" | "contain";
   imageZoom?: number;

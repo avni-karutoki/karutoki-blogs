@@ -45,6 +45,7 @@ interface DashboardClientProps {
     buttonText: string;
     imageUrl?: string;
     slideshowImages?: string[];
+    slideshowLinks?: string[];
     imageFit?: "cover" | "contain";
     imageZoom?: number;
     imagePosX?: number;
@@ -89,6 +90,7 @@ export default function DashboardClient({
   const [heroForm, setHeroForm] = useState({
     ...initialHeroSettings,
     slideshowImages: initialHeroSettings.slideshowImages ?? [],
+    slideshowLinks: initialHeroSettings.slideshowLinks ?? [],
   });
   const [aboutForm, setAboutForm] = useState({
     ...initialAboutSettings,
@@ -716,9 +718,12 @@ export default function DashboardClient({
                   label="Hero Slideshow Images"
                   value={heroForm.slideshowImages ?? []}
                   onChange={(urls) => setHeroForm({ ...heroForm, slideshowImages: urls })}
+                  links={heroForm.slideshowLinks ?? []}
+                  onLinksChange={(ls) => setHeroForm({ ...heroForm, slideshowLinks: ls })}
                   folder="hero-slideshow"
                   max={5}
-                  hint="The homepage hero cycles through these. If the list is empty, the hero image and featured writings' covers are used instead."
+                  linkPlaceholder="Optional: /writings/slug opens when this slide is clicked"
+                  hint="The homepage hero cycles through these. Optional link per image: clicking that slide opens the writing (e.g. /writings/the-girl-i-left-behind)."
                 />
 
                 <div className="pt-2">
