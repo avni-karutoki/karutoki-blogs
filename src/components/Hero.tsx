@@ -56,9 +56,9 @@ function getSlideshowSlides(
     if (post.cover_image) push(post.cover_image, post.slug);
     if (slides.length >= 5) break;
   }
-  // Fallback so every slide is still clickable even without an explicit link.
-  const latestSlug = featured[0]?.slug;
-  return slides.map((s) => ({ src: s.src, href: s.href ?? latestSlug }));
+  // Featured covers keep their own writing as click target; slides without a
+  // link (admin images with no link set, the plain hero image) stay unclickable.
+  return slides;
 }
 
 export default function Hero({
