@@ -27,6 +27,8 @@ export interface Post {
   scheduled_for?: string | null;
   likes?: number | null;
   views?: number | null;
+  /** Extra pictures attached to a single writing (needs the gallery migration). */
+  gallery_images?: string[] | null;
 }
 
 export interface HeroSettings {
@@ -34,11 +36,26 @@ export interface HeroSettings {
   subtitle: string;
   buttonText: string;
   imageUrl?: string;
+  /** Ordered slideshow pictures; the first five are shown on the homepage. */
+  slideshowImages?: string[];
+  /** How the picture is cropped/positioned inside the frame. */
+  imageFit?: "cover" | "contain";
+  imageZoom?: number;
+  imagePosX?: number;
+  imagePosY?: number;
 }
 
 export interface AboutSettings {
   title: string;
   subtitle: string;
   bio: string;
+  /** Main portrait used in the photo stack. */
   imageUrl?: string;
+  /** Extra pictures for the about-page gallery. */
+  images?: string[];
+  /** How the portrait is cropped/positioned inside the circle frame. */
+  imageFit?: "cover" | "contain";
+  imageZoom?: number;
+  imagePosX?: number;
+  imagePosY?: number;
 }
