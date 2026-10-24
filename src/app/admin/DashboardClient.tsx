@@ -6,6 +6,9 @@ import { useRouter } from "next/navigation";
 import LogoutButton from "./logout-button";
 import DeleteConfirmation from "./delete-confirmation";
 import { togglePublished, toggleMessageRead, deleteMessage, updateSiteSettings } from "./actions";
+import { ImagePicker, ImageListPicker } from "./ImagePickers";
+import PictureAdjuster from "./PictureAdjuster";
+import RichText from "@/components/RichText";
 
 interface PostItem {
   id: string;
@@ -36,8 +39,28 @@ interface DashboardClientProps {
   userEmail: string;
   posts: PostItem[];
   messages: ContactMessage[];
-  initialHeroSettings?: { title: string; subtitle: string; buttonText: string; imageUrl?: string };
-  initialAboutSettings?: { title: string; subtitle: string; bio: string; imageUrl?: string };
+  initialHeroSettings?: {
+    title: string;
+    subtitle: string;
+    buttonText: string;
+    imageUrl?: string;
+    slideshowImages?: string[];
+    imageFit?: "cover" | "contain";
+    imageZoom?: number;
+    imagePosX?: number;
+    imagePosY?: number;
+  };
+  initialAboutSettings?: {
+    title: string;
+    subtitle: string;
+    bio: string;
+    imageUrl?: string;
+    images?: string[];
+    imageFit?: "cover" | "contain";
+    imageZoom?: number;
+    imagePosX?: number;
+    imagePosY?: number;
+  };
 }
 
 export default function DashboardClient({
@@ -62,9 +85,15 @@ export default function DashboardClient({
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  // Hero & About Settings state
-  const [heroForm, setHeroForm] = useState(initialHeroSettings);
-  const [aboutForm, setAboutForm] = useState(initialAboutSettings);
+  // Hero & About Settings state (image lists always exist so pickers get arrays)
+  const [heroForm, setHeroForm] = useState({
+    ...initialHeroSettings,
+    slideshowImages: initialHeroSettings.slideshowImages ?? [],
+  });
+  const [aboutForm, setAboutForm] = useState({
+    ...initialAboutSettings,
+    images: initialAboutSettings.images ?? [],
+  });
   const [settingsStatus, setSettingsStatus] = useState("");
   const [savingSettings, setSavingSettings] = useState(false);
 
@@ -359,7 +388,7 @@ export default function DashboardClient({
                               {post.published ? "Published" : "Draft"}
                             </span>
                           </td>
-                          <td className="py-4 text-[var(--text-muted)]">
+                          <td className="py-4 text-[var(--text-muted)]" suppressHydrationWarning>
                             {new Date(post.created_at).toLocaleDateString()}
                           </td>
                           <td className="py-4 text-right space-x-2">
@@ -460,6 +489,7 @@ export default function DashboardClient({
                           <span
                             className="rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-sky-600"
                             title={new Date(post.scheduled_for).toLocaleString()}
+                            suppressHydrationWarning
                           >
                             Scheduled · {new Date(post.scheduled_for).toLocaleDateString()}
                           </span>
@@ -580,7 +610,7 @@ export default function DashboardClient({
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <span className="font-sans text-xs text-[var(--text-muted)]">
+                        <span className="font-sans text-xs text-[var(--text-muted)]" suppressHydrationWarning>
                           {new Date(msg.created_at).toLocaleString()}
                         </span>
 
@@ -664,6 +694,33 @@ export default function DashboardClient({
                   />
                 </div>
 
+                <ImagePicker
+                  label="Hero Main Image"
+                  value={heroForm.imageUrl ?? ""}
+                  onChange={(url) => setHeroForm({ ...heroForm, imageUrl: url })}
+                  folder="hero"
+                />
+
+                <PictureAdjuster
+                  label="Crop & adjust the hero pictures"
+                  fit={heroForm.imageFit ?? "cover"}
+                  zoom={heroForm.imageZoom ?? 100}
+                  posX={heroForm.imagePosX ?? 50}
+                  posY={heroForm.imagePosY ?? 50}
+                  onPatch={(patch) => setHeroForm({ ...heroForm, ...patch })}
+                  previewSrc={heroForm.slideshowImages?.[0] ?? heroForm.imageUrl ?? ""}
+                  previewAspect="aspect-[3/2]"
+                />
+
+                <ImageListPicker
+                  label="Hero Slideshow Images"
+                  value={heroForm.slideshowImages ?? []}
+                  onChange={(urls) => setHeroForm({ ...heroForm, slideshowImages: urls })}
+                  folder="hero-slideshow"
+                  max={5}
+                  hint="The homepage hero cycles through these. If the list is empty, the hero image and featured writings' covers are used instead."
+                />
+
                 <div className="pt-2">
                   <button
                     type="submit"
@@ -715,10 +772,50 @@ export default function DashboardClient({
                   <textarea
                     value={aboutForm.bio}
                     onChange={(e) => setAboutForm({ ...aboutForm, bio: e.target.value })}
-                    rows={4}
-                    className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-3 text-xs text-[var(--text-primary)] outline-none focus:border-[var(--accent-pink)] font-serif"
+                    rows={12}
+                    className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-3 text-xs text-[var(--text-primary)] outline-none focus:border-[var(--accent-pink)] font-serif whitespace-pre-wrap"
                   />
+                  <p className="mt-1 font-sans text-[11px] text-[var(--text-faint)]">
+                    Write it exactly as it should look: a blank line starts a new paragraph, **words** become bold, *words* italic, and a line starting with ### becomes a small heading. Everything else — spacing, gaps, punctuation — is shown as you type it.
+                  </p>
+
+                  {/* Live preview: identical to how the bio renders on the site. */}
+                  <div className="mt-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-4">
+                    <p className="mb-3 font-sans text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--text-faint)]">
+                      Live preview — exactly how it will appear on the site
+                    </p>
+                    <div className="max-h-96 overflow-y-auto">
+                      <RichText text={aboutForm.bio} />
+                    </div>
+                  </div>
                 </div>
+
+                <ImagePicker
+                  label="Main Portrait Image"
+                  value={aboutForm.imageUrl ?? ""}
+                  onChange={(url) => setAboutForm({ ...aboutForm, imageUrl: url })}
+                  folder="about"
+                />
+
+                <PictureAdjuster
+                  label="Crop & adjust the portrait"
+                  fit={aboutForm.imageFit ?? "cover"}
+                  zoom={aboutForm.imageZoom ?? 100}
+                  posX={aboutForm.imagePosX ?? 50}
+                  posY={aboutForm.imagePosY ?? 50}
+                  onPatch={(patch) => setAboutForm({ ...aboutForm, ...patch })}
+                  previewSrc={aboutForm.imageUrl ?? ""}
+                  previewAspect="aspect-square"
+                />
+
+                <ImageListPicker
+                  label="About Gallery Pictures"
+                  value={aboutForm.images ?? []}
+                  onChange={(urls) => setAboutForm({ ...aboutForm, images: urls })}
+                  folder="about-gallery"
+                  max={9}
+                  hint="Shown as a picture strip on the About page and homepage teaser."
+                />
 
                 <div className="pt-2">
                   <button
