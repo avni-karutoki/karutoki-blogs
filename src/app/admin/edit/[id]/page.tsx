@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { mutateSchemaSafe, selectSchemaSafeOne } from "@/lib/supabase/schema-safe";
+import { ImagePicker } from "../../ImagePickers";
 import { isAdminUser } from "@/lib/supabase/authorization";
 
 type Post = {
@@ -75,9 +76,6 @@ export default function EditPostPage() {
   const [tags, setTags] = useState("");
   const [featured, setFeatured] = useState(false);
   const [coverImage, setCoverImage] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState("");
-  const previewRef = useRef("");
   const [published, setPublished] = useState(false);
   const [publishAt, setPublishAt] = useState("");
   const [draftInfo, setDraftInfo] = useState<EditDraft | null>(null);
@@ -178,37 +176,6 @@ export default function EditPostPage() {
     return value.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
   }
 
-  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) return setError("Please select an image file.");
-    if (file.size > 5 * 1024 * 1024) return setError("Image must be smaller than 5MB.");
-    setError("");
-    setImageFile(file);
-    // Revoke the previous object URL so repeated picks don't leak memory.
-    if (previewRef.current) URL.revokeObjectURL(previewRef.current);
-    const url = URL.createObjectURL(file);
-    previewRef.current = url;
-    setImagePreview(url);
-  }
-
-  // Clean up the preview URL when leaving the page.
-  useEffect(() => {
-    const ref = previewRef;
-    return () => {
-      if (ref.current) URL.revokeObjectURL(ref.current);
-    };
-  }, []);
-
-  async function uploadImage() {
-    if (!imageFile) return coverImage.trim() || null;
-    const extension = imageFile.name.split(".").pop() || "jpg";
-    const filePath = `${category}/${Date.now()}-${crypto.randomUUID()}.${extension}`;
-    const { error: uploadError } = await supabase.storage.from("post-images").upload(filePath, imageFile, { cacheControl: "3600", upsert: false });
-    if (uploadError) throw new Error(uploadError.message);
-    return supabase.storage.from("post-images").getPublicUrl(filePath).data.publicUrl;
-  }
-
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setError("");
@@ -220,7 +187,6 @@ export default function EditPostPage() {
       return;
     }
     try {
-      const uploadedCoverImage = await uploadImage();
       const tagList = tags.split(",").map((t) => t.trim()).filter(Boolean);
       const scheduledDate = publishAt ? new Date(publishAt) : null;
       const futureSchedule =
@@ -233,7 +199,7 @@ export default function EditPostPage() {
         excerpt: excerpt.trim() || null,
         content: content.trim(),
         tags: tagList.length ? tagList : null,
-        cover_image: uploadedCoverImage,
+        cover_image: coverImage.trim() || null,
         featured,
         published: futureSchedule ? false : published,
         updated_at: new Date().toISOString(),
@@ -365,14 +331,12 @@ export default function EditPostPage() {
           <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={14} required className="field-box mt-2 font-serif text-[1.1rem] leading-relaxed" />
         </div>
 
-        <div>
-          <label className="eyebrow">Cover image</label>
-          <input type="file" accept="image/*" onChange={handleImageChange} className="field-box mt-2 cursor-pointer font-sans text-sm" />
-          {(imagePreview || coverImage) && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={imagePreview || coverImage} alt="Cover preview" className="mt-4 aspect-[16/9] w-full rounded-xl border border-[var(--border-color)] object-cover" />
-          )}
-        </div>
+        <ImagePicker
+          label="Cover picture (shown on cards and the writing page)"
+          value={coverImage}
+          onChange={setCoverImage}
+          folder="covers"
+        />
 
         <div className="flex items-center justify-between gap-4 rounded-2xl border border-[var(--border-color)] p-5">
           <div>

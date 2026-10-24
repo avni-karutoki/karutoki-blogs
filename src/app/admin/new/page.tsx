@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { mutateSchemaSafe } from "@/lib/supabase/schema-safe";
+import { ImagePicker } from "../ImagePickers";
 import type { Category } from "@/lib/types";
 
 const DRAFT_KEY = "karutoki-draft-new";
@@ -16,6 +17,7 @@ interface NewDraft {
   tags: string;
   featured: boolean;
   published: boolean;
+  coverImage: string;
   savedAt: string;
 }
 
@@ -61,15 +63,13 @@ export default function NewPostPage() {
   const [publishAt, setPublishAt] = useState("");
   const [restoredAt, setRestoredAt] = useState<string | null>(null);
   const [autosavedAt, setAutosavedAt] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState("");
-  const previewRef = useRef("");
+  const [coverUrl, setCoverUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [restored, setRestored] = useState(false);
 
-  // Restore the autosaved draft once mounted.
+  // Restore the autosaved draft once mounted (text + cover URL survive reloads).
   useEffect(() => {
     const draft = loadDraft();
     if (draft) {
@@ -80,21 +80,22 @@ export default function NewPostPage() {
       setTags(draft.tags ?? "");
       setFeatured(!!draft.featured);
       setPublished(draft.published ?? true);
+      setCoverUrl(draft.coverImage ?? "");
       setRestoredAt(draft.savedAt ?? null);
     }
     setRestored(true);
   }, []);
 
-  // Autosave text fields (covers can't be persisted) a beat after you stop typing.
+  // Autosave everything (including the uploaded cover URL) shortly after edits.
   useEffect(() => {
     if (!restored) return;
-    if (!title && !excerpt && !content && !tags) return;
+    if (!title && !excerpt && !content && !tags && !coverUrl) return;
     const t = window.setTimeout(() => {
       try {
         const savedAt = new Date().toISOString();
         localStorage.setItem(
           DRAFT_KEY,
-          JSON.stringify({ title, excerpt, content, category, tags, featured, published, savedAt })
+          JSON.stringify({ title, excerpt, content, category, tags, featured, published, coverImage: coverUrl, savedAt })
         );
         setAutosavedAt(savedAt);
       } catch {
@@ -102,7 +103,7 @@ export default function NewPostPage() {
       }
     }, 800);
     return () => window.clearTimeout(t);
-  }, [restored, title, excerpt, content, category, tags, featured, published]);
+  }, [restored, title, excerpt, content, category, tags, featured, published, coverUrl]);
 
   function discardDraft() {
     try {
@@ -119,29 +120,8 @@ export default function NewPostPage() {
     setPublishAt("");
     setRestoredAt(null);
     setAutosavedAt(null);
+    setCoverUrl("");
   }
-
-  function handleImage(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) return setError("Please select an image file.");
-    if (file.size > 5 * 1024 * 1024) return setError("Image must be smaller than 5MB.");
-    setError(null);
-    setImageFile(file);
-    // Revoke the previous object URL so repeated picks don't leak memory.
-    if (previewRef.current) URL.revokeObjectURL(previewRef.current);
-    const url = URL.createObjectURL(file);
-    previewRef.current = url;
-    setPreview(url);
-  }
-
-  // Clean up the preview URL when leaving the page.
-  useEffect(() => {
-    const ref = previewRef;
-    return () => {
-      if (ref.current) URL.revokeObjectURL(ref.current);
-    };
-  }, []);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -154,16 +134,7 @@ export default function NewPostPage() {
     setNotice(null);
     try {
       const supabase = createClient();
-      let coverImage: string | null = null;
-      if (imageFile) {
-        const ext = imageFile.name.split(".").pop() || "jpg";
-        const path = `${category}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
-        const { error: upErr } = await supabase.storage
-          .from("post-images")
-          .upload(path, imageFile, { cacheControl: "3600", upsert: false });
-        if (upErr) throw new Error(`Image upload failed: ${upErr.message}`);
-        coverImage = supabase.storage.from("post-images").getPublicUrl(path).data.publicUrl;
-      }
+      const coverImage = coverUrl.trim() || null;
 
       const base = slugify(title);
       const slug = base || `writing-${Date.now()}`;
@@ -262,14 +233,12 @@ export default function NewPostPage() {
           <p className="mt-1 font-sans text-[11px] text-[var(--text-faint)]">~{estimateReadingTime(content)} read · {content.trim().split(/\s+/).filter(Boolean).length} words</p>
         </div>
 
-        <div>
-          <label className="eyebrow">Cover image (optional)</label>
-          <input type="file" accept="image/*" onChange={handleImage} className="field-box mt-2 cursor-pointer font-sans text-sm" />
-          {preview && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={preview} alt="Cover preview" className="mt-4 aspect-[16/9] w-full rounded-xl border border-[var(--border-color)] object-cover" />
-          )}
-        </div>
+        <ImagePicker
+          label="Cover picture (shown on cards and the writing page)"
+          value={coverUrl}
+          onChange={setCoverUrl}
+          folder="covers"
+        />
 
         <div className="flex flex-wrap gap-6">
           <label className="flex cursor-pointer items-center gap-2.5 font-sans text-[12px] font-semibold uppercase tracking-[0.18em]">
