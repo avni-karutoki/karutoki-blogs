@@ -35,15 +35,19 @@ function KineticTitle({ text }: { text: string }) {
   );
 }
 
-// Collect up to 5 images for the slideshow: hero.imageUrl + featured posts' cover_images
+// Collect up to 5 images for the slideshow. Priority: the admin-curated
+// slideshow list → the single hero image → featured writings' cover images.
 function getSlideshowImages(hero: HeroSettings, featured: Post[]): string[] {
   const images: string[] = [];
-  if (hero.imageUrl) images.push(hero.imageUrl);
+  for (const src of hero.slideshowImages ?? []) {
+    if (src && !images.includes(src)) images.push(src);
+  }
+  if (hero.imageUrl && !images.includes(hero.imageUrl)) images.push(hero.imageUrl);
   for (const post of featured) {
+    if (images.length >= 5) break;
     if (post.cover_image && !images.includes(post.cover_image)) {
       images.push(post.cover_image);
     }
-    if (images.length >= 5) break;
   }
   // Fallback: if nothing is set, the slideshow frame simply shows nothing —
   // the decorative frame handles its own empty state.
@@ -72,7 +76,9 @@ export default function Hero({
     offset: ["start start", "end start"],
   });
   const imgY = useTransform(scrollYProgress, [0, 1], ["-6%", "14%"]);
-  const imgScale = useTransform(scrollYProgress, [0, 1], [1.02, 1.2]);
+  // Admin zoom (100%–180%) scales the images inside the frame; scroll adds the parallax on top.
+  const zoomPct = (hero.imageZoom ?? 100) / 100;
+  const imgScale = useTransform(scrollYProgress, [0, 1], [zoomPct * 1.02, zoomPct * 1.2]);
   const copyY = useTransform(scrollYProgress, [0, 1], ["0%", "-12%"]);
   const copyOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0.45]);
   const glowDrift = useTransform(scrollYProgress, [0, 1], ["0%", "26%"]);
@@ -93,6 +99,9 @@ export default function Hero({
   }, []);
 
   const latest = featured[0];
+  // Picture crop/adjust as set in the admin.
+  const fit = hero.imageFit ?? "cover";
+  const focus = `${hero.imagePosX ?? 50}% ${hero.imagePosY ?? 50}%`;
 
   return (
     <section ref={sectionRef} className="relative overflow-hidden">
@@ -156,9 +165,9 @@ export default function Hero({
         </motion.div>
 
         {/* Visual - Right side: Slideshow Rectangle */}
-        <ScrollReveal variant="scale" delay={0.2} duration={0.85} className="relative mx-auto w-full max-w-xl md:max-w-2xl">
+        <ScrollReveal variant="scale" delay={0.2} duration={0.85} className="relative mx-auto w-full max-w-xl md:mx-0 md:-ml-3 md:-mt-3 md:max-w-[44rem]">
           <div
-            className="relative w-full aspect-[3/2] rounded-2xl overflow-hidden bg-[var(--bg-card)] border border-[var(--border-color)] shadow-[var(--shadow-card)]"
+            className="relative w-full aspect-[5/3] rounded-2xl overflow-hidden bg-[var(--bg-card)] border border-[var(--border-color)] shadow-[var(--shadow-card)]"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
@@ -170,11 +179,11 @@ export default function Hero({
                     key={src}
                     src={src}
                     alt={`Hero slide ${i + 1}`}
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: currentIndex === i ? 1 : 0 }}
                     transition={{ duration: 0.8, ease: EASE }}
-                    style={{ y: reduceMotion ? 0 : imgY, scale: reduceMotion ? 1 : imgScale, willChange: "transform" }}
+                    style={{ objectFit: fit, objectPosition: focus, y: reduceMotion ? 0 : imgY, scale: reduceMotion ? zoomPct : imgScale, willChange: "transform" }}
                     loading={i === 0 ? "eager" : "lazy"}
                     decoding="async"
                     fetchPriority={i === 0 ? "high" : "low"}
