@@ -717,9 +717,11 @@ export default function DashboardClient({
                 <ImageListPicker
                   label="Hero Slideshow Images"
                   value={heroForm.slideshowImages ?? []}
-                  onChange={(urls) => setHeroForm({ ...heroForm, slideshowImages: urls })}
+                  // Functional updates: images & links change in the same tick,
+                  // so both must derive from the latest state, not this render.
+                  onChange={(urls) => setHeroForm((f) => ({ ...f, slideshowImages: urls }))}
                   links={heroForm.slideshowLinks ?? []}
-                  onLinksChange={(ls) => setHeroForm({ ...heroForm, slideshowLinks: ls })}
+                  onLinksChange={(ls) => setHeroForm((f) => ({ ...f, slideshowLinks: ls }))}
                   folder="hero-slideshow"
                   max={5}
                   linkPlaceholder="Optional: /writings/slug opens when this slide is clicked"

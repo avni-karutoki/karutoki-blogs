@@ -61,37 +61,6 @@ export const viewport: Viewport = {
   ],
 };
 
-const themeInitScript = `
-(function () {
-  document.documentElement.classList.add("js");
-  try {
-    var saved = localStorage.getItem("karutoki-theme");
-    var valid = ["cream", "moonlit", "blush", "lavender", "matcha", "honey", "ocean", "sakura"];
-    var theme = valid.indexOf(saved) !== -1 ? saved : null;
-    if (!theme) {
-      theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "moonlit" : "cream";
-    }
-    document.documentElement.setAttribute("data-theme", theme);
-  } catch (e) {
-    document.documentElement.setAttribute("data-theme", "cream");
-  }
-  try {
-    var size = localStorage.getItem("karutoki-reading-size");
-    if (size === "large" || size === "compact") {
-      document.documentElement.setAttribute("data-reading-size", size);
-    }
-  } catch (e) {}
-  /* Belt-and-braces for WebKit: never auto-shrink the page to fit wide
-     content — horizontal overflow is clipped instead. */
-  try {
-    var m = document.querySelector('meta[name="viewport"]');
-    if (m && m.getAttribute("content").indexOf("shrink-to-fit") === -1) {
-      m.setAttribute("content", m.getAttribute("content") + ", shrink-to-fit=no");
-    }
-  } catch (e) {}
-})();
-`;
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -99,12 +68,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body
         className={`${caveat.variable} ${cormorant.variable} ${inter.variable} font-sans antialiased`}
       >
-        {/* Theme init must run before hydration to avoid a theme flash;
-            next/script keeps it out of the React render path (no script-in-
-            component warnings). beforeInteractive is only valid in a root layout. */}
-        <Script id="karutoki-theme-init" strategy="beforeInteractive">
-          {themeInitScript}
-        </Script>
+        {/* Theme init must run before hydration to avoid a theme flash. Kept as
+            an external file: React 19 warns on any <script> rendered inside a
+            component (inline Script content included) — a src-based script is
+            injected by next/script outside the React render path. */}
+        <Script id="karutoki-theme-init" src="/theme-init.js" strategy="beforeInteractive" />
         <ThemeProvider>
           <SearchProvider>
             <div className="vignette-veil" aria-hidden />

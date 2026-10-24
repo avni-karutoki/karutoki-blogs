@@ -185,7 +185,6 @@ export default function Hero({
                 slides.map((slide, i) => {
                   const img = (
                     <motion.img
-                      key={slide.src}
                       src={slide.src}
                       alt={`Hero slide ${i + 1}`}
                       className={`absolute inset-0 w-full h-full ${slide.href ? "cursor-pointer" : ""}`}
@@ -198,12 +197,26 @@ export default function Hero({
                       fetchPriority={i === 0 ? "high" : "low"}
                     />
                   );
+                  // Linked slides get a full-frame anchor (positioned so the
+                  // absolutely-placed image works inside it); unlinked slides
+                  // stay unclickable. Slides sit stacked — only the *visible*
+                  // one may capture clicks, so mute the rest with pointer-events.
+                  const active = currentIndex === i;
+                  const pe = { pointerEvents: (active ? "auto" : "none") as "auto" | "none" };
                   return slide.href ? (
-                    <Link key={slide.src} href={slide.href} title="Read this piece →">
+                    <Link
+                      key={slide.src}
+                      href={slide.href}
+                      title="Read this piece →"
+                      className="absolute inset-0 block"
+                      style={pe}
+                    >
                       {img}
                     </Link>
                   ) : (
-                    img
+                    <span key={slide.src} className="absolute inset-0 block" style={pe}>
+                      {img}
+                    </span>
                   );
                 })
               ) : (
