@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Caveat, Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
@@ -94,12 +95,16 @@ const themeInitScript = `
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-      </head>
+      <head />
       <body
         className={`${caveat.variable} ${cormorant.variable} ${inter.variable} font-sans antialiased`}
       >
+        {/* Theme init must run before hydration to avoid a theme flash;
+            next/script keeps it out of the React render path (no script-in-
+            component warnings). beforeInteractive is only valid in a root layout. */}
+        <Script id="karutoki-theme-init" strategy="beforeInteractive">
+          {themeInitScript}
+        </Script>
         <ThemeProvider>
           <SearchProvider>
             <div className="vignette-veil" aria-hidden />
