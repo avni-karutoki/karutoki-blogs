@@ -10,9 +10,22 @@ type CommentRow = {
   author_name: string;
   content: string;
   created_at: string;
+  likes?: number;
 };
 
 const NAME_KEY = "karutoki-commenter-name";
+
+function heartKey(id: string) {
+  return `karutoki-comment-heart-${id}`;
+}
+
+function wasHearted(id: string): boolean {
+  try {
+    return localStorage.getItem(heartKey(id)) === "1";
+  } catch {
+    return false;
+  }
+}
 
 /* Relative timestamp ("just now", "3 days ago", … after that a short date). */
 function relTime(iso: string): string {
@@ -41,12 +54,30 @@ export default function WritingComments({ postId }: { postId: string }) {
   const [comments, setComments] = useState<CommentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [unavailable, setUnavailable] = useState(false);
+  // Hearts live in a separate column (migrate-comment-hearts.sql); without
+  // it the thread still works, the little hearts just stay hidden.
+  const [heartsAvailable, setHeartsAvailable] = useState(false);
+  const [heartedIds, setHeartedIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    try {
+      const ids: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k?.startsWith("karutoki-comment-heart-")) ids.push(k.slice("karutoki-comment-heart-".length));
+      }
+      setHeartedIds(new Set(ids));
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const [name, setName] = useState("");
   const [content, setContent] = useState("");
   const [replyTo, setReplyTo] = useState<CommentRow | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [heartBusy, setHeartBusy] = useState<string | null>(null);
 
   // Remember the visitor's name between sessions.
   useEffect(() => {
@@ -65,17 +96,33 @@ export default function WritingComments({ postId }: { postId: string }) {
     (async () => {
       try {
         const supabase = createClient();
-        const { data, error } = await supabase
+        // First attempt includes hearts; if the column isn't there yet,
+        // fall back to plain fetch so the thread still loads.
+        const base =
+          "id, post_id, parent_id, author_name, content, created_at";
+        let raw: CommentRow[] = [];
+        const fullRes = await supabase
           .from("comments")
-          .select("id, post_id, parent_id, author_name, content, created_at")
+          .select(`${base}, likes`)
           .eq("post_id", postId)
           .order("created_at", { ascending: true });
-        if (!alive) return;
-        if (error) {
-          setUnavailable(true);
+        if (fullRes.error || !fullRes.data) {
+          const plainRes = await supabase
+            .from("comments")
+            .select(base)
+            .eq("post_id", postId)
+            .order("created_at", { ascending: true });
+          if (plainRes.error) {
+            if (alive) setUnavailable(true);
+            return;
+          }
+          raw = (plainRes.data as unknown as CommentRow[]) || [];
         } else {
-          setComments((data as CommentRow[]) || []);
+          raw = (fullRes.data as unknown as CommentRow[]) || [];
         }
+        if (!alive) return;
+        setComments(raw);
+        setHeartsAvailable(raw.some((r) => typeof r.likes === "number"));
       } catch {
         if (alive) setUnavailable(true);
       } finally {
@@ -141,6 +188,42 @@ export default function WritingComments({ postId }: { postId: string }) {
       localStorage.setItem(NAME_KEY, next.trim());
     } catch {
       /* ignore */
+    }
+  }
+
+  // Hearts go through the SECURITY DEFINER RPC so anonymous visitors can
+  // only bump the counter (mirror of the post-likes pattern).
+  async function toggleHeart(c: CommentRow) {
+    if (heartBusy) return;
+    const liked = heartedIds.has(c.id);
+    setHeartBusy(c.id);
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase.rpc("change_comment_likes", {
+        p_comment_id: c.id,
+        p_delta: liked ? -1 : 1,
+      });
+      if (error) {
+        // Function not migrated yet → hide hearts quietly.
+        setHeartsAvailable(false);
+        return;
+      }
+      const fallbackCount = Math.max(0, (c.likes ?? 0) + (liked ? -1 : 1));
+      const nextCount = typeof data === "number" ? data : fallbackCount;
+      setComments((prev) => prev.map((x) => (x.id === c.id ? { ...x, likes: nextCount } : x)));
+      setHeartedIds((prev) => {
+        const next = new Set(prev);
+        if (liked) next.delete(c.id);
+        else next.add(c.id);
+        return next;
+      });
+      try {
+        localStorage.setItem(heartKey(c.id), liked ? "0" : "1");
+      } catch {
+        /* ignore */
+      }
+    } finally {
+      setHeartBusy(null);
     }
   }
 
@@ -218,13 +301,31 @@ export default function WritingComments({ postId }: { postId: string }) {
               <p className="mt-1 whitespace-pre-line font-serif text-[1.02rem] leading-relaxed text-[var(--text-primary)]">
                 {c.content}
               </p>
-              <button
-                type="button"
-                onClick={() => setReplyTo(c)}
-                className="mt-1.5 font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent)] hover:underline"
-              >
-                Reply
-              </button>
+              <span className="mt-1.5 flex items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => setReplyTo(c)}
+                  className="font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent)] hover:underline"
+                >
+                  Reply
+                </button>
+                {heartsAvailable && (
+                  <button
+                    type="button"
+                    onClick={() => toggleHeart(c)}
+                    disabled={heartBusy === c.id}
+                    title={heartedIds.has(c.id) ? "Take back the heart" : "Heart this thought"}
+                    className={`flex items-center gap-1 font-sans text-[10px] font-bold tracking-wide transition-transform active:scale-125 ${
+                      heartedIds.has(c.id) ? "text-[var(--accent-pink)]" : "text-[var(--text-faint)] hover:text-[var(--accent-pink)]"
+                    }`}
+                  >
+                    <span aria-hidden className="text-[12px]">
+                      {heartedIds.has(c.id) ? "❤" : "♡"}
+                    </span>
+                    {(c.likes ?? 0) > 0 && <span>{c.likes}</span>}
+                  </button>
+                )}
+              </span>
             </div>
           </div>
         </div>
