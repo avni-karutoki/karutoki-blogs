@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { mutateSchemaSafe, selectSchemaSafeOne } from "@/lib/supabase/schema-safe";
 import { isAdminUser } from "@/lib/supabase/authorization";
 
 type Post = {
@@ -89,28 +90,34 @@ export default function EditPostPage() {
   useEffect(() => {
     async function loadPost() {
       const client = createClient();
-      const { data, error } = await client
-        .from("posts")
-        .select("id, title, slug, category, excerpt, content, cover_image, tags, featured, published, scheduled_for")
-        .eq("id", id)
-        .single();
+      // Select everything the editor needs; skip columns the DB doesn't have
+      // (e.g. tags/featured before the migration is run) instead of failing.
+      const { data, missing, error } = await selectSchemaSafeOne<Record<string, unknown>>(
+        client,
+        "posts",
+        ["id", "title", "slug", "category", "excerpt", "content", "cover_image", "tags", "featured", "published", "scheduled_for"],
+        { filter: (q) => q.eq("id", id) },
+      );
       if (error || !data) {
         setError(error?.message || "Writing not found.");
         setLoading(false);
         return;
       }
-      setPost(data);
-      setTitle(data.title);
-      setSlug(data.slug);
-      setCategory(data.category);
-      setExcerpt(data.excerpt || "");
-      setContent(data.content);
-      setTags((data.tags || []).join(", "));
+      setPost(data as unknown as Post);
+      setTitle(String(data.title ?? ""));
+      setSlug(String(data.slug ?? ""));
+      setCategory(String(data.category ?? "poem"));
+      setExcerpt(String(data.excerpt ?? ""));
+      setContent(String(data.content ?? ""));
+      setTags(((data.tags as string[]) || []).join(", "));
       setFeatured(!!data.featured);
-      setCoverImage(data.cover_image || "");
-      setPublished(data.published);
-      setPublishAt(toLocalInput(data.scheduled_for));
+      setCoverImage(String(data.cover_image ?? ""));
+      setPublished(!!data.published);
+      setPublishAt(toLocalInput(data.scheduled_for as string));
       setLoading(false);
+      if (missing.includes("featured") || missing.includes("tags")) {
+        setError(`DB is missing ${missing.filter((c) => c !== "id").join(", ")} — saving will skip them.`);
+      }
       // Offer to restore autosaved edits from a previous session.
       const draft = loadEditDraft(id);
       if (draft) setDraftInfo(draft);
@@ -236,20 +243,18 @@ export default function EditPostPage() {
       } else {
         row.scheduled_for = null;
       }
-      const { error } = await supabase.from("posts").update(row).eq("id", id);
+      // Save; skip columns the DB doesn't have instead of failing the whole save.
+      const { error, missing: skippedColumns } = await mutateSchemaSafe(
+        (payload) => supabase.from("posts").update(payload).eq("id", id),
+        row,
+      );
       if (error) {
-        // Migration not run yet → save without scheduling instead of failing.
-        if (/scheduled_for/i.test(error.message)) {
-          delete row.scheduled_for;
-          if (futureSchedule) row.published = published;
-          const { error: retryError } = await supabase.from("posts").update(row).eq("id", id);
-          if (retryError) throw new Error(retryError.message);
-          if (futureSchedule) {
-            setNotice("Saved, but scheduling needs the DB migration — see supabase/migrate-scheduling-stats.sql.");
-          }
-        } else {
-          throw new Error(error.message);
-        }
+        throw new Error(error.message);
+      }
+      if (futureSchedule && skippedColumns.includes("scheduled_for")) {
+        setNotice("Saved, but scheduling needs the DB migration — see supabase/migrate-scheduling-stats.sql.");
+      } else if (skippedColumns.length) {
+        setNotice(`Saved without: ${skippedColumns.join(", ")} (enable with supabase/migrate-add-columns.sql).`);
       }
       try {
         localStorage.removeItem(draftKey(id));

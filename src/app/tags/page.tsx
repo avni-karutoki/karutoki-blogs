@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import { createPublicClient as createClient } from "@/lib/supabase/server";
+import { selectSchemaSafe } from "@/lib/supabase/schema-safe";
 
 export const revalidate = 60;
 
@@ -13,12 +14,13 @@ export default async function TagsPage() {
   const counts = new Map<string, number>();
   try {
     const supabase = await createClient();
-    const { data } = await supabase
-      .from("posts")
-      .select("tags")
-      .eq("published", true)
-      .limit(500);
-    ((data as { tags: string[] | null }[]) || []).forEach((p) => {
+    const { data } = await selectSchemaSafe<{ tags: string[] | null }>(
+      supabase,
+      "posts",
+      ["tags"],
+      { filter: (q) => q.eq("published", true).limit(500) },
+    );
+    (data || []).forEach((p) => {
       (p.tags || []).forEach((t) => {
         const tag = t.trim();
         if (tag) counts.set(tag, (counts.get(tag) ?? 0) + 1);

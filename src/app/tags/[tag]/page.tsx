@@ -2,19 +2,21 @@ import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import { createPublicClient as createClient } from "@/lib/supabase/server";
 import { categoryLabel } from "@/lib/types";
+import { selectSchemaSafe } from "@/lib/supabase/schema-safe";
 
 export const revalidate = 60;
 
 export async function generateStaticParams() {
   try {
     const supabase = await createClient();
-    const { data } = await supabase
-      .from("posts")
-      .select("tags")
-      .eq("published", true)
-      .limit(500);
+    const { data } = await selectSchemaSafe<{ tags: string[] | null }>(
+      supabase,
+      "posts",
+      ["tags"],
+      { filter: (q) => q.eq("published", true).limit(500) },
+    );
     const tags = new Set<string>();
-    ((data as { tags: string[] | null }[]) || []).forEach((p) =>
+    (data || []).forEach((p) =>
       (p.tags || []).forEach((t) => {
         const tag = t.trim();
         if (tag) tags.add(tag);
@@ -45,13 +47,15 @@ export default async function TagPage({
   let posts: Row[] = [];
   try {
     const supabase = await createClient();
-    const { data } = await supabase
-      .from("posts")
-      .select("slug, title, excerpt, category, tags, created_at")
-      .eq("published", true)
-      .order("created_at", { ascending: false })
-      .limit(500);
-    posts = ((data as Row[]) || []).filter((p) =>
+    const { data } = await selectSchemaSafe<Row>(
+      supabase,
+      "posts",
+      ["slug", "title", "excerpt", "category", "tags", "created_at"],
+      {
+        filter: (q) => q.eq("published", true).order("created_at", { ascending: false }).limit(500),
+      },
+    );
+    posts = (data || []).filter((p) =>
       (p.tags || []).some((t) => t.trim().toLowerCase() === decoded.toLowerCase())
     );
   } catch {

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { mutateSchemaSafe } from "@/lib/supabase/schema-safe";
 import type { Category } from "@/lib/types";
 
 const DRAFT_KEY = "karutoki-draft-new";
@@ -188,18 +189,17 @@ export default function NewPostPage() {
       };
       if (futureSchedule && scheduledDate) row.scheduled_for = scheduledDate.toISOString();
 
-      const { error: insErr } = await supabase.from("posts").insert(row);
-      if (insErr) {
-        // Migration not run yet → save without scheduling instead of failing.
-        if (futureSchedule && /scheduled_for/i.test(insErr.message)) {
-          delete row.scheduled_for;
-          row.published = published;
-          const { error: retryErr } = await supabase.from("posts").insert(row);
-          if (retryErr) throw new Error(retryErr.message);
-          setNotice("Saved, but scheduling needs the DB migration — see supabase/migrate-scheduling-stats.sql.");
-        } else {
-          throw new Error(insErr.message);
-        }
+      // Save; if the database is missing optional columns (tags, featured,
+      // scheduling…), save what the schema supports instead of failing.
+      const { error: insErr, missing: skippedColumns } = await mutateSchemaSafe(
+        (payload) => supabase.from("posts").insert(payload),
+        row,
+      );
+      if (insErr) throw new Error(insErr.message);
+      if (futureSchedule && skippedColumns.includes("scheduled_for")) {
+        setNotice("Saved, but scheduling needs the DB migration — see supabase/migrate-scheduling-stats.sql.");
+      } else if (skippedColumns.length) {
+        setNotice(`Saved without: ${skippedColumns.join(", ")} (enable with supabase/migrate-add-columns.sql).`);
       }
       try {
         localStorage.removeItem(DRAFT_KEY);
