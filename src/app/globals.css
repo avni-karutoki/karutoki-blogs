@@ -1422,16 +1422,22 @@ html[data-reading-size="compact"] .reading-body {
 }
 .film-roll:hover .film-frame img { transform: scale(1.04); }
 
-/* archive timeline dots */
+/* archive timeline dots — positioned by the page (left/top via utilities);
+   the CSS only provides the look */
 .timeline-dot {
   position: absolute;
-  left: -5.5px;
-  top: 0.55em;
-  width: 11px;
-  height: 11px;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
   border-radius: 999px;
   background: var(--accent);
   box-shadow: 0 0 0 4px var(--accent-soft);
+  z-index: 10;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.group:hover .timeline-dot {
+  transform: translate(-50%, -50%) scale(1.35);
+  box-shadow: 0 0 0 6px var(--accent-soft);
 }
 
 /* typewriter cursor */
