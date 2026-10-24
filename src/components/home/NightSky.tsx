@@ -38,18 +38,18 @@ export default function NightSky() {
       </div>
 
       <Reveal className="relative z-10 mx-auto max-w-2xl px-6 text-center">
-        <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.35em] text-[#d3a97e]">
+        <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.35em] text-[#d3a97e]!">
           After midnight
         </p>
-        <h2 className="mt-3 font-script text-4xl leading-snug text-[#efe4d3] sm:text-5xl">
+        <h2 className="mt-3 font-script text-4xl text-[#efe4d3]! leading-snug sm:text-5xl">
           The talks that only happen when the house is asleep.
         </h2>
-        <p className="mt-4 font-serif text-[1.05rem] italic leading-relaxed text-[#efe4d3]/70">
+        <p className="mt-4 font-serif text-[1.05rem] italic leading-relaxed text-[#efe4d3]/70!">
           &ldquo;Everything means more after 1 a.m. — even the quiet.&rdquo;
         </p>
         <Link
           href="/midnight-talks"
-          className="mt-8 inline-flex items-center gap-2 rounded-full border border-[#d3a97e]/40 px-6 py-2.5 font-sans text-[11px] font-semibold uppercase tracking-[0.25em] text-[#d3a97e] transition-colors hover:bg-[#d3a97e]/10"
+          className="mt-8 inline-flex items-center gap-2 rounded-full border border-[#d3a97e]/40 text-[#d3a97e]! px-6 py-2.5 font-sans text-[11px] font-semibold uppercase tracking-[0.25em] transition-colors hover:bg-[#d3a97e]/10"
         >
           Walk in ☾
         </Link>
