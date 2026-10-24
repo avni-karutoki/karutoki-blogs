@@ -21,6 +21,7 @@
 - **Archive** — a **vertical timeline**: one long thread with year medallions, month seals and entries alternating left/right around the spine, each with its cover thumbnail and a big vintage day stamp
 - **Tags** (`/tags`, `/tags/[tag]`) and **full-text search** — both in-page and a global `Ctrl/Cmd + K` overlay
 - **About** — markdown-formatted bio in a round layered portrait frame with an orbit ring, plus a *"Scraps from the desk"* polaroid gallery
+- **Comments on every writing** — public threads under each page ("In the margins"): visitors comment and **reply to each other**, everyone reads the whole conversation; no login needed; loaded client-side so they stay fresh on cached pages
 - **Contact** — message form feeding a private inbox; newsletter subscription
 
 ### The admin studio (`/admin`, login-gated)
@@ -125,6 +126,7 @@ src/
   components/
     Hero.tsx                    Slideshow resolution, clickable linked slides, crop transform
     RichText.tsx                Bio markdown renderer (###, **bold**, *italic*)
+    WritingComments.tsx         Threaded comments per writing (fetch + reply tree)
     WritingCard.tsx  Reveal.tsx  ScrollAnimations.tsx  PageTransition.tsx
     ThemeProvider.tsx  SearchOverlay.tsx  NewsletterForm.tsx  ContactForm.tsx  …
   lib/
@@ -141,6 +143,7 @@ supabase/
   schema.sql                    Canonical schema, RLS, storage bucket
   migrate-scheduling-stats.sql  scheduling / likes / views upgrade
   migrate-add-columns.sql       tags / featured / gallery_images upgrade
+  migrate-comments.sql          comments table + public write / admin delete RLS
 public/
   theme-init.js                 Pre-hydration theme & reading-size bootstrap
 ```
