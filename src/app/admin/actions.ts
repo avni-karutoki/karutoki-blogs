@@ -140,6 +140,39 @@ export async function deleteMessage(id: string) {
   return { success: true };
 }
 
+export async function deleteComment(id: string) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!isAdminUser(user)) {
+    return {
+      success: false,
+      error: "You must be logged in as authorized admin.",
+    };
+  }
+
+  // Replies hang off the deleted comment via cascade, so removing a thread
+  // root tidies up everything under it too.
+  const { error } = await supabase
+    .from("comments")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error("Delete comment error:", error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+
+  revalidatePath("/admin");
+  return { success: true };
+}
+
 export async function updateSiteSettings(key: string, value: Record<string, unknown>) {
   const supabase = await createClient();
 

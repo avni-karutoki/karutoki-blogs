@@ -20,9 +20,16 @@ export default async function AdminDashboard() {
   // Auto-publish any scheduled pieces whose time has come.
   await publishDuePosts();
 
-  const [{ data: posts }, { data: messages }, hero, about] = await Promise.all([
+  const [{ data: posts }, { data: messages }, { data: comments }, hero, about] = await Promise.all([
     supabase.from("posts").select("*").order("created_at", { ascending: false }),
     supabase.from("contact_messages").select("*").order("created_at", { ascending: false }),
+    // Comments with the post title attached (migrate-comments.sql); if the
+    // table isn't there yet the dashboard keeps loading without the tab.
+    supabase
+      .from("comments")
+      .select("id, post_id, author_name, content, created_at, parent_id, posts(title)")
+      .order("created_at", { ascending: false })
+      .limit(200),
     getSiteSetting<HeroSettings>(supabase, "hero", DEFAULT_HERO),
     getSiteSetting<AboutSettings>(supabase, "about", DEFAULT_ABOUT),
   ]);
@@ -32,6 +39,7 @@ export default async function AdminDashboard() {
       userEmail={user.email || "admin"}
       posts={posts || []}
       messages={messages || []}
+      comments={comments || []}
       initialHeroSettings={hero}
       initialAboutSettings={about}
     />

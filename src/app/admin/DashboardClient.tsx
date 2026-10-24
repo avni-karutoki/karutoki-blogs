@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import LogoutButton from "./logout-button";
 import DeleteConfirmation from "./delete-confirmation";
-import { togglePublished, toggleMessageRead, deleteMessage, updateSiteSettings } from "./actions";
+import { togglePublished, toggleMessageRead, deleteMessage, deleteComment, updateSiteSettings } from "./actions";
 import { ImagePicker, ImageListPicker } from "./ImagePickers";
 import PictureAdjuster from "./PictureAdjuster";
 import RichText from "@/components/RichText";
@@ -35,10 +35,29 @@ interface ContactMessage {
   created_at: string;
 }
 
+interface CommentItem {
+  id: string;
+  post_id: string;
+  author_name: string;
+  content: string;
+  created_at: string;
+  parent_id: string | null;
+  // nested FK embed — Supabase typing varies between object/array; normalize
+  // on read via postTitle()
+  posts: { title: string } | { title: string }[] | null;
+}
+
+function postTitleOf(c: CommentItem): string {
+  const p = c.posts;
+  if (Array.isArray(p)) return p[0]?.title ?? "a writing";
+  return p?.title ?? "a writing";
+}
+
 interface DashboardClientProps {
   userEmail: string;
   posts: PostItem[];
   messages: ContactMessage[];
+  comments?: CommentItem[];
   initialHeroSettings?: {
     title: string;
     subtitle: string;
@@ -68,6 +87,7 @@ export default function DashboardClient({
   userEmail,
   posts: initialPosts,
   messages: initialMessages,
+  comments = [],
   initialHeroSettings = {
     title: "Words that were never said.",
     subtitle: "A little corner for poems, stories, midnight thoughts, and everything in between.",
@@ -79,7 +99,7 @@ export default function DashboardClient({
     bio: "I am someone who finds comfort in words... Karutoki is my little corner of the internet.",
   },
 }: DashboardClientProps) {
-  const [activeTab, setActiveTab] = useState<"overview" | "writings" | "inbox" | "settings">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "writings" | "inbox" | "comments" | "settings">("overview");
   
   // Search & Filters for Writings
   const [searchQuery, setSearchQuery] = useState("");
@@ -131,6 +151,13 @@ export default function DashboardClient({
   async function handleDeleteMessage(id: string, name: string) {
     if (confirm(`Delete message from ${name}?`)) {
       await deleteMessage(id);
+      router.refresh();
+    }
+  }
+
+  async function handleDeleteComment(id: string, author: string) {
+    if (confirm(`Delete this comment by ${author}? Replies under it are removed too.`)) {
+      await deleteComment(id);
       router.refresh();
     }
   }
@@ -278,6 +305,16 @@ export default function DashboardClient({
                 {unreadMessagesCount}
               </span>
             )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("comments")}
+            className={`pill-button font-sans uppercase text-xs tracking-wider ${
+              activeTab === "comments" ? "active" : ""
+            }`}
+          >
+            💬 Comments ({comments.length})
           </button>
 
           <button
@@ -649,7 +686,65 @@ export default function DashboardClient({
           </div>
         )}
 
-        {/* ================= TAB 4: HERO & ABOUT MANAGERS ================= */}
+        {/* ================= TAB 4: COMMENTS MODERATION ================= */}
+        {activeTab === "comments" && (
+          <div className="space-y-6 animate-fadeIn">
+            {comments.length === 0 ? (
+              <div className="vintage-card p-12 text-center rounded-2xl space-y-3">
+                <p className="font-script text-3xl text-[var(--text-heading)]">
+                  No comments yet.
+                </p>
+                <p className="font-serif text-sm text-[var(--text-muted)]">
+                  Reader comments and replies will gather here for moderation.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-5">
+                {comments.map((c) => (
+                  <div
+                    key={c.id}
+                    className="vintage-card p-5 sm:p-6 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)]"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--border-color)] pb-3">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="font-sans font-bold text-sm text-[var(--text-heading)]">
+                            {c.author_name}
+                          </h3>
+                          {c.parent_id && (
+                            <span className="rounded-full bg-[var(--accent-soft)] px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[var(--accent)]">
+                              Reply
+                            </span>
+                          )}
+                        </div>
+                        <p className="font-sans text-xs text-[var(--accent-pink)] truncate">
+                          on {postTitleOf(c)}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-sans text-xs text-[var(--text-muted)]" suppressHydrationWarning>
+                          {new Date(c.created_at).toLocaleString()}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteComment(c.id, c.author_name)}
+                          className="secondary-button text-xs uppercase px-3 py-1.5 h-8 text-rose-500 hover:border-rose-500"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                    <p className="pt-3 font-serif text-[1.02rem] text-[var(--text-primary)] leading-relaxed whitespace-pre-wrap">
+                      {c.content}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ================= TAB 5: HERO & ABOUT MANAGERS ================= */}
         {activeTab === "settings" && (
           <div className="grid gap-10 md:grid-cols-2 animate-fadeIn">
             {/* Hero Manager */}
