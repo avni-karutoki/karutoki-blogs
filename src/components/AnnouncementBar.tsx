@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
-const DISMISS_KEY = "karutoki-fresh-dismissed";
 const FRESH_DAYS = 14;
 
 type FreshPost = { slug: string; title: string; created_at: string };
@@ -32,11 +31,6 @@ export default function AnnouncementBar() {
         const fresh = data as FreshPost;
         const ageDays = (Date.now() - new Date(fresh.created_at).getTime()) / 86400000;
         if (ageDays > FRESH_DAYS) return;
-        try {
-          if (localStorage.getItem(DISMISS_KEY) === fresh.slug) return;
-        } catch {
-          /* ignore */
-        }
         if (!cancelled) setPost(fresh);
       } catch {
         /* offline / DB unreachable — stay silent */
@@ -50,11 +44,8 @@ export default function AnnouncementBar() {
   if (!post) return null;
 
   function dismiss() {
-    try {
-      localStorage.setItem(DISMISS_KEY, post!.slug);
-    } catch {
-      /* ignore */
-    }
+    // Crossing it only hides the banner for this page view — it slides back
+    // in on the next full load, so fresh work never goes unseen for long.
     setPost(null);
   }
 
