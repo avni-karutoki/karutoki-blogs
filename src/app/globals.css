@@ -2408,3 +2408,116 @@ html:not(.js) .intro-splash {
 @media (prefers-reduced-motion: reduce) {
   .marquee-track, .night .stars span, .type-caret { animation: none !important; }
 }
+
+/* ————— Contact page: postage stamp, chips, wax seal ————— */
+.contact-stamp {
+  position: absolute;
+  top: 4rem;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 14px;
+  border: 1.5px dashed var(--accent);
+  border-radius: 6px;
+  color: var(--accent);
+  background: var(--bg-card);
+  transform: rotate(4deg);
+  opacity: 0;
+  animation: stamp-in 0.7s cubic-bezier(0.2, 1.6, 0.3, 1) 0.6s forwards;
+}
+.contact-stamp__glyph {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+.contact-stamp__label {
+  font-family: var(--font-sans, sans-serif);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+@keyframes stamp-in {
+  0% { opacity: 0; transform: rotate(14deg) scale(1.6); }
+  100% { opacity: 0.9; transform: rotate(4deg) scale(1); }
+}
+
+.contact-chip {
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-family: var(--font-sans, sans-serif);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-card);
+  transition: all 0.25s ease;
+}
+.contact-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+.contact-chip--active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* the wax seal that stamps down on the thank-you card */
+.contact-seal {
+  position: absolute;
+  top: -26px;
+  left: 50%;
+  width: 58px;
+  height: 58px;
+  margin-left: -29px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--bg-card);
+  box-shadow: 0 4px 14px var(--accent-soft), 0 0 0 3px var(--bg-card) inset;
+  transform-origin: 50% -40px;
+  rotate: -8deg;
+  animation: seal-stamp 0.6s cubic-bezier(0.2, 1.8, 0.3, 1) 0.25s backwards;
+}
+.contact-seal__glyph {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+@keyframes seal-stamp {
+  0% { opacity: 0; transform: scale(2.2) rotate(-20deg); }
+  70% { transform: scale(0.92) rotate(-6deg); }
+  100% { opacity: 1; transform: scale(1) rotate(-8deg); }
+}
+
+/* the "RECEIVED · date" postmark under the seal */
+.contact-postmark {
+  position: relative;
+  opacity: 0;
+  animation: postmark-in 0.5s ease 0.7s forwards;
+}
+.contact-postmark::before, .contact-postmark::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 28px;
+  height: 1px;
+  background: var(--border-color);
+}
+.contact-postmark::before { right: calc(50% + 88px); }
+.contact-postmark::after { left: calc(50% + 88px); }
+@keyframes postmark-in {
+  from { opacity: 0; letter-spacing: 0.4em; }
+  to { opacity: 1; letter-spacing: 0.25em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-stamp, .contact-seal, .contact-postmark { animation: none !important; }
+  .contact-stamp, .contact-postmark { opacity: 1; }
+  .contact-stamp { transform: rotate(4deg); }
+}
