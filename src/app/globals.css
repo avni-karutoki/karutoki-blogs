@@ -1418,6 +1418,179 @@ html[data-reading-size="compact"] .reading-body {
 }
 
 /* ---------------------------------- *
+ * Intro splash — first-visit brand overture
+ * The book draws itself in ink, the wordmark is
+ * written letter by letter, and the page lifts away.
+ * ---------------------------------- */
+.intro-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  transition: transform 0.75s cubic-bezier(0.65, 0, 0.35, 1);
+  will-change: transform;
+}
+
+/* the curtain lifts like a page being turned */
+.intro-splash.is-lifting {
+  transform: translateY(-104%);
+  box-shadow: 0 30px 70px -40px rgba(0, 0, 0, 0.55);
+}
+
+/* repeat visits: theme-init (beforeInteractive) flags the session before
+   paint, so visitors never even glimpse the overlay */
+html.intro-skip .intro-splash {
+  display: none;
+}
+
+/* never for people who ask the web to be calm, or for no-JS visitors
+   (theme-init adds .js; without it the overlay must not trap anyone) */
+html:not(.js) .intro-splash {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-splash {
+    display: none;
+  }
+}
+
+.intro-splash__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: intro-inner-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.intro-splash__inner > * {
+  animation-fill-mode: both;
+}
+
+.intro-splash__book {
+  color: var(--text-heading);
+  transform: rotate(-2deg);
+}
+
+/* the faint page-writing appears once the outlines are drawn */
+.intro-splash__book .intro-faint path {
+  animation: intro-faint-in 0.8s ease 1.15s both;
+}
+
+/* the little accent heart-spine of the book pops in at the end */
+.intro-splash__book .intro-dot {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: intro-dot-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 1.5s both;
+}
+
+.intro-splash__word {
+  margin-top: 6px;
+  font-size: clamp(3.2rem, 9vw, 5.4rem);
+  font-weight: 700;
+  line-height: 1.05;
+  color: var(--text-heading);
+}
+
+.intro-splash__word span {
+  display: inline-block;
+  opacity: 0;
+  animation: intro-letter-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* trail-off on the last letter — like the pen lifting */
+.intro-splash__word span:last-child {
+  color: var(--accent);
+}
+
+.intro-splash__sub {
+  margin-top: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0;
+  animation: intro-tracks-in 0.9s ease 1.35s both;
+}
+
+.intro-splash__flourish {
+  width: 130px;
+  height: 1px;
+  margin-top: 14px;
+  border-radius: 999px;
+  background: var(--accent);
+  opacity: 0;
+  transform-origin: center;
+  animation: intro-flourish-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) 1.6s both;
+}
+
+@keyframes intro-inner-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes intro-faint-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.6;
+  }
+}
+
+@keyframes intro-dot-pop {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes intro-letter-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) rotate(5deg);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+    filter: none;
+  }
+}
+
+@keyframes intro-tracks-in {
+  from {
+    opacity: 0;
+    letter-spacing: 0.12em;
+  }
+  to {
+    opacity: 1;
+    letter-spacing: 0.42em;
+  }
+}
+
+@keyframes intro-flourish-in {
+  from {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  to {
+    opacity: 0.65;
+    transform: scaleX(1);
+  }
+}
+
+/* ---------------------------------- *
  * Homepage extras
  * ---------------------------------- */
 
