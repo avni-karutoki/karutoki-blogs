@@ -3,15 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Local-dev replacement for the HangingMelody popup.
+ * Replacement for the HangingMelody popup.
  *
  * A single rope charm that toggles one song: All Too Well (10 Minute Version).
  * Click the rope → the song starts and keeps playing across every page
  * (this component is mounted once in the root layout, so playback survives
- * client-side navigation) until the rope is clicked again to stop it.
+ * client-side navigation and hard reloads resume the saved position) until
+ * the rope is clicked again to stop it.
  *
- * The song is copyrighted, so it is loaded from `public/all-too-well.mp3` —
- * drop the 10-minute version file there to enable playback.
+ * The song is copyrighted, so it is loaded from `public/all-too-well.mp3`.
  */
 
 const SONG_SRC = "/all-too-well.mp3";
