@@ -139,12 +139,20 @@ export default function DashboardClient({
   const router = useRouter();
 
   async function handleTogglePublished(id: string, current: boolean) {
-    await togglePublished(id, current);
+    const result = await togglePublished(id, current);
+    if (!result.success) {
+      alert(`Could not change the publishing status: ${result.error}`);
+      return;
+    }
     router.refresh();
   }
 
   async function handleToggleMessageRead(id: string, current: boolean) {
-    await toggleMessageRead(id, current);
+    const result = await toggleMessageRead(id, current);
+    if (!result.success) {
+      alert(`Could not update the message: ${result.error}. If it mentions a missing column or policy, run supabase/migrate-contact-read.sql in the Supabase SQL Editor.`);
+      return;
+    }
     router.refresh();
   }
 
