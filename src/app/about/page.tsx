@@ -96,36 +96,40 @@ export default async function AboutPage() {
         </Reveal>
       </div>
 
-      {/* The story, in readable rhythm */}
+      {/* The story, in readable rhythm — fades in as you reach it */}
       {rest && (
-        <div className="mx-auto mt-16 max-w-2xl text-left">
+        <Reveal className="mx-auto mt-16 max-w-2xl text-left">
           <RichText text={rest} />
-        </div>
+        </Reveal>
       )}
 
-      {/* Gallery of pictures managed from the admin */}
-      {gallery.length > 0 && (
-        <Reveal className="mt-16">
-          <p className="eyebrow text-center">Scraps from the desk</p>
+      {/* Gallery of pictures managed from the admin — each scrap drops in
+          (fade + scale pop) one by one as the strip scrolls into view */
+      gallery.length > 0 && (
+        <div className="mt-16">
+          <Reveal>
+            <p className="eyebrow text-center">Scraps from the desk</p>
+          </Reveal>
           <div className="mt-6 flex flex-wrap justify-center gap-5">
             {gallery.map((src, i) => (
-              <div
-                key={`${src}-${i}`}
-                className="vintage-card w-40 p-2 pb-3 transition-transform duration-300 hover:-translate-y-1 sm:w-44"
-                style={{ transform: `rotate(${i % 2 === 0 ? -2 : 2}deg)` }}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={src}
-                  alt={`Karutoki ${i + 1}`}
-                  loading="lazy"
-                  decoding="async"
-                  className="aspect-square w-full rounded-sm object-cover"
-                />
-              </div>
+              <Reveal key={`${src}-${i}`} delay={i * 0.12} y={30} scale={0.85}>
+                <div
+                  className="vintage-card w-40 p-2 pb-3 transition-transform duration-300 hover:-translate-y-1 sm:w-44"
+                  style={{ transform: `rotate(${i % 2 === 0 ? -2 : 2}deg)` }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={src}
+                    alt={`Karutoki ${i + 1}`}
+                    loading="lazy"
+                    decoding="async"
+                    className="aspect-square w-full rounded-sm object-cover"
+                  />
+                </div>
+              </Reveal>
             ))}
           </div>
-        </Reveal>
+        </div>
       )}
 
       {/* Where everything lives */}
