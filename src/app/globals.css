@@ -1411,10 +1411,357 @@ html[data-reading-size="compact"] .reading-body {
   transform: scaleY(0.4);
 }
 
+/* ---------------------------------- *
+ * Reader mode — mood picker on /writings
+ * ---------------------------------- */
 .rope-song-chip .hanging-melody__play {
   width: 26px;
   height: 26px;
   font-size: 10px;
+}
+
+.mood-picker {
+  padding: 22px 24px;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  background:
+    radial-gradient(120% 90% at 100% 0%, var(--accent-soft), transparent 55%),
+    var(--bg-card);
+  box-shadow: var(--shadow-card);
+}
+
+.mood-picker__title {
+  margin-top: 4px;
+  font-size: clamp(1.9rem, 4.5vw, 2.6rem);
+  line-height: 1.15;
+  color: var(--text-heading);
+}
+
+.mood-picker__sub {
+  margin-top: 4px;
+  font-size: 0.98rem;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.mood-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: linear-gradient(135deg, var(--chip-a, var(--bg-card)), var(--chip-b, var(--accent-soft)));
+  color: var(--text-heading);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.mood-chip:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: 0 8px 20px -10px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.mood-chip.is-active {
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent),
+    0 10px 22px -12px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.mood-chip--surprise {
+  border-style: dashed;
+  background: var(--bg-card);
+}
+
+/* ---------------------------------- *
+ * Midnight Talks — a full night sky
+ * Fixed midnight palette: never flips with themes.
+ * Each card is a window onto its writing's own night.
+ * ---------------------------------- */
+.midnight-zone {
+  background:
+    radial-gradient(130% 100% at 50% 0%, #16203d 0%, #0b1128 52%, #070b1a 100%);
+  color: #efe4d3;
+}
+
+.midnight-zone .stars span {
+  position: absolute;
+  border-radius: 999px;
+  background: #cdd7ee;
+  animation: star-twinkle 3.4s ease-in-out infinite;
+}
+
+/* the crescent, hanging in the corner */
+.midnight-zone .moon {
+  position: absolute;
+  top: 88px;
+  right: 10%;
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  background: #f3ead6;
+  box-shadow:
+    inset -20px 8px 0 0 rgba(11, 17, 40, 1),
+    0 0 46px 12px rgba(243, 234, 214, 0.22);
+  animation: moon-drift 9s ease-in-out infinite alternate;
+}
+
+/* an occasional shooting star */
+.midnight-zone .meteor {
+  position: absolute;
+  top: 16%;
+  left: 58%;
+  width: 150px;
+  height: 1.5px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(239, 228, 211, 0), rgba(239, 228, 211, 0.95));
+  opacity: 0;
+  animation: meteor-shoot 9s cubic-bezier(0.2, 0.6, 0.4, 1) 4.5s infinite;
+}
+
+.midnight-mist {
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  bottom: -70px;
+  height: 200px;
+  background: radial-gradient(60% 100% at 50% 100%, rgba(127, 182, 217, 0.13), transparent 72%);
+  filter: blur(30px);
+  animation: mist-drift 12s ease-in-out infinite alternate;
+}
+
+.midnight-zone__eyebrow {
+  color: color-mix(in srgb, #d3a97e 92%, white);
+}
+
+.midnight-zone__title {
+  color: #efe4d3;
+  text-shadow: 0 0 34px rgba(211, 169, 126, 0.25);
+}
+
+.midnight-zone__lead {
+  color: rgba(239, 228, 211, 0.78);
+}
+
+.midnight-zone__divider,
+.midnight-zone__divider * {
+  color: #d3a97e;
+  border-color: rgba(211, 169, 126, 0.35);
+}
+
+.midnight-zone__foot {
+  color: rgba(239, 228, 211, 0.55);
+}
+
+/* the card — window into a writing's own night */
+.midnight-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 20px;
+  color: #efe4d3;
+  background: linear-gradient(168deg, var(--mood-mid), var(--mood-deep) 88%);
+  border: 1px solid rgba(239, 228, 211, 0.18);
+  border: 1px solid color-mix(in srgb, var(--mood-glow) 34%, transparent);
+  box-shadow: 0 20px 46px -22px rgba(0, 0, 0, 0.72);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.midnight-card:hover {
+  transform: translateY(-8px);
+  border-color: color-mix(in srgb, var(--mood-glow) 72%, transparent);
+  box-shadow:
+    0 28px 56px -20px color-mix(in srgb, var(--mood-glow) 24%, rgba(0, 0, 0, 0.8)),
+    0 0 0 1px color-mix(in srgb, var(--mood-glow) 30%, transparent);
+}
+
+.midnight-card__window {
+  position: relative;
+  height: 118px;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 120% at 20% 0%,
+      color-mix(in srgb, var(--mood-glow) 26%, transparent), transparent 62%),
+    linear-gradient(165deg, var(--mood-mid), var(--mood-deep) 92%);
+  border-bottom: 1px solid color-mix(in srgb, var(--mood-glow) 22%, transparent);
+}
+
+.midnight-card__window--photo {
+  height: auto;
+  aspect-ratio: 16 / 10;
+  background: none;
+}
+
+.midnight-card__tint {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(175deg,
+    transparent 40%,
+    color-mix(in srgb, var(--mood-glow) 16%, transparent) 100%);
+  pointer-events: none;
+}
+
+.midnight-card__star {
+  position: absolute;
+  border-radius: 999px;
+  background: #e8edf6;
+  animation: star-twinkle 3.2s ease-in-out infinite;
+}
+
+.midnight-card__moon-glyph {
+  position: absolute;
+  right: 14px;
+  bottom: -14px;
+  font-size: 64px;
+  line-height: 1;
+  opacity: 0.14;
+  color: #f3ead6;
+}
+
+.midnight-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 18px 20px 16px;
+}
+
+.midnight-card__mood {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--mood-glow) 42%, transparent);
+  background: color-mix(in srgb, var(--mood-glow) 12%, transparent);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--mood-glow) 70%, #efe4d3);
+}
+
+.midnight-card__cat {
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(239, 228, 211, 0.45);
+}
+
+.midnight-card__tag {
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(239, 228, 211, 0.14);
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-style: italic;
+  font-size: 0.78rem;
+  color: rgba(239, 228, 211, 0.62);
+}
+
+.midnight-card__title {
+  margin-top: 12px;
+  font-family: var(--font-caveat), "Segoe Script", cursive;
+  font-weight: 600;
+  font-size: 2.1rem;
+  line-height: 1.12;
+  color: #f3ead6;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.midnight-card:hover .midnight-card__title {
+  color: color-mix(in srgb, var(--mood-glow) 55%, #f3ead6);
+}
+
+.midnight-card__excerpt {
+  margin-top: 10px;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: rgba(239, 228, 211, 0.66);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.midnight-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid rgba(239, 228, 211, 0.1);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-size: 11.5px;
+  color: rgba(239, 228, 211, 0.48);
+}
+
+.midnight-card__more {
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 10.5px;
+  color: color-mix(in srgb, var(--mood-glow) 62%, #efe4d3);
+  transition: transform 0.3s ease;
+}
+
+.midnight-card:hover .midnight-card__more {
+  transform: translateX(3px);
+}
+
+@keyframes meteor-shoot {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(-34deg);
+  }
+  3% {
+    opacity: 1;
+  }
+  9% {
+    opacity: 0;
+    transform: translate(-320px, 215px) rotate(-34deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-320px, 215px) rotate(-34deg);
+  }
+}
+
+@keyframes moon-drift {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(10px);
+  }
+}
+
+@keyframes mist-drift {
+  from {
+    transform: translateX(-3%);
+  }
+  to {
+    transform: translateX(3%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .midnight-zone .meteor,
+  .midnight-zone .moon,
+  .midnight-mist,
+  .midnight-card__star {
+    animation: none !important;
+  }
 }
 
 /* ---------------------------------- *
@@ -1472,6 +1819,143 @@ html:not(.js) .intro-splash {
 .intro-splash__book {
   color: var(--text-heading);
   transform: rotate(-2deg);
+  animation: intro-bob 4.2s ease-in-out 2.2s infinite alternate;
+}
+
+/* the mark, slowly floating once the ink has settled */
+@keyframes intro-bob {
+  from {
+    transform: rotate(-2deg) translateY(0);
+  }
+  to {
+    transform: rotate(1.2deg) translateY(-7px);
+  }
+}
+
+/* soft ink halo glowing behind the mark, breathing like candlelight */
+.intro-splash__stage {
+  position: relative;
+  display: inline-flex;
+}
+
+.intro-splash__halo {
+  position: absolute;
+  inset: -28%;
+  border-radius: 999px;
+  background: radial-gradient(circle,
+    color-mix(in srgb, var(--accent) 30%, transparent), transparent 72%);
+  filter: blur(16px);
+  opacity: 0;
+  animation: intro-halo-in 1.6s ease 1.25s both;
+}
+
+.intro-splash__halo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: radial-gradient(circle,
+    color-mix(in srgb, var(--accent) 24%, transparent), transparent 70%);
+  animation: intro-halo-breathe 4.5s ease-in-out 2.4s infinite alternate;
+}
+
+@keyframes intro-halo-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes intro-halo-breathe {
+  from {
+    opacity: 0.35;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 0.85;
+    transform: scale(1.1);
+  }
+}
+
+/* tiny sparkles blinking awake around the mark */
+.intro-splash__spark {
+  position: absolute;
+  z-index: 1;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--accent);
+  opacity: 0;
+  animation: intro-spark 3.4s ease-in-out both;
+}
+
+.intro-splash__spark--a {
+  top: -6%;
+  left: -14%;
+  font-size: 13px;
+}
+
+.intro-splash__spark--b {
+  top: 34%;
+  right: -18%;
+  font-size: 17px;
+}
+
+.intro-splash__spark--c {
+  bottom: -8%;
+  left: 24%;
+  font-size: 12px;
+}
+
+@keyframes intro-spark {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-25deg);
+  }
+  10% {
+    opacity: 0.9;
+    transform: scale(1) rotate(0deg);
+  }
+  22% {
+    opacity: 0.3;
+    transform: scale(0.85);
+  }
+  34% {
+    opacity: 0.95;
+    transform: scale(1.08);
+  }
+  46% {
+    opacity: 0.25;
+    transform: scale(0.9) rotate(6deg);
+  }
+  60%,
+  86% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+}
+
+/* the sketchy double ring circling the mark like a soft pencil pass */
+.intro-splash__book .intro-ring {
+  animation: intro-ring-in 1.05s ease 1.3s both;
+}
+
+.intro-splash__book .intro-ring--second {
+  animation-delay: 1.5s;
+}
+
+@keyframes intro-ring-in {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
 /* the writing on the pages appears line by line, like the ink settling */
@@ -1496,6 +1980,7 @@ html:not(.js) .intro-splash {
   font-weight: 700;
   line-height: 1.05;
   color: var(--text-heading);
+  text-shadow: 0 0 26px color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
 .intro-splash__word span {
@@ -1552,17 +2037,7 @@ html:not(.js) .intro-splash {
 }
 
 /* the site's whisper-line, surfacing last */
-.intro-splash__line {
-  margin-top: 18px;
-  max-width: 34ch;
-  text-align: center;
-  font-style: italic;
-  font-size: 0.98rem;
-  line-height: 1.6;
-  color: var(--text-muted);
-  opacity: 0;
-  animation: intro-line-in 1s cubic-bezier(0.22, 1, 0.36, 1) 1.95s both;
-}
+/* (removed — the intro now speaks through the mark alone) */
 
 /* soft ink blooms breathing behind the stage */
 .intro-splash__bloom {
@@ -1690,19 +2165,6 @@ html:not(.js) .intro-splash {
   }
   to {
     opacity: 0;
-  }
-}
-
-@keyframes intro-line-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-    letter-spacing: 0.02em;
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-    letter-spacing: 0;
   }
 }
 
