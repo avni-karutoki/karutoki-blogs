@@ -96,11 +96,12 @@ export default async function AboutPage() {
         </Reveal>
       </div>
 
-      {/* The story, in readable rhythm — fades in as you reach it */}
+      {/* The story, in readable rhythm — each block fades in separately as
+          the reader scrolls down to it */}
       {rest && (
-        <Reveal className="mx-auto mt-16 max-w-2xl text-left">
-          <RichText text={rest} />
-        </Reveal>
+        <div className="mx-auto mt-16 max-w-2xl text-left">
+          <RichText text={rest} reveal />
+        </div>
       )}
 
       {/* Gallery of pictures managed from the admin — each scrap drops in
