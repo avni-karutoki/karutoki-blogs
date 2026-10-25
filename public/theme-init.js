@@ -21,6 +21,16 @@
       document.documentElement.setAttribute("data-reading-size", size);
     }
   } catch (e) {}
+  /* Intro splash: play only once per session. Flagged before paint so
+     returning visitors never even glimpse the overlay. */
+  try {
+    if (
+      sessionStorage.getItem("karutoki-intro") === "done" ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      document.documentElement.classList.add("intro-skip");
+    }
+  } catch (e) {}
   /* Belt-and-braces for WebKit: never auto-shrink the page to fit wide
      content — horizontal overflow is clipped instead. */
   try {
