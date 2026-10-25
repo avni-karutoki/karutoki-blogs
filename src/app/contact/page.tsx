@@ -11,12 +11,6 @@ export default function ContactPage() {
       <FloatingElement amplitude={22} duration={9} delay={0} className="absolute -top-12 -right-8 h-28 w-28 rounded-full bg-[var(--accent-soft)] blur-2xl opacity-35"><div /></FloatingElement>
       <FloatingElement amplitude={16} duration={13} delay={1.2} className="absolute -bottom-10 -left-10 h-24 w-24 rounded-full bg-[var(--accent-soft)] blur-2xl opacity-30"><div /></FloatingElement>
 
-      {/* a small postage stamp in the corner of the page */}
-      <div aria-hidden className="contact-stamp">
-        <span className="contact-stamp__glyph">✦</span>
-        <span className="contact-stamp__label">Karutoki · 2&nbsp;AM</span>
-      </div>
-
       <Reveal>
         <div className="text-center">
           <p className="eyebrow">Contact</p>

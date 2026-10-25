@@ -2409,41 +2409,7 @@ html:not(.js) .intro-splash {
   .marquee-track, .night .stars span, .type-caret { animation: none !important; }
 }
 
-/* ————— Contact page: postage stamp, chips, wax seal ————— */
-.contact-stamp {
-  position: absolute;
-  top: 4rem;
-  right: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: 10px 14px;
-  border: 1.5px dashed var(--accent);
-  border-radius: 6px;
-  color: var(--accent);
-  background: var(--bg-card);
-  transform: rotate(4deg);
-  opacity: 0;
-  animation: stamp-in 0.7s cubic-bezier(0.2, 1.6, 0.3, 1) 0.6s forwards;
-}
-.contact-stamp__glyph {
-  font-size: 1.15rem;
-  line-height: 1;
-}
-.contact-stamp__label {
-  font-family: var(--font-sans, sans-serif);
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-@keyframes stamp-in {
-  0% { opacity: 0; transform: rotate(14deg) scale(1.6); }
-  100% { opacity: 0.9; transform: rotate(4deg) scale(1); }
-}
-
+/* ————— Contact page: chips, wax seal ————— */
 .contact-chip {
   border: 1px solid var(--border-color);
   border-radius: 999px;
@@ -2517,9 +2483,8 @@ html:not(.js) .intro-splash {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .contact-stamp, .contact-seal, .contact-postmark { animation: none !important; }
-  .contact-stamp, .contact-postmark { opacity: 1; }
-  .contact-stamp { transform: rotate(4deg); }
+  .contact-seal, .contact-postmark { animation: none !important; }
+  .contact-postmark { opacity: 1; }
 }
 
 /* ————— "Stay a little longer" — newsletter ambience ————— */
