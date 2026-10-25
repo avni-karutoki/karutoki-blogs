@@ -2546,3 +2546,114 @@ html:not(.js) .intro-splash {
   .whisper-cycle span:not(:first-child) { display: none; }
   .whisper-cycle span:first-child { opacity: 1; }
 }
+
+/* ————— Archive — the self-inking thread ————— */
+.archive-thread { --thread-fill: 0%; }
+.archive-thread__ink {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--thread-fill);
+  border-radius: 2px;
+  background: linear-gradient(to bottom, var(--accent-soft), var(--accent));
+  opacity: 0.75;
+}
+.archive-thread__tip {
+  position: absolute;
+  top: var(--thread-fill);
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  background: var(--accent);
+  box-shadow: 0 0 10px 3px var(--accent-soft);
+  animation: thread-tip-glow 1.8s ease-in-out infinite;
+}
+@keyframes thread-tip-glow {
+  0%, 100% { opacity: 0.55; transform: translate(-50%, -50%) scale(0.85); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.3); }
+}
+
+/* dust motes drifting through the top of the page */
+.archive-mote {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--accent);
+  opacity: 0.14;
+  filter: blur(1px);
+  animation: mote-drift 10s ease-in-out infinite alternate;
+}
+.archive-mote--a { left: 12%; top: 42%; animation-duration: 9s; }
+.archive-mote--b { left: 30%; top: 68%; width: 4px; height: 4px; animation-duration: 12s; animation-delay: 2s; opacity: 0.1; }
+.archive-mote--c { right: 14%; top: 30%; width: 6px; height: 6px; animation-duration: 11s; animation-delay: 1s; opacity: 0.12; }
+.archive-mote--d { right: 32%; top: 78%; width: 3px; height: 3px; animation-duration: 13s; animation-delay: 3.4s; opacity: 0.09; }
+@keyframes mote-drift {
+  from { transform: translateY(0) translateX(0); }
+  to { transform: translateY(-26px) translateX(10px); }
+}
+
+/* larger soft sparkles around the header */
+.archive-spark {
+  position: absolute;
+  color: var(--accent);
+  animation: twinkle 4.2s ease-in-out infinite;
+}
+.archive-spark--a { left: 18%; top: 12%; font-size: 1.1rem; }
+.archive-spark--b { right: 26%; top: 20%; font-size: 0.9rem; animation-delay: 1.7s; }
+
+/* year medallion — stamps itself down when it scrolls into view */
+.reveal .archive-year {
+  animation: archive-stamp 0.6s cubic-bezier(0.2, 1.7, 0.4, 1) both;
+  animation-play-state: paused;
+}
+.reveal.is-revealed .archive-year {
+  animation-play-state: running;
+}
+@keyframes archive-stamp {
+  0% { transform: scale(1.7) rotate(-6deg); opacity: 0; }
+  70% { transform: scale(0.94) rotate(1deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* month seal — a gentle nod forever */
+.reveal .archive-month {
+  animation: month-nod 5.5s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+.reveal.is-revealed .archive-month {
+  animation-play-state: running;
+}
+@keyframes month-nod {
+  from { transform: translateY(0) rotate(-0.4deg); }
+  to { transform: translateY(-4px) rotate(0.4deg); }
+}
+
+/* the big day stamp tilts a little when its card is hovered */
+.archive-day {
+  display: inline-block;
+  transition: transform 0.35s ease, color 0.35s ease;
+}
+.group:hover .archive-day {
+  transform: rotate(-4deg) scale(1.06);
+}
+
+/* the end of the thread — swaying softly, and it stays polite */
+.archive-end {
+  display: inline-block;
+  animation: end-sway 4.5s ease-in-out infinite alternate;
+}
+@keyframes end-sway {
+  from { transform: rotate(-1.5deg) translateY(0); }
+  to { transform: rotate(1.5deg) translateY(-3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .archive-thread__ink { height: 100% !important; }
+  .archive-thread__tip, .archive-mote, .archive-spark,
+  .archive-year, .archive-month, .archive-end { animation: none !important; }
+  .reveal .archive-year, .reveal .archive-month { opacity: 1; transform: none; }
+}
