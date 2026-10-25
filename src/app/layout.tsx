@@ -11,6 +11,7 @@ import SearchOverlay from "@/components/SearchOverlay";
 import ScrollToTop from "@/components/ScrollToTop";
 import ScrollProgressBar from "@/components/ScrollProgressBar";
 import CursorDog from "@/components/CursorDog";
+import IntroSplash from "@/components/IntroSplash";
 import MusicRope from "@/components/MusicRope";
 import AnnouncementBar from "@/components/AnnouncementBar";
 
@@ -81,6 +82,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           <SearchProvider>
             <div className="vignette-veil" aria-hidden />
+            <IntroSplash />
             <ScrollProgressBar />
             <AnnouncementBar />
             <Navbar />
