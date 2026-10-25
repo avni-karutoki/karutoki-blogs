@@ -99,6 +99,13 @@ export default async function WritingDetailPage({
     getRelated(post.category, post.slug),
   ]);
 
+  // The body renders block by block so each paragraph fades in as the
+  // reader scrolls to it (same treatment as the About page story).
+  const contentBlocks = post.content
+    .split(/\n{2,}/)
+    .map((b) => b.trim())
+    .filter(Boolean);
+
   return (
     <div className="mx-auto max-w-2xl px-6 py-14">
       <ReadingProgress />
@@ -167,11 +174,44 @@ export default async function WritingDetailPage({
         </div>
       </Reveal>
 
-      <Reveal>
-        <article className="reading-body mt-10 whitespace-pre-line font-serif leading-[1.85] text-[var(--text-primary)]">
-          {post.content}
-        </article>
-      </Reveal>
+      {/* the body, revealed paragraph by paragraph while scrolling */}
+      <article className="reading-body mt-10 font-serif leading-[1.85] text-[var(--text-primary)]">
+        {contentBlocks.map((block, i) => (
+          <Reveal key={i}>
+            <p className={`${i > 0 ? "mt-7" : ""} whitespace-pre-line`}>
+              {block}
+            </p>
+          </Reveal>
+        ))}
+      </article>
+
+      {/* extra pictures attached to the writing — each drops in as you scroll */}
+      {post.gallery_images && post.gallery_images.length > 0 && (
+        <section className="mt-14">
+          <Reveal>
+            <p className="eyebrow text-center">More moments</p>
+          </Reveal>
+          <div className="mt-6 flex flex-wrap justify-center gap-5">
+            {post.gallery_images.map((src, i) => (
+              <Reveal key={`${src}-${i}`} delay={i * 0.12} y={30} scale={0.85}>
+                <div
+                  className="vintage-card w-40 p-2 pb-3 transition-transform duration-300 hover:-translate-y-1 sm:w-44"
+                  style={{ transform: `rotate(${i % 2 === 0 ? -2 : 2}deg)` }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={src}
+                    alt={`${post.title} — moment ${i + 1}`}
+                    loading="lazy"
+                    decoding="async"
+                    className="aspect-square w-full rounded-sm object-cover"
+                  />
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      )}
 
       <Reveal>
         <div className="mt-10">
