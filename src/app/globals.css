@@ -2521,3 +2521,63 @@ html:not(.js) .intro-splash {
   .contact-stamp, .contact-postmark { opacity: 1; }
   .contact-stamp { transform: rotate(4deg); }
 }
+
+/* ————— "Stay a little longer" — newsletter ambience ————— */
+/* paper envelopes drifting gently up and down */
+.letter-note {
+  position: absolute;
+  color: var(--accent);
+  opacity: 0.14;
+  line-height: 1;
+  animation: letter-float 9s ease-in-out infinite alternate;
+}
+.letter-note--a { left: 7%; top: 34%; font-size: 1.7rem; --rot: -10deg; animation-duration: 9s; }
+.letter-note--b { right: 9%; top: 22%; font-size: 1.25rem; --rot: 8deg; animation-duration: 7s; animation-delay: 1.4s; opacity: 0.11; }
+.letter-note--c { left: 15%; bottom: 12%; font-size: 1.1rem; --rot: 6deg; animation-duration: 11s; animation-delay: 2.8s; opacity: 0.09; }
+.letter-note--d { right: 19%; bottom: 28%; font-size: 1.35rem; --rot: -7deg; animation-duration: 10s; animation-delay: 0.7s; opacity: 0.12; }
+@keyframes letter-float {
+  from { transform: translateY(0) rotate(var(--rot, 0deg)); }
+  to { transform: translateY(-20px) rotate(calc(-1 * var(--rot, 0deg))); }
+}
+
+/* ink sparkles twinkling around the heading */
+.twinkle {
+  position: absolute;
+  color: var(--accent);
+  animation: twinkle 3.4s ease-in-out infinite;
+}
+.twinkle--a { left: 24%; top: 16%; font-size: 0.85rem; }
+.twinkle--b { right: 22%; top: 24%; font-size: 0.7rem; animation-delay: 1.1s; }
+.twinkle--c { left: 30%; bottom: 18%; font-size: 0.95rem; animation-delay: 2.2s; }
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 0.85; transform: scale(1.15); }
+}
+
+/* the whisper line under the form — phrases crossfading one after another */
+.whisper-cycle {
+  position: relative;
+  display: block;
+  height: 1.4em;
+}
+.whisper-cycle span {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  opacity: 0;
+  animation: whisper-cycle 12s infinite;
+  white-space: nowrap;
+}
+.whisper-cycle span:nth-child(2) { animation-delay: 4s; }
+.whisper-cycle span:nth-child(3) { animation-delay: 8s; }
+@keyframes whisper-cycle {
+  0% { opacity: 0; transform: translateY(4px); }
+  5%, 28% { opacity: 1; transform: translateY(0); }
+  36%, 100% { opacity: 0; transform: translateY(-4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .letter-note, .twinkle, .whisper-cycle span { animation: none !important; }
+  .whisper-cycle span:not(:first-child) { display: none; }
+  .whisper-cycle span:first-child { opacity: 1; }
+}

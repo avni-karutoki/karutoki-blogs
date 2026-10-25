@@ -205,9 +205,21 @@ export default async function HomePage() {
         <CategoryTrio counts={counts} />
 
         {/* Newsletter */}
-        <section id="newsletter" className="scroll-mt-24 border-t border-[var(--border-color)] py-16 text-center relative">
+        <section id="newsletter" className="relative border-t border-[var(--border-color)] py-16 text-center">
           <FloatingElement amplitude={30} duration={12} delay={0} className="absolute -top-20 left-1/2 -translate-x-1/2 h-40 w-40 rounded-full bg-[var(--accent-soft)] blur-2xl opacity-50"><div /></FloatingElement>
           <FloatingElement amplitude={25} duration={15} delay={2} className="absolute -bottom-20 right-10 h-32 w-32 rounded-full bg-[var(--accent-soft)] blur-2xl opacity-50"><div /></FloatingElement>
+
+          {/* quiet ambience — paper letters drifting past, ink sparkles twinkling */}
+          <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+            <span className="letter-note letter-note--a">✉</span>
+            <span className="letter-note letter-note--b">✉</span>
+            <span className="letter-note letter-note--c">✉</span>
+            <span className="letter-note letter-note--d">✦</span>
+            <span className="twinkle twinkle--a">✦</span>
+            <span className="twinkle twinkle--b">✦</span>
+            <span className="twinkle twinkle--c">✦</span>
+          </div>
+
           <StaggerContainer stagger={0.12} className="relative z-10">
             <Reveal>
               <div className="mx-auto max-w-md">
@@ -218,7 +230,13 @@ export default async function HomePage() {
                   sub="New poems and midnight thoughts, delivered only when there's something worth sending."
                 />
                 <NewsletterForm />
-                <p className="mt-3 font-sans text-[11px] text-[var(--text-faint)]">No spam. Just words.</p>
+                {/* a whisper that keeps changing its mind */}
+                <span className="sr-only">Free forever. No spam — just words. Unsubscribe anytime.</span>
+                <p aria-hidden className="whisper-cycle mt-4 font-serif text-sm italic text-[var(--text-faint)]">
+                  <span>free, forever</span>
+                  <span>no noise, just words</span>
+                  <span>leave anytime, gently</span>
+                </p>
               </div>
             </Reveal>
           </StaggerContainer>
