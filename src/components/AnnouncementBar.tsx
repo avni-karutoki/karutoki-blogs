@@ -51,7 +51,7 @@ export default function AnnouncementBar() {
 
   return (
     <div className="fresh-ink relative z-40 flex items-center justify-center gap-3 border-b border-[var(--border-color)] bg-[var(--bg-card)] px-10 py-2 text-center">
-      <p className="min-w-0 truncate font-sans text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
+      <p className="min-w-0 px-4 text-center font-sans text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
         <span className="mr-2 text-[var(--accent)]">
           <span className="fresh-ink__spark" aria-hidden>✦</span> Fresh ink
         </span>
