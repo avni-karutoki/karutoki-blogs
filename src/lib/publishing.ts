@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { notifyPendingLetters } from "@/lib/newsletter";
 
 /**
  * Flips due scheduled posts to published. Called whenever /admin loads, so
@@ -7,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
  * (migration not run).
  */
 export async function publishDuePosts(): Promise<number> {
+  let publishedCount = 0;
   try {
     const supabase = await createClient();
     const { data, error } = await supabase
@@ -16,8 +18,18 @@ export async function publishDuePosts(): Promise<number> {
       .lte("scheduled_for", new Date().toISOString())
       .select("id");
     if (error) return 0;
-    return data?.length ?? 0;
+    publishedCount = data?.length ?? 0;
   } catch {
     return 0;
   }
+
+  // Newly-released scheduled pieces greet the newsletter right away.
+  if (publishedCount > 0) {
+    try {
+      await notifyPendingLetters();
+    } catch {
+      /* letters are non-blocking for the publish flow */
+    }
+  }
+  return publishedCount;
 }

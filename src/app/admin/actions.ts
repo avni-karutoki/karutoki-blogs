@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { isAdminUser } from "@/lib/supabase/authorization";
 import { revalidatePath } from "next/cache";
+import { notifyPendingLetters } from "@/lib/newsletter";
 
 function revalidateAll() {
   revalidatePath("/");
@@ -47,7 +48,16 @@ export async function togglePublished(id: string, currentPublished: boolean) {
   }
 
   revalidateAll();
-  return { success: true };
+
+  // Auto-letter: publishing a piece emails every subscriber (each writing
+  // mails once; unpublish → republish later will not re-spam anyone).
+  let newLetters: number | undefined;
+  if (!currentPublished) {
+    const result = await notifyPendingLetters();
+    if (result.sent > 0) newLetters = result.sent;
+  }
+
+  return { success: true, newLetters };
 }
 
 export async function deletePost(id: string) {

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isAdminUser } from "@/lib/supabase/authorization";
 import { publishDuePosts } from "@/lib/publishing";
+import { notifyPendingLetters } from "@/lib/newsletter";
 import DashboardClient from "./DashboardClient";
 import { DEFAULT_ABOUT, DEFAULT_HERO, getSiteSetting } from "@/lib/site";
 import type { AboutSettings, HeroSettings } from "@/lib/types";
@@ -19,6 +20,14 @@ export default async function AdminDashboard() {
 
   // Auto-publish any scheduled pieces whose time has come.
   await publishDuePosts();
+
+  // Sweep: email subscribers about anything published-but-not-yet-announced.
+  // Covers writing saved straight from "New writing" with the toggle on.
+  try {
+    await notifyPendingLetters();
+  } catch {
+    /* letters are non-blocking for the dashboard */
+  }
 
   const [{ data: posts }, { data: messages }, { data: comments }, hero, about] = await Promise.all([
     supabase.from("posts").select("*").order("created_at", { ascending: false }),
