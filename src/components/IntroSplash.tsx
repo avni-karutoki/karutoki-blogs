@@ -9,8 +9,11 @@ const WORD = "Karutoki".split("");
  * intro — reinterpreted for Karutoki's vintage, handwritten soul):
  *
  * 1. the open-book logo mark draws itself in, like ink on paper
- * 2. "Karutoki" writes itself in calligraphy, letter by letter
- * 3. a soft accent flourish sweeps underneath, and the page lifts away
+ * 2. the pages get written, line by line
+ * 3. "Karutoki" writes itself in calligraphy, letter by letter
+ * 4. an ink droplet falls and seeds the accent flourish; the site's
+ *    whisper-line surfaces underneath
+ * 5. the page lifts away with a soft parallax, like a turned page
  *
  * Plays once per browser session (a session flag is set before the first
  * paint, so returning visitors never see a flash of it). Reduced-motion
@@ -51,11 +54,11 @@ export default function IntroSplash() {
       }, 180 + i * 110);
     });
 
-    const liftAt = window.setTimeout(() => setLifting(true), 2400);
+    const liftAt = window.setTimeout(() => setLifting(true), 3050);
     const doneAt = window.setTimeout(() => {
       document.body.style.overflow = "";
       setDone(true);
-    }, 3200);
+    }, 3800);
     return () => {
       window.clearTimeout(liftAt);
       window.clearTimeout(doneAt);
@@ -67,6 +70,10 @@ export default function IntroSplash() {
 
   return (
     <div className={`intro-splash ${lifting ? "is-lifting" : ""}`} aria-live="polite">
+      {/* ambient ink blooms behind everything */}
+      <div className="intro-splash__bloom intro-splash__bloom--a" aria-hidden />
+      <div className="intro-splash__bloom intro-splash__bloom--b" aria-hidden />
+
       <div className="intro-splash__inner">
         {/* the open-book mark, drawing itself */}
         <svg
@@ -90,7 +97,7 @@ export default function IntroSplash() {
               strokeWidth="1.6"
             />
           </g>
-          {/* the writing on the pages fades in as the ink settles */}
+          {/* the writing on the pages, line by line as the ink settles */}
           <g stroke="currentColor" strokeWidth="1" strokeLinecap="round" className="intro-faint">
             <path d="M9 16C13 15 17 15.5 19 16.5" />
             <path d="M9 21C13 20 17 20.5 19 21.5" />
@@ -112,7 +119,17 @@ export default function IntroSplash() {
         <p className="intro-splash__sub font-sans" aria-hidden>
           Blogs
         </p>
-        <div className="intro-splash__flourish" aria-hidden />
+
+        {/* an ink drop falls to the pen-line; the flourish grows from it */}
+        <div className="intro-splash__seal" aria-hidden>
+          <span className="intro-splash__inkdrop" />
+          <div className="intro-splash__flourish" />
+        </div>
+
+        {/* the site's own whisper */}
+        <p className="intro-splash__line font-serif" aria-hidden>
+          Words that were never said, left behind here instead.
+        </p>
       </div>
     </div>
   );

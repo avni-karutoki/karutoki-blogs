@@ -1474,10 +1474,14 @@ html:not(.js) .intro-splash {
   transform: rotate(-2deg);
 }
 
-/* the faint page-writing appears once the outlines are drawn */
+/* the writing on the pages appears line by line, like the ink settling */
 .intro-splash__book .intro-faint path {
-  animation: intro-faint-in 0.8s ease 1.15s both;
+  animation: intro-faint-in 0.5s ease both;
 }
+.intro-splash__book .intro-faint path:nth-child(1) { animation-delay: 1.05s; }
+.intro-splash__book .intro-faint path:nth-child(2) { animation-delay: 1.2s; }
+.intro-splash__book .intro-faint path:nth-child(3) { animation-delay: 1.35s; }
+.intro-splash__book .intro-faint path:nth-child(4) { animation-delay: 1.5s; }
 
 /* the little accent heart-spine of the book pops in at the end */
 .intro-splash__book .intro-dot {
@@ -1523,7 +1527,77 @@ html:not(.js) .intro-splash {
   background: var(--accent);
   opacity: 0;
   transform-origin: center;
-  animation: intro-flourish-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) 1.6s both;
+  animation: intro-flourish-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) 1.75s both;
+}
+
+/* an ink droplet falls from the wordmark and seeds the flourish */
+.intro-splash__seal {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.intro-splash__inkdrop {
+  position: absolute;
+  top: -136px;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 2px 6px -2px var(--accent);
+  opacity: 0;
+  animation:
+    intro-drop-in 0.55s cubic-bezier(0.4, 0, 0.6, 1) 1.62s both,
+    intro-drop-fade 0.5s ease 2.1s both;
+}
+
+/* the site's whisper-line, surfacing last */
+.intro-splash__line {
+  margin-top: 18px;
+  max-width: 34ch;
+  text-align: center;
+  font-style: italic;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  opacity: 0;
+  animation: intro-line-in 1s cubic-bezier(0.22, 1, 0.36, 1) 1.95s both;
+}
+
+/* soft ink blooms breathing behind the stage */
+.intro-splash__bloom {
+  position: absolute;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  filter: blur(70px);
+  opacity: 0;
+  animation: intro-bloom 7s ease-in-out infinite alternate;
+}
+
+.intro-splash__bloom--a {
+  width: 260px;
+  height: 260px;
+  top: -60px;
+  right: -40px;
+  animation: intro-bloom 7s ease-in-out 0.3s infinite alternate;
+}
+
+.intro-splash__bloom--b {
+  width: 200px;
+  height: 200px;
+  bottom: -50px;
+  left: -30px;
+  animation: intro-bloom 8.5s ease-in-out 1s infinite alternate;
+}
+
+/* while the curtain lifts, the stage drifts up a touch faster — parallax */
+.intro-splash__inner {
+  transition: transform 0.75s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.6s ease;
+}
+
+.intro-splash.is-lifting .intro-splash__inner {
+  transform: translateY(-52px);
+  opacity: 0.6;
 }
 
 @keyframes intro-inner-in {
@@ -1587,6 +1661,59 @@ html:not(.js) .intro-splash {
   to {
     opacity: 0.65;
     transform: scaleX(1);
+  }
+}
+
+@keyframes intro-drop-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-56px) scale(1, 1);
+  }
+  15% {
+    opacity: 0.9;
+  }
+  65% {
+    transform: translateY(2px) scale(1.3, 0.72);
+  }
+  85% {
+    transform: translateY(0) scale(0.92, 1.08);
+  }
+  100% {
+    opacity: 0.9;
+    transform: translateY(0) scale(1, 1);
+  }
+}
+
+@keyframes intro-drop-fade {
+  from {
+    opacity: 0.85;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes intro-line-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    letter-spacing: 0.02em;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    letter-spacing: 0;
+  }
+}
+
+@keyframes intro-bloom {
+  from {
+    opacity: 0;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0.55;
+    transform: scale(1.12);
   }
 }
 
