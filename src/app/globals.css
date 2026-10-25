@@ -324,6 +324,138 @@ button {
   transform: scaleX(1);
 }
 
+/* ---------------------------------- *
+ * Fresh ink banner — the day's newest writing
+ * Slides down, the spark twinkles, the title gets
+ * an ink underline drawn beneath it and a slow
+ * sheen sweeping across, like ink not yet dry.
+ * ---------------------------------- */
+.fresh-ink {
+  overflow: hidden;
+  animation: fresh-ink-drop 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fresh-ink-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fresh-ink__spark {
+  display: inline-block;
+  animation: fresh-ink-twinkle 2.6s ease-in-out infinite;
+}
+
+@keyframes fresh-ink-twinkle {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.8) rotate(14deg);
+  }
+}
+
+.fresh-ink__title {
+  position: relative;
+  display: inline-block;
+}
+
+/* the still-wet underline — drawn once beneath the title */
+.fresh-ink__title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 1px;
+  height: 1.5px;
+  width: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg,
+    var(--accent),
+    color-mix(in srgb, var(--accent) 30%, transparent));
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: fresh-ink-write 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both;
+}
+
+@keyframes fresh-ink-write {
+  from {
+    transform: scaleX(0);
+    opacity: 0.9;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 0.5;
+  }
+}
+
+/* the dry-ink sheen, gliding across the title every few seconds */
+.fresh-ink__title::before {
+  content: "";
+  position: absolute;
+  inset: -2px 0;
+  pointer-events: none;
+  background: linear-gradient(100deg,
+    transparent 22%,
+    var(--accent-soft) 45%,
+    color-mix(in srgb, var(--accent) 22%, transparent) 52%,
+    transparent 78%);
+  background-size: 220% 100%;
+  background-repeat: no-repeat;
+  animation: fresh-ink-sheen 4.2s cubic-bezier(0.4, 0, 0.6, 1) 1.8s infinite;
+}
+
+@keyframes fresh-ink-sheen {
+  0% {
+    background-position: 130% 0;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  34% {
+    background-position: -30% 0;
+    opacity: 0;
+  }
+  100% {
+    background-position: -30% 0;
+    opacity: 0;
+  }
+}
+
+.fresh-ink__dismiss {
+  animation: fresh-ink-fade 0.4s ease 0.9s both;
+}
+
+@keyframes fresh-ink-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fresh-ink,
+  .fresh-ink__spark,
+  .fresh-ink__title::before,
+  .fresh-ink__dismiss {
+    animation: none !important;
+  }
+  .fresh-ink__title::after {
+    animation: none !important;
+    transform: scaleX(1);
+  }
+}
+
 .nav-link {
   font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   font-size: 12.5px;

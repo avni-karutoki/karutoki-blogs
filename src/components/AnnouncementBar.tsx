@@ -59,21 +59,23 @@ export default function AnnouncementBar() {
   }
 
   return (
-    <div className="relative z-40 flex items-center justify-center gap-3 border-b border-[var(--border-color)] bg-[var(--bg-card)] px-10 py-2 text-center">
+    <div className="fresh-ink relative z-40 flex items-center justify-center gap-3 border-b border-[var(--border-color)] bg-[var(--bg-card)] px-10 py-2 text-center">
       <p className="min-w-0 truncate font-sans text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
-        <span className="mr-2 text-[var(--accent)]">✦ Fresh ink</span>
+        <span className="mr-2 text-[var(--accent)]">
+          <span className="fresh-ink__spark" aria-hidden>✦</span> Fresh ink
+        </span>
         <Link
           href={`/writings/${post.slug}`}
           className="ink-link normal-case tracking-normal text-[var(--text-heading)]"
         >
-          <span className="font-script text-lg normal-case tracking-normal">{post.title}</span>
+          <span className="fresh-ink__title font-script text-lg normal-case tracking-normal">{post.title}</span>
         </Link>
       </p>
       <button
         type="button"
         onClick={dismiss}
         aria-label="Dismiss announcement"
-        className="absolute right-3 flex h-6 w-6 items-center justify-center rounded-full text-xs text-[var(--text-faint)] transition-colors hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]"
+        className="fresh-ink__dismiss absolute right-3 flex h-6 w-6 items-center justify-center rounded-full text-xs text-[var(--text-faint)] transition-colors hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]"
       >
         ✕
       </button>
