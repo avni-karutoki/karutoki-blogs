@@ -40,7 +40,7 @@ export default function ContactPage() {
             <Link href={`/#newsletter`} className="vintage-card group block h-full p-5 text-center">
               <span className="font-script text-2xl text-[var(--text-heading)] transition-colors group-hover:text-[var(--accent)]">By owl mail</span>
               <p className="mt-2 font-serif text-sm leading-relaxed text-[var(--text-muted)]">
-                Join the newsletter — new ink lands in your inbox itself.
+                Join the newsletter: new ink lands in your inbox itself.
               </p>
               <span className="mt-3 inline-block font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">Sign up →</span>
             </Link>
