@@ -12,6 +12,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 import ScrollProgressBar from "@/components/ScrollProgressBar";
 import CursorDog from "@/components/CursorDog";
 import HangingMelody from "@/components/HangingMelody";
+import MusicRope from "@/components/MusicRope";
 import AnnouncementBar from "@/components/AnnouncementBar";
 
 /* Calligraphy — HEADINGS ONLY */
@@ -90,7 +91,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Footer />
             <SearchOverlay />
             <ScrollToTop />
-            <HangingMelody />
+            {process.env.NODE_ENV === "development" ? <MusicRope /> : <HangingMelody />}
             <CursorDog />
           </SearchProvider>
         </ThemeProvider>
