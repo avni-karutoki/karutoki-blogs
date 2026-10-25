@@ -1373,6 +1373,51 @@ html[data-reading-size="compact"] .reading-body {
 }
 
 /* ---------------------------------- *
+ * Music rope (dev-only one-song player)
+ * Compact marquee-style chip that sits
+ * below the hanging charm. No popup.
+ * ---------------------------------- */
+.rope-song-chip {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: min(240px, calc(100vw - 24px));
+  margin-top: 10px;
+  padding: 7px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-card);
+  color: var(--accent);
+}
+
+.rope-song-chip__name {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-size: 0.82rem;
+  font-style: italic;
+  line-height: 1.25;
+  color: var(--text-heading);
+}
+
+/* Equalizer bars stand still while the music is paused */
+.melody-eq.is-paused span {
+  animation: none;
+  transform: scaleY(0.4);
+}
+
+.rope-song-chip .hanging-melody__play {
+  width: 26px;
+  height: 26px;
+  font-size: 10px;
+}
+
+/* ---------------------------------- *
  * Homepage extras
  * ---------------------------------- */
 
