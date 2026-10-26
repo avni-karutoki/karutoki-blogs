@@ -45,7 +45,7 @@ export default function NightSky() {
           The talks that only happen when the house is asleep.
         </h2>
         <p className="mt-4 font-serif text-[1.05rem] italic leading-relaxed text-[#efe4d3]/70!">
-          &ldquo;Everything means more after 1 a.m. — even the quiet.&rdquo;
+          &ldquo;The world goes quiet, and suddenly, everything speaks.&rdquo;
         </p>
         <Link
           href="/midnight-talks"
