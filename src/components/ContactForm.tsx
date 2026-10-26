@@ -79,7 +79,7 @@ export default function ContactForm() {
   const activeChip = SUBJECT_CHIPS.find((c) => c.subject === form.subject);
 
   return (
-    <form onSubmit={handleSubmit} className="vintage-card space-y-7 p-7 sm:p-9">
+    <form onSubmit={handleSubmit} className="vintage-card pen-form space-y-7 p-7 sm:p-9">
       <div className="grid gap-7 sm:grid-cols-2">
         <div>
           <label className="eyebrow">Name</label>
@@ -142,7 +142,7 @@ export default function ContactForm() {
         {status === "loading" ? "Sealing the envelope…" : "Send message →"}
       </button>
       {status === "error" && (
-        <p className="font-sans text-sm text-red-500">The letter wouldn&apos;t leave — please try again in a moment.</p>
+        <p className="pen-shake font-sans text-sm text-red-500">The letter wouldn&apos;t leave — please try again in a moment.</p>
       )}
     </form>
   );

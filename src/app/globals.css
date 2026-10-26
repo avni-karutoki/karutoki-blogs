@@ -638,6 +638,7 @@ button {
 }
 
 .field-underline {
+  position: relative;
   width: 100%;
   background: transparent;
   border: 0;
@@ -654,6 +655,24 @@ button {
 .field-underline:focus {
   border-color: var(--accent);
 }
+/* the pen traces an ink line across the underline as the field takes focus */
+.field-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.field-underline:focus::after {
+  transform: scaleX(1);
+}
 
 .field-box {
   width: 100%;
@@ -664,7 +683,7 @@ button {
   font-size: 0.95rem;
   color: var(--text-primary);
   outline: none;
-  transition: border-color 0.3s ease, background-color 0.3s ease;
+  transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
 }
 .field-box::placeholder {
   color: var(--text-faint);
@@ -672,6 +691,10 @@ button {
 .field-box:focus {
   border-color: var(--accent);
   background: var(--accent-soft);
+  box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.25), 0 0 0 3px var(--accent-soft);
+}
+.field-box:hover:not(:focus) {
+  border-color: var(--text-faint);
 }
 
 /* ————— Keyframes ————— */
@@ -2645,10 +2668,19 @@ html:not(.js) .intro-splash {
   color: var(--accent);
   transform: translateY(-1px);
 }
+.contact-chip:active {
+  transform: translateY(1px) scale(0.95);
+}
 .contact-chip--active {
   border-color: var(--accent);
   background: var(--accent-soft);
   color: var(--accent);
+  animation: chip-settle 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes chip-settle {
+  0% { transform: scale(0.9); }
+  60% { transform: scale(1.04); }
+  100% { transform: scale(1); }
 }
 
 /* the wax seal that stamps down on the thank-you card */
@@ -2699,6 +2731,52 @@ html:not(.js) .intro-splash {
 @keyframes postmark-in {
   from { opacity: 0; letter-spacing: 0.4em; }
   to { opacity: 1; letter-spacing: 0.25em; }
+}
+
+/* ————— the message box, animated —————
+   rows arrive one after another, like sheets being laid on the desk */
+.pen-form > * {
+  animation: pen-row-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.pen-form > *:nth-child(1) { animation-delay: 0.05s; }
+.pen-form > *:nth-child(2) { animation-delay: 0.15s; }
+.pen-form > *:nth-child(3) { animation-delay: 0.25s; }
+.pen-form > *:nth-child(4) { animation-delay: 0.35s; }
+.pen-form > *:nth-child(5) { animation-delay: 0.45s; }
+.pen-form > *:nth-child(6) { animation-delay: 0.55s; }
+@keyframes pen-row-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* while the envelope is being sealed, the button breathes */
+.btn-ink:disabled {
+  cursor: wait;
+  animation: envelope-breathe 1.4s ease-in-out infinite;
+}
+@keyframes envelope-breathe {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 0.55; }
+}
+
+/* when a letter wouldn't leave — the box shudders */
+.pen-shake {
+  animation: pen-shake 0.5s ease both;
+}
+@keyframes pen-shake {
+  15% { transform: translateX(-7px); }
+  35% { transform: translateX(6px); }
+  55% { transform: translateX(-4px); }
+  75% { transform: translateX(3px); }
+  100% { transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pen-form > * { animation: none !important; }
+  .contact-chip--active { animation: none; }
+  .btn-ink:disabled { animation: none !important; }
+  .pen-shake { animation: none !important; }
+  .field-underline::after { transition: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
