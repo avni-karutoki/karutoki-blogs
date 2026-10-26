@@ -158,38 +158,40 @@ export default function Footer() {
               karutokiblogs@gmail.com
             </a>
           </p>
+
+          {/* the note left under the letters column */}
+          <Reveal>
+            <span className="footer-signature" title="always her — just on new pages">
+              <span className="footer-signature__text font-script text-[1.7rem]">
+                same girl, <span className="footer-signature__em">new chapters</span>
+              </span>
+              <svg
+                aria-hidden
+                className="footer-signature__squiggle"
+                viewBox="0 0 150 10"
+                fill="none"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M3 7 C 20 2, 34 9, 52 5.5 S 84 3, 104 7 S 136 4, 147 6"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  strokeLinecap="round"
+                  pathLength={100}
+                />
+              </svg>
+            </span>
+          </Reveal>
         </div>
       </div>
 
       <div className="relative border-t border-[var(--border-color)]">
         <div className="mx-auto max-w-6xl px-6 py-6 text-center">
-          <Reveal>
-            <p className="font-sans text-xs text-[var(--text-faint)]">
-              Made with love by Avni Goel aka Karutoki ©{" "}
-              {new Date().toLocaleDateString("en-US", { timeZone: "Asia/Kolkata", year: "numeric" })}. All rights
-              reserved.{" "}
-              <span className="footer-signature footer-signature--inline" title="always her — just on new pages">
-                <span className="footer-signature__text font-script text-[1.55rem] sm:text-[1.7rem]">
-                  same girl, <span className="footer-signature__em">new chapters</span>
-                </span>
-                <svg
-                  aria-hidden
-                  className="footer-signature__squiggle"
-                  viewBox="0 0 150 10"
-                  fill="none"
-                  preserveAspectRatio="none"
-                >
-                  <path
-                    d="M3 7 C 20 2, 34 9, 52 5.5 S 84 3, 104 7 S 136 4, 147 6"
-                    stroke="currentColor"
-                    strokeWidth="1.7"
-                    strokeLinecap="round"
-                    pathLength={100}
-                  />
-                </svg>
-              </span>
-            </p>
-          </Reveal>
+          <p className="font-sans text-xs text-[var(--text-faint)]">
+            Made with love by Avni Goel aka Karutoki ©{" "}
+            {new Date().toLocaleDateString("en-US", { timeZone: "Asia/Kolkata", year: "numeric" })}. All rights
+            reserved.
+          </p>
         </div>
       </div>
       <div className="relative pb-8 text-center">

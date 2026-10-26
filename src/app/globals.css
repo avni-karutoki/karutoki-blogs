@@ -2849,27 +2849,17 @@ html:not(.js) .intro-splash {
 .footer-signature {
   display: inline-flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 1px;
+  margin-top: 1.1rem;
   color: var(--accent);
   transform: rotate(-6deg);
-  transform-origin: 75% 90%;
+  transform-origin: 40% 80%;
   transition: transform 0.4s ease;
   cursor: default;
 }
 .footer-signature:hover {
-  transform: rotate(-2.5deg) translateY(-2px);
-}
-/* inline mode — sits right on the copyright line, no extra vertical space */
-.footer-signature--inline {
-  margin-left: 0.4rem;
-  margin-right: 0.6rem;
-  vertical-align: middle;
-  transform: rotate(-4deg);
-  transform-origin: 60% 70%;
-}
-.footer-signature--inline:hover {
-  transform: rotate(-1deg) translateY(-1px);
+  transform: rotate(-2deg) translateY(-2px);
 }
 .footer-signature__text {
   line-height: 1.05;
@@ -2881,16 +2871,11 @@ html:not(.js) .intro-splash {
   font-weight: 500;
 }
 .footer-signature__squiggle {
-  width: 76%;
-  height: 9px;
-  color: var(--accent);
-  opacity: 0.55;
-}
-.footer-signature--inline .footer-signature__squiggle {
-  width: 110px;
+  width: 120px;
   max-width: 100%;
   height: 8px;
-  align-self: center;
+  color: var(--accent);
+  opacity: 0.55;
 }
 .reveal .footer-signature__squiggle path {
   stroke-dasharray: 100;
@@ -2911,8 +2896,8 @@ html:not(.js) .intro-splash {
     animation: none !important;
     stroke-dashoffset: 0;
   }
-  .footer-signature { transform: rotate(-4deg); }
-  .footer-signature:hover { transform: rotate(-4deg); }
+  .footer-signature { transform: rotate(-6deg); }
+  .footer-signature:hover { transform: rotate(-6deg); }
 }
 
 /* ————— Writings: "write your own feeling" search field ————— */
