@@ -93,7 +93,7 @@ export default async function WritingsPage({
 
       <Reveal>
         <p className="eyebrow">My writings</p>
-        <h1 className="mt-2">Words, I have left behind.</h1>
+        <h1 className="mt-2">A little piece of me, in every word.</h1>
         <p className="lead mt-3 max-w-md">
           Poems, blogs, midnight thoughts, and everything in between.
         </p>
