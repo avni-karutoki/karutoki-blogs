@@ -5,6 +5,7 @@ import DecorativeDivider from "@/components/DecorativeDivider";
 import { StaggerContainer } from "@/components/ScrollAnimations";
 import { createPublicClient as createClient } from "@/lib/supabase/server";
 import { MOOD_THEMES, moodFromTags, type MoodTheme } from "@/lib/mood";
+import { formatDate } from "@/lib/date";
 
 export const revalidate = 60;
 
@@ -143,7 +144,7 @@ export default async function MidnightTalksPage() {
               tags={talk.tags}
               excerpt={talk.excerpt}
               coverImage={talk.cover_image}
-              date={new Date(talk.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+              date={formatDate(talk.created_at, { month: "long", year: "numeric" })}
               readTime={talk.reading_time ?? "a quiet while"}
             />
           ))}

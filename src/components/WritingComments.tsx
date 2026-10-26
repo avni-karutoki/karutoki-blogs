@@ -39,7 +39,7 @@ function relTime(iso: string): string {
   if (hr < 24) return `${hr} hour${hr === 1 ? "" : "s"} ago`;
   const day = Math.round(hr / 24);
   if (day < 30) return `${day} day${day === 1 ? "" : "s"} ago`;
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return new Date(iso).toLocaleDateString("en-US", { timeZone: "Asia/Kolkata", month: "short", day: "numeric", year: "numeric" });
 }
 
 /* A soft per-commenter tint from their name, so voices feel distinct. */

@@ -12,6 +12,7 @@ import WritingComments from "@/components/WritingComments";
 import ReadAloud from "@/components/ReadAloud";
 import type { Post } from "@/lib/types";
 import { categoryLabel } from "@/lib/types";
+import { formatDate } from "@/lib/date";
 
 // Cache rendered posts for 60s; slugs not known at build time are
 // rendered on demand and then cached (no per-visit Supabase waterfall).
@@ -113,7 +114,7 @@ export default async function WritingDetailPage({
         <p className="eyebrow text-center">{categoryLabel(post.category)}</p>
         <h1 className="mt-3 text-center">{post.title}</h1>
         <p className="mt-4 text-center font-sans text-[12px] uppercase tracking-[0.18em] text-[var(--text-faint)]">
-          {new Date(post.created_at).toLocaleDateString("en-US", {
+          {formatDate(post.created_at, {
             month: "short",
             day: "numeric",
             year: "numeric",

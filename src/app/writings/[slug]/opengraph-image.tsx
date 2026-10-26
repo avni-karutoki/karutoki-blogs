@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { createPublicClient } from "@/lib/supabase/server";
+import { formatDate } from "@/lib/date";
 
 /** Auto-generated social card for every writing — shared links get a
  *  typeset "letter card": paper cream, ink title, the section eyebrow. */
@@ -39,7 +40,7 @@ export default async function Image({
 
   const label = category === "midnight-talk" ? "midnight talks" : `${category}`;
   const date = created_at
-    ? new Date(created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" })
+    ? formatDate(created_at, { month: "long", year: "numeric" })
     : "karutoki";
 
   return new ImageResponse(

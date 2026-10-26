@@ -4,6 +4,7 @@ import DecorativeDivider from "@/components/DecorativeDivider";
 import Reveal, { SpringReveal } from "@/components/Reveal";
 import { StaggerContainer } from "@/components/ScrollAnimations";
 import { createPublicClient as createClient } from "@/lib/supabase/server";
+import { formatDate } from "@/lib/date";
 
 export const revalidate = 60;
 
@@ -80,7 +81,7 @@ export default async function PoemsPage() {
                 excerpt={poem.excerpt}
                 href={`/writings/${poem.slug}`}
                 coverImage={poem.cover_image}
-                date={new Date(poem.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                date={formatDate(poem.created_at, { month: "long", year: "numeric" })}
                 readTime={poem.reading_time ? `${poem.reading_time} read` : undefined}
               />
             </SpringReveal>

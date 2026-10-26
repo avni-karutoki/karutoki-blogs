@@ -63,7 +63,7 @@ export default function ContactForm() {
           Your letter has arrived at the desk. I&apos;ll write back soon.
         </p>
         <p className="contact-postmark mt-4 font-sans text-[11px] font-semibold uppercase tracking-[0.25em] text-[var(--text-muted)]">
-          Received · {new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+          Received · {new Date().toLocaleDateString("en-GB", { timeZone: "Asia/Kolkata", day: "numeric", month: "long", year: "numeric" })}
         </p>
         <button
           type="button"

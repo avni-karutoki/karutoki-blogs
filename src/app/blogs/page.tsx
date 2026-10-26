@@ -4,6 +4,7 @@ import DecorativeDivider from "@/components/DecorativeDivider";
 import Reveal, { SpringReveal } from "@/components/Reveal";
 import { StaggerContainer } from "@/components/ScrollAnimations";
 import { createPublicClient as createClient } from "@/lib/supabase/server";
+import { formatDate } from "@/lib/date";
 
 export const revalidate = 60;
 
@@ -80,7 +81,7 @@ export default async function BlogsPage() {
                 excerpt={blog.excerpt}
                 href={`/writings/${blog.slug}`}
                 coverImage={blog.cover_image}
-                date={new Date(blog.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                date={formatDate(blog.created_at, { month: "long", year: "numeric" })}
                 readTime={blog.reading_time ? `${blog.reading_time} read` : undefined}
               />
             </SpringReveal>

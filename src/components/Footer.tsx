@@ -159,7 +159,7 @@ export default function Footer() {
       <div className="border-t border-[var(--border-color)]">
         <div className="mx-auto max-w-6xl px-6 py-6 text-center">
           <p className="font-sans text-xs text-[var(--text-faint)]">
-            Made with love by Avni Goel aka Karutoki © {new Date().getFullYear()}. All rights reserved.
+            Made with love by Avni Goel aka Karutoki © {new Date().toLocaleDateString("en-US", { timeZone: "Asia/Kolkata", year: "numeric" })}. All rights reserved.
           </p>
         </div>
       </div>
