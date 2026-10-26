@@ -3053,11 +3053,12 @@ html:not(.js) .intro-splash {
   color: var(--accent);
   transform: rotate(-6deg);
   transform-origin: 40% 80%;
-  transition: transform 0.4s ease;
+  animation: signature-lilt 3.2s ease-in-out infinite;
+  transition: color 0.4s ease;
   cursor: default;
 }
 .footer-signature:hover {
-  transform: rotate(-2deg) translateY(-2px);
+  animation-play-state: paused;
 }
 .footer-signature__text {
   line-height: 1.05;
@@ -3088,14 +3089,19 @@ html:not(.js) .intro-splash {
   from { stroke-dashoffset: 100; }
   to { stroke-dashoffset: 0; }
 }
+/* a gentle lilt — up, down, up, down, forever */
+@keyframes signature-lilt {
+  0%, 100% { transform: rotate(-6deg) translateY(0); }
+  50% { transform: rotate(-6deg) translateY(-3px); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .reveal .footer-signature__squiggle path {
     animation: none !important;
     stroke-dashoffset: 0;
   }
-  .footer-signature { transform: rotate(-6deg); }
-  .footer-signature:hover { transform: rotate(-6deg); }
+  .footer-signature { animation: none !important; transform: rotate(-6deg); }
+  .footer-signature:hover { transform: rotate(-6deg); animation: none !important; }
 }
 
 /* ————— Writings: "write your own feeling" search field ————— */
