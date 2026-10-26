@@ -20,7 +20,7 @@ const SUBJECT_CHIPS: Array<{ label: string; subject: string }> = [
   { label: "Something heavy", subject: "Something I needed to get off my chest" },
 ];
 
-export default function ContactForm() {
+export default function ContactForm({ className = "" }: { className?: string }) {
   const [form, setForm] = useState<FormState>({ name: "", email: "", subject: "", message: "" });
   const [status, setStatus] = useState<Status>("idle");
 
@@ -79,7 +79,7 @@ export default function ContactForm() {
   const activeChip = SUBJECT_CHIPS.find((c) => c.subject === form.subject);
 
   return (
-    <form onSubmit={handleSubmit} className="vintage-card pen-form space-y-7 p-7 sm:p-9">
+    <form onSubmit={handleSubmit} className={`vintage-card pen-form space-y-7 p-7 sm:p-9 ${className}`}>
       <div className="grid gap-7 sm:grid-cols-2">
         <div>
           <label className="eyebrow">Name</label>

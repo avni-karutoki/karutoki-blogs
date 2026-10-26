@@ -2749,6 +2749,36 @@ html:not(.js) .intro-splash {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* the whole letter box on the contact desk — laid down with a tilt that
+   settles flat, then lives on: the vintage-card hover lift handles the
+   rest (fill backwards so hover transforms keep working after settling) */
+.desk-letter {
+  position: relative;
+  overflow: hidden;
+  animation: letter-settle 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.45s backwards;
+}
+@keyframes letter-settle {
+  from { transform: rotate(1.3deg) translateY(-12px); }
+  to { transform: rotate(0deg) translateY(0); }
+}
+/* an occasional sheen crossing the paper, like light off a window */
+.desk-letter::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 120px;
+  transform: skewX(-16deg);
+  background: linear-gradient(100deg, transparent, rgba(255, 252, 244, 0.10) 50%, transparent);
+  pointer-events: none;
+  animation: letter-glint 7.5s ease-in-out 2.2s infinite;
+}
+@keyframes letter-glint {
+  0% { left: -32%; }
+  42% { left: 132%; }
+  100% { left: 132%; }
+}
+
 /* while the envelope is being sealed, the button breathes */
 .btn-ink:disabled {
   cursor: wait;
@@ -2777,6 +2807,8 @@ html:not(.js) .intro-splash {
   .btn-ink:disabled { animation: none !important; }
   .pen-shake { animation: none !important; }
   .field-underline::after { transition: none; }
+  .desk-letter { animation: none !important; }
+  .desk-letter::after { animation: none !important; opacity: 0; }
 }
 
 /* ————— the margins — comments on a writing ————— */

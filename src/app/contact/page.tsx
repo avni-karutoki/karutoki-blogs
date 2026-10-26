@@ -168,7 +168,7 @@ export default function ContactPage() {
 
         {/* ————— right: the letter box, nudged a little right ————— */}
         <Reveal delay={0.14} className="lg:ml-3">
-          <ContactForm />
+          <ContactForm className="desk-letter" />
         </Reveal>
       </div>
 
