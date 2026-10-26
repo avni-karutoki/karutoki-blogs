@@ -2587,15 +2587,8 @@ html:not(.js) .intro-splash {
   52% { filter: brightness(1.02); }
 }
 
-/* touch screens: no auto-pan — a normal swipeable strip instead */
-@media (hover: none) {
-  .film-track { animation: none; }
-  .film-marquee {
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .film-marquee::-webkit-scrollbar { display: none; }
-}
+/* the reel pans on every device — phones included; the pan is seamless so
+   there's no seam to see, and the duplicate loop simply keeps the strip full */
 
 @media (prefers-reduced-motion: reduce) {
   .film-track, .film-roll, .film-grain, .film-glint { animation: none !important; }
