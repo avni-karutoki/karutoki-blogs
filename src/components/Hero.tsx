@@ -288,16 +288,45 @@ export default function Hero({
         </ScrollReveal>
       </div>
 
-      {/* category marquee */}
-      <div className="relative border-y border-[var(--border-color)] bg-[var(--bg-card)]/60 py-3">
-        <div className="mx-auto flex max-w-6xl items-center justify-center gap-8 overflow-hidden px-6 font-sans text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--text-faint)]">
-          <Link href="/poems" className="transition hover:text-[var(--accent)]">Poems</Link>
-          <span className="text-[var(--accent)]">✦</span>
-          <Link href="/blogs" className="transition hover:text-[var(--accent)]">Blogs</Link>
-          <span className="text-[var(--accent)]">✦</span>
-          <Link href="/midnight-talks" className="transition hover:text-[var(--accent)]">Midnight talks</Link>
-          <span className="text-[var(--accent)]">✦</span>
-          <Link href="/writings" className="hidden transition hover:text-[var(--accent)] sm:inline">All writings</Link>
+      {/* category marquee — boxed pills with ink marks and piece counts */}
+      <div className="relative overflow-hidden border-y border-[var(--border-color)] bg-[var(--bg-card)]/60 py-3">
+        {/* a slow shine gliding across the strip */}
+        <div aria-hidden className="marquee-shine" />
+        <div className="relative mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-2.5 px-6 sm:gap-3">
+          {[
+            { href: "/poems", label: "Poems", icon: "❀", n: counts.poems, desktopOnly: false },
+            { href: "/blogs", label: "Blogs", icon: "✎", n: counts.blogs, desktopOnly: false },
+            { href: "/midnight-talks", label: "Midnight talks", icon: "☾", n: counts.talks, desktopOnly: false },
+            {
+              href: "/writings",
+              label: "All writings",
+              icon: "✦",
+              n: counts.poems + counts.blogs + counts.talks,
+              desktopOnly: true,
+            },
+          ].map((item, i) => (
+            <motion.div
+              key={item.href}
+              className={item.desktopOnly ? "hidden sm:block" : ""}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.9 + i * 0.09, duration: 0.5, ease: EASE }}
+            >
+              <Link
+                href={item.href}
+                className="marquee-pill group inline-flex items-center gap-2 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] px-4 py-1.5 font-sans text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--accent)] hover:text-[var(--accent)] hover:shadow-[var(--shadow-card)]"
+              >
+                <span aria-hidden className="marquee-pill__icon text-[var(--accent)]">{item.icon}</span>
+                {item.label}
+                <span
+                  aria-hidden
+                  className="rounded-full bg-[var(--accent-soft)] px-2 py-px text-[9px] font-bold tracking-[0.08em] text-[var(--accent)]"
+                >
+                  {item.n}
+                </span>
+              </Link>
+            </motion.div>
+          ))}
         </div>
       </div>
 

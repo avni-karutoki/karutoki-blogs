@@ -2657,3 +2657,60 @@ html:not(.js) .intro-splash {
   .archive-year, .archive-month, .archive-end { animation: none !important; }
   .reveal .archive-year, .reveal .archive-month { opacity: 1; transform: none; }
 }
+
+/* ————— Homepage category strip: shine, boxed pills ————— */
+/* slow highlight gliding across the whole band */
+.marquee-shine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -30%;
+  width: 30%;
+  transform: skewX(-18deg);
+  background: linear-gradient(
+    100deg,
+    transparent,
+    var(--accent-soft) 45%,
+    var(--accent-soft) 55%,
+    transparent
+  );
+  opacity: 0.45;
+  pointer-events: none;
+  animation: marquee-shine 6.5s ease-in-out infinite;
+}
+@keyframes marquee-shine {
+  0% { left: -30%; }
+  60% { left: 105%; }
+  100% { left: 105%; }
+}
+
+/* each pill: a lit window over a passing sheen when hovered */
+.marquee-pill {
+  position: relative;
+  overflow: hidden;
+}
+.marquee-pill__icon {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+.marquee-pill:hover .marquee-pill__icon {
+  transform: rotate(-8deg) scale(1.18);
+}
+.marquee-pill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-110%);
+  background: linear-gradient(100deg, transparent 20%, var(--accent-soft) 50%, transparent 80%);
+  transition: transform 0.7s ease;
+  pointer-events: none;
+}
+.marquee-pill:hover::after {
+  transform: translateX(110%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-shine, .marquee-pill::after { animation: none !important; }
+  .marquee-shine { opacity: 0; }
+  .marquee-pill__icon, .marquee-pill { transition: none !important; }
+}
