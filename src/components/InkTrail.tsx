@@ -73,8 +73,16 @@ export default function InkTrail({ items }: { items: TrailStop[] }) {
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="eyebrow">The trip so far</p>
-            <p className="mt-1 font-script text-3xl text-[var(--text-heading)]">
-              Fresh ink, strung on a thread
+            <p className="mt-1 flex flex-wrap items-baseline gap-x-2.5">
+              <span className="font-script text-4xl leading-none text-[var(--text-heading)]">
+                Fresh ink
+              </span>
+              <span className="font-serif text-[1.15rem] italic leading-none text-[var(--accent)]">
+                strung on a thread
+              </span>
+              <span aria-hidden className="font-serif text-[1.15rem] leading-none text-[var(--text-faint)]">
+                ✦
+              </span>
             </p>
           </div>
           <Link
