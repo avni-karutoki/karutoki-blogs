@@ -1,8 +1,13 @@
 "use client";
 
 import { motion, type HTMLMotionProps } from "framer-motion";
+import NextLink from "next/link";
 import { forwardRef, useEffect, useRef, useState, type Ref } from "react";
 import { flattenChildren } from "@/lib/flatten-children";
+
+/** next/link wrapped in motion — internal hrefs navigate without a full
+ *  page reload, so the site's background music keeps playing. */
+const MotionNextLink = motion.create(NextLink);
 
 // Types that remove problematic framer-motion event handler props
 type CleanAnchorProps = Omit<
@@ -53,21 +58,35 @@ export const MotionButton = forwardRef<HTMLButtonElement, CleanButtonProps & { w
 );
 MotionButton.displayName = "MotionButton";
 
-/** Link with press/tap animation */
+/** Link with press/tap animation.
+ *  Internal links render as next/link (client-side navigation — music and
+ *  player state survive page changes); external, mailto:, anchor and
+ *  target="_blank" links stay ordinary anchors. */
 export const MotionLink = forwardRef<HTMLAnchorElement, CleanAnchorProps & { whileTap?: any; whileHover?: any }>(
-  ({ children, className = "", whileTap, whileHover, ...props }, ref) => (
-    <motion.a
-      ref={ref}
-      className={className}
-      whileTap={whileTap ?? { scale: 0.98 }}
-      whileHover={whileHover ?? { scale: 1.01 }}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
-      {...props}
-      style={{ willChange: "transform", ...(props.style as React.CSSProperties) }}
-    >
-      {children}
-    </motion.a>
-  )
+  ({ children, className = "", whileTap, whileHover, href, target, ...props }, ref) => {
+    const internal =
+      typeof href === "string" &&
+      href.startsWith("/") &&
+      !href.startsWith("//") &&
+      href !== "#" &&
+      target !== "_blank";
+    const Comp = internal ? MotionNextLink : motion.a;
+    return (
+      <Comp
+        ref={ref}
+        href={href}
+        target={internal ? undefined : target}
+        className={className}
+        whileTap={whileTap ?? { scale: 0.98 }}
+        whileHover={whileHover ?? { scale: 1.01 }}
+        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+        {...props}
+        style={{ willChange: "transform", ...(props.style as React.CSSProperties) }}
+      >
+        {children}
+      </Comp>
+    );
+  }
 );
 MotionLink.displayName = "MotionLink";
 
