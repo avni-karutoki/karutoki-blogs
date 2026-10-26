@@ -157,22 +157,29 @@ export default function Hero({
               )}
             </ScrollReveal>
 
-            {/* stats */}
+            {/* stats — each count opens its own shelf */}
             <ScrollReveal as="dl" variant="fadeUp" className="mt-10 flex items-center justify-center gap-8 border-t border-[var(--border-color)] pt-6 md:justify-start md:w-auto w-full max-w-sm">
               {[
-                { n: counts.poems, label: "Poems" },
-                { n: counts.blogs, label: "Blogs" },
-                { n: counts.talks, label: "Midnight talks" },
+                { n: counts.poems, label: "Poems", href: "/poems" },
+                { n: counts.blogs, label: "Blogs", href: "/blogs" },
+                { n: counts.talks, label: "Midnight talks", href: "/midnight-talks" },
               ].map((s) => (
-                <motion.div key={s.label} whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 300 }}>
+                <MotionLink
+                  key={s.label}
+                  href={s.href}
+                  whileHover={{ scale: 1.06 }}
+                  whileTap={{ scale: 0.95 }}
+                  aria-label={`${s.n} ${s.label} — open ${s.label}`}
+                  className="group inline-block text-center transition-colors duration-300"
+                >
                   <dt className="sr-only">{s.label}</dt>
-                  <dd className="font-script text-4xl leading-none text-[var(--text-heading)]">
+                  <dd className="font-script text-4xl leading-none text-[var(--text-heading)] transition-colors duration-300 group-hover:text-[var(--accent)]">
                     {reduceMotion ? s.n : <CountUp value={s.n} duration={1.1} delay={0.5} />}
                   </dd>
-                  <dd className="mt-1 font-sans text-[10.5px] font-semibold uppercase tracking-[0.2em] text-[var(--text-faint)]">
+                  <dd className="mt-1 font-sans text-[10.5px] font-semibold uppercase tracking-[0.2em] text-[var(--text-faint)] transition-colors duration-300 group-hover:text-[var(--accent)]">
                     {s.label}
                   </dd>
-                </motion.div>
+                </MotionLink>
               ))}
             </ScrollReveal>
           </StaggerGroup>
