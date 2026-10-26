@@ -142,7 +142,7 @@ export default function Footer() {
         <div>
           <FooterHeading>Letters, occasionally</FooterHeading>
           <p className="mt-4 font-serif text-[0.95rem] leading-relaxed text-[var(--text-muted)]">
-            New poems and midnight thoughts, only when there&apos;s something worth sending. No spam — just words.
+            When I write something worth sharing, you&apos;ll be the first to know. Until then, no noise, just the quiet in between.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <Link href="/#newsletter" className="btn-ink">
