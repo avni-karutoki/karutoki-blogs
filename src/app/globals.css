@@ -64,6 +64,29 @@
   color-scheme: dark;
 }
 
+/* ————— Coffeehouse Ink / mid-tone vintage ————— */
+[data-theme="coffee"] {
+  --bg-primary: #e9dcc7;
+  --bg-secondary: #dcc7a8;
+  --bg-card: #f4ecdd;
+  --bg-card-hover: #ecdfc9;
+  --text-primary: #3f2c20;
+  --text-heading: #34231a;
+  --text-muted: rgba(63, 44, 32, 0.66);
+  --text-faint: rgba(63, 44, 32, 0.44);
+  --accent: #8a5a36;
+  --accent-strong: #6f4726;
+  --accent-soft: rgba(138, 90, 54, 0.15);
+  --accent-pink: #8a5a36;
+  --border-color: #c9b394;
+  --border-light: rgba(63, 44, 32, 0.14);
+  --border-pink: rgba(138, 90, 54, 0.3);
+  --shadow-card: 0 18px 40px -22px rgba(74, 46, 26, 0.42);
+  --glow: rgba(255, 250, 240, 0.55);
+  --hero-veil: linear-gradient(180deg, rgba(233, 220, 199, 0) 40%, rgba(233, 220, 199, 0.92) 100%);
+  color-scheme: light;
+}
+
 /* ————— Blush Letter / light warm ————— */
 [data-theme="blush"] {
   --bg-primary: #fdf4f5;
@@ -1022,6 +1045,16 @@ body:has(aside.visible) .hanging-melody {
   --dot: rgba(140, 95, 30, 0.1);
   --grain-opacity: 0.055;
   --vignette: rgba(120, 80, 25, 0.11);
+}
+/* coffeehouse — roasted paper, steam-warm glows, aged grain */
+[data-theme="coffee"] {
+  --glow-a: rgba(116, 76, 46, 0.22);
+  --glow-b: rgba(255, 246, 232, 0.72);
+  --glow-c: rgba(208, 164, 116, 0.34);
+  --sheen: linear-gradient(180deg, rgba(255, 252, 244, 0.34), rgba(255, 255, 255, 0) 32%);
+  --dot: rgba(88, 55, 30, 0.12);
+  --grain-opacity: 0.085;
+  --vignette: rgba(70, 44, 24, 0.14);
 }
 [data-theme="ocean"] {
   --glow-a: rgba(127, 182, 217, 0.14);

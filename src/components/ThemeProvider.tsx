@@ -9,6 +9,7 @@ export type Theme =
   | "lavender"
   | "matcha"
   | "honey"
+  | "coffee"
   | "ocean"
   | "sakura";
 
@@ -35,6 +36,7 @@ const THEMES: ThemeMeta[] = [
   { id: "lavender", name: "Lavender Dusk", icon: "✦", previewColor: "#F4F0F8", kind: "light" },
   { id: "matcha", name: "Matcha Calm", icon: "🍃", previewColor: "#EDF2E1", kind: "light" },
   { id: "honey", name: "Honeyed Paper", icon: "🐝", previewColor: "#FAF0DC", kind: "light" },
+  { id: "coffee", name: "Coffeehouse Ink", icon: "☕", previewColor: "#e9dcc7", kind: "light" },
   { id: "ocean", name: "Deep Ocean", icon: "🌊", previewColor: "#0E1622", kind: "dark" },
   { id: "sakura", name: "Sakura Night", icon: "🌸", previewColor: "#1D1218", kind: "dark" },
 ];

@@ -6,7 +6,7 @@
   document.documentElement.classList.add("js");
   try {
     var saved = localStorage.getItem("karutoki-theme");
-    var valid = ["cream", "moonlit", "blush", "lavender", "matcha", "honey", "ocean", "sakura"];
+    var valid = ["cream", "moonlit", "blush", "lavender", "matcha", "honey", "coffee", "ocean", "sakura"];
     var theme = valid.indexOf(saved) !== -1 ? saved : null;
     if (!theme) {
       theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "moonlit" : "cream";
