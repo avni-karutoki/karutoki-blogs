@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 type CommentRow = {
@@ -78,6 +78,20 @@ export default function WritingComments({ postId }: { postId: string }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [heartBusy, setHeartBusy] = useState<string | null>(null);
+  // Little flourishes: a brief "Sent ✦" on the button, and a pop on freshly-hearted bubbles.
+  const [justSent, setJustSent] = useState(false);
+  const [justHearted, setJustHearted] = useState<string | null>(null);
+  const formRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Replying means "come back up here": the write box scrolls into view and the
+  // message field takes focus, so the pen is already in hand.
+  useEffect(() => {
+    if (!replyTo) return;
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    const t = setTimeout(() => textareaRef.current?.focus(), 400);
+    return () => clearTimeout(t);
+  }, [replyTo]);
 
   // Remember the visitor's name between sessions.
   useEffect(() => {
@@ -174,6 +188,8 @@ export default function WritingComments({ postId }: { postId: string }) {
         setComments((prev) => [...prev, data as CommentRow]);
         setContent("");
         setReplyTo(null);
+        setJustSent(true);
+        setTimeout(() => setJustSent(false), 1800);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -214,7 +230,10 @@ export default function WritingComments({ postId }: { postId: string }) {
       setHeartedIds((prev) => {
         const next = new Set(prev);
         if (liked) next.delete(c.id);
-        else next.add(c.id);
+        else {
+          next.add(c.id);
+          setJustHearted(c.id);
+        }
         return next;
       });
       try {
@@ -228,9 +247,12 @@ export default function WritingComments({ postId }: { postId: string }) {
   }
 
   const commentForm = (
-    <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] p-4 shadow-[var(--shadow-card)] sm:p-5">
+    <div
+      ref={formRef}
+      className="pen-form rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] p-4 shadow-[var(--shadow-card)] sm:p-5"
+    >
       {replyTo && (
-        <div className="mb-3 flex items-center justify-between gap-2 rounded-full bg-[var(--accent-soft)] px-3 py-1.5">
+        <div className="reply-pill mb-3 flex items-center justify-between gap-2 rounded-full bg-[var(--accent-soft)] px-3 py-1.5">
           <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
             Replying to {replyTo.author_name}
           </span>
@@ -252,6 +274,7 @@ export default function WritingComments({ postId }: { postId: string }) {
         className="field-box font-sans text-sm"
       />
       <textarea
+        ref={textareaRef}
         value={content}
         onChange={(e) => setContent(e.target.value)}
         maxLength={1000}
@@ -260,31 +283,39 @@ export default function WritingComments({ postId }: { postId: string }) {
         className="field-box mt-3 font-serif text-[1.05rem] leading-relaxed"
       />
       <div className="mt-3 flex items-center justify-between gap-3">
-        <span className="font-sans text-[10px] text-[var(--text-faint)]">
-          {content.length}/1000
+        <span className="comment-charcount">
+          <span className="comment-charcount__bar">
+            <span
+              style={{ width: `${(content.length / 1000) * 100}%` }}
+              className={content.length > 900 ? "is-hot" : ""}
+            />
+          </span>
+          <span className="tabular-nums">{content.length}/1000</span>
         </span>
         <button
           type="button"
           onClick={submit}
           disabled={submitting || content.trim().length === 0}
-          className="primary-button px-5 py-2 text-[11px] uppercase tracking-wider disabled:opacity-40"
+          className={`primary-button px-5 py-2 text-[11px] uppercase tracking-wider disabled:opacity-40 ${justSent ? "comment-sent" : ""}`}
         >
-          {submitting ? "Sending…" : replyTo ? "Reply" : "Comment"}
+          {submitting ? "Sending…" : justSent ? "Sent ✦" : replyTo ? "Reply" : "Comment"}
         </button>
       </div>
-      {error && <p className="mt-2 font-sans text-[11px] text-red-500">{error}</p>}
+      {error && (
+        <p className="pen-shake mt-2 font-sans text-[11px] text-red-500">{error}</p>
+      )}
     </div>
   );
 
   function renderComment(c: CommentRow, depth: number) {
     const replies = childrenByParent.get(c.id) ?? [];
     return (
-      <div key={c.id} className={depth > 0 ? "border-l-2 border-[var(--accent-soft)] pl-4" : ""}>
+      <div key={c.id} className={`comment-row ${depth > 0 ? "border-l-2 border-[var(--accent-soft)] pl-4" : ""}`}>
         <div className="group rounded-xl px-1 py-2">
           <div className="flex items-start gap-3">
             <span
               aria-hidden
-              className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full font-sans text-[11px] font-bold text-[var(--text-heading)]"
+              className="comment-avatar mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full font-sans text-[11px] font-bold text-[var(--text-heading)]"
               style={{ background: tintOf(c.author_name) }}
             >
               {c.author_name.trim().charAt(0).toUpperCase() || "✦"}
@@ -313,9 +344,12 @@ export default function WritingComments({ postId }: { postId: string }) {
                   <button
                     type="button"
                     onClick={() => toggleHeart(c)}
+                    onAnimationEnd={() => setJustHearted(null)}
                     disabled={heartBusy === c.id}
                     title={heartedIds.has(c.id) ? "Take back the heart" : "Heart this thought"}
-                    className={`flex items-center gap-1 font-sans text-[10px] font-bold tracking-wide transition-transform active:scale-125 ${
+                    className={`comment-heart flex items-center gap-1 font-sans text-[10px] font-bold tracking-wide transition-transform active:scale-125 ${
+                      justHearted === c.id ? "comment-heart--pop" : ""
+                    } ${
                       heartedIds.has(c.id) ? "text-[var(--accent-pink)]" : "text-[var(--text-faint)] hover:text-[var(--accent-pink)]"
                     }`}
                   >
@@ -353,7 +387,7 @@ export default function WritingComments({ postId }: { postId: string }) {
       {/* Write box lives up top — like writing in the margin right away */}
       <div className="mt-6">{commentForm}</div>
 
-      {loading && <p className="mt-6 font-sans text-[12px] text-[var(--text-faint)]">Gathering thoughts…</p>}
+      {loading && <p className="gather mt-6 font-sans text-[12px] text-[var(--text-faint)]">Gathering thoughts…</p>}
 
       {unavailable && (
         <p className="mt-6 font-sans text-[12px] text-[var(--text-faint)]">

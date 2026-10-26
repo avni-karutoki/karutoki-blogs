@@ -2779,6 +2779,98 @@ html:not(.js) .intro-splash {
   .field-underline::after { transition: none; }
 }
 
+/* ————— the margins — comments on a writing ————— */
+/* each thought arrives with a small rise, freshly written */
+.comment-row {
+  animation: comment-arrive 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes comment-arrive {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* the voice bubble's initial leans toward you when the row is approached */
+.comment-avatar {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.comment-row:hover .comment-avatar {
+  transform: rotate(-8deg) scale(1.12);
+}
+
+/* the heart does a proper burst, renewed on queue */
+.comment-heart--pop {
+  animation: heart-burst 0.45s cubic-bezier(0.2, 1.6, 0.3, 1);
+}
+@keyframes heart-burst {
+  0% { transform: scale(0.5); }
+  55% { transform: scale(1.45); }
+  100% { transform: scale(1); }
+}
+
+/* the reply pill slides down as it's placed */
+.reply-pill {
+  animation: reply-pill-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes reply-pill-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* a thin ink meter travels its length as the letter fills up */
+.comment-charcount {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-sans, sans-serif);
+  font-size: 10px;
+  color: var(--text-faint);
+}
+.comment-charcount__bar {
+  position: relative;
+  width: 72px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--border-light);
+  overflow: hidden;
+}
+.comment-charcount__bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  opacity: 0.5;
+  transition: width 0.3s ease, opacity 0.3s ease, background-color 0.3s ease;
+}
+.comment-charcount__bar > span.is-hot {
+  background: var(--accent-pink);
+  opacity: 1;
+}
+
+/* the button flourishes after sending */
+.comment-sent {
+  animation: sent-flourish 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes sent-flourish {
+  0% { transform: scale(0.9); }
+  55% { transform: scale(1.07); }
+  100% { transform: scale(1); }
+}
+
+/* "Gathering thoughts…" breathes while it waits */
+.gather {
+  animation: gather-breathe 1.6s ease-in-out infinite;
+}
+@keyframes gather-breathe {
+  0%, 100% { opacity: 0.65; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .comment-row, .reply-pill, .comment-heart--pop, .comment-sent { animation: none !important; }
+  .gather { animation: none !important; }
+  .comment-avatar { transition: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .contact-seal, .contact-postmark { animation: none !important; }
   .contact-postmark { opacity: 1; }
