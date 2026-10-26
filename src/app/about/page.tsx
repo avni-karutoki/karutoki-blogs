@@ -143,7 +143,7 @@ export default async function AboutPage() {
           {[
             { href: "/poems", label: "Poems written at hours that don't make sense to anyone else." },
             { href: "/blogs", label: "Blogs about the small things that quietly shape a day." },
-            { href: "/midnight-talks", label: "Midnight talks — the thoughts that only show up after everyone's asleep." },
+            { href: "/midnight-talks", label: "Midnight talks - the thoughts that only show up after everyone's asleep." },
           ].map((item) => (
             <Link
               key={item.href}

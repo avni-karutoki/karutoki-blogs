@@ -116,7 +116,7 @@ export default async function HomePage() {
           >
             {shelf.length === 0 && (
               <p className="body-text col-span-full">
-                No writings yet — the admin can publish the first piece from{" "}
+                No writings yet - the admin can publish the first piece from{" "}
                 <Link href="/admin" className="ink-link text-[var(--accent)]">/admin</Link>.
               </p>
             )}
@@ -242,7 +242,7 @@ export default async function HomePage() {
                 />
                 <NewsletterForm />
                 {/* a whisper that keeps changing its mind */}
-                <span className="sr-only">Free forever. No spam — just words. Unsubscribe anytime.</span>
+                <span className="sr-only">Free forever. No spam - just words. Unsubscribe anytime.</span>
                 <p aria-hidden className="whisper-cycle mt-4 font-serif text-sm italic text-[var(--text-faint)]">
                   <span>free, forever</span>
                   <span>no noise, just words</span>

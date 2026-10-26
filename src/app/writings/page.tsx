@@ -117,7 +117,7 @@ export default async function WritingsPage({
 
         {activeTag && (
           <p className="mood-picker__note mt-4 text-center font-serif text-sm italic text-[var(--text-muted)]">
-            Moods grow from the words inside the pieces — a tag, a title, a line. Try
+            Moods grow from the words inside the pieces - a tag, a title, a line. Try
             the same feeling differently and a different sky may answer.
           </p>
         )}
@@ -151,7 +151,7 @@ export default async function WritingsPage({
       >
         {posts.length === 0 && (
           <p className="body-text col-span-full">
-            Nothing wearing that feeling yet — try another mood.
+            Nothing wearing that feeling yet - try another mood.
           </p>
         )}
         {posts.map((post, i) => (
