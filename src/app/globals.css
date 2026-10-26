@@ -2367,20 +2367,185 @@ html:not(.js) .intro-splash {
 
 /* #7 film strip */
 .film-roll {
-  background-color: #171210;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(130% 95% at 50% 50%, #251c15 55%, #17100c 92%),
+    #17100c;
+  border: 1px solid rgba(243, 234, 214, 0.14);
   border-radius: 1rem;
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(243, 234, 214, 0.09);
+  overflow: hidden;
+  animation: film-flicker 4.4s ease-in-out infinite;
 }
+/* sprocket rails — rounded 35mm perforations, punched both sides */
 .film-roll::before,
 .film-roll::after {
   content: "";
-  display: block;
-  height: 16px;
-  background-image: radial-gradient(circle, #0c0906 0 3.2px, transparent 3.8px);
-  background-size: 20px 16px;
+  flex: none;
+  height: 18px;
+  background-color: #191210;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='19' height='18'%3E%3Crect x='4.5' y='5' width='10' height='8' rx='2.2' fill='%230b0705' stroke='%233a2e22' stroke-width='0.6'/%3E%3C/svg%3E");
+  background-size: 19px 18px;
+  background-repeat: repeat-x;
   background-position: center;
+  box-shadow: 0 1px 0 rgba(243, 234, 214, 0.06);
 }
-.film-roll:hover .film-frame img { transform: scale(1.04); }
+
+/* the pan — infinite, seamless (each frame carries its own tail margin) */
+.film-marquee { position: relative; }
+.film-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  padding: 14px 24px;
+  animation: film-pan 46s linear infinite;
+  will-change: transform;
+}
+.film-marquee:hover .film-track { animation-play-state: paused; }
+@keyframes film-pan {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* each frame: a cell with a thin cream edge, lighter on hover */
+.film-frame {
+  margin-right: 18px;
+}
+.film-frame__cell {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border: 1px solid rgba(243, 234, 214, 0.16);
+  border-radius: 0.45rem;
+  background: #0c0906;
+  transition: border-color 0.35s ease, box-shadow 0.35s ease;
+}
+.film-frame__cell img {
+  display: block;
+  aspect-ratio: 16 / 11;
+  width: 10rem;
+  object-fit: cover;
+  filter: saturate(0.88) contrast(1.05) sepia(0.14);
+  transition: transform 0.5s ease, filter 0.45s ease;
+}
+@media (min-width: 640px) {
+  .film-frame__cell img { width: 12rem; }
+}
+.film-frame__cell:hover {
+  border-color: rgba(243, 234, 214, 0.42);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
+}
+.film-frame:hover .film-frame__cell img {
+  transform: scale(1.055);
+  filter: saturate(1.02) contrast(1.03) sepia(0);
+}
+/* title floats up like a caption chip on hover */
+.film-frame__caption {
+  position: absolute;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  padding: 3px 7px;
+  border-radius: 4px;
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #f3ead6;
+  background: rgba(12, 9, 6, 0.66);
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+.film-frame:hover .film-frame__caption {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* the edge code printed on the film */
+.film-frame__code {
+  display: block;
+  margin-top: 6px;
+  padding-left: 2px;
+  font-size: 7.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(243, 234, 214, 0.34);
+  white-space: nowrap;
+}
+
+/* grain rides above everything */
+.film-grain {
+  position: absolute;
+  inset: -60px;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  animation: film-grain 0.8s steps(6) infinite;
+}
+@keyframes film-grain {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-18px, 12px); }
+  40% { transform: translate(12px, -16px); }
+  60% { transform: translate(-10px, -20px); }
+  80% { transform: translate(16px, 10px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* a wandering projector glint */
+.film-glint {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 150px;
+  transform: skewX(-14deg);
+  background: linear-gradient(100deg, transparent, rgba(243, 234, 214, 0.09) 50%, transparent);
+  pointer-events: none;
+  animation: film-glint 8.5s ease-in-out 3.2s infinite;
+}
+@keyframes film-glint {
+  0% { left: -20%; }
+  58% { left: 118%; }
+  100% { left: 118%; }
+}
+
+/* bulb-warm edges — the strip darker where the lens meets the reels */
+.film-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(15, 10, 7, 0.85), transparent 8%, transparent 92%, rgba(15, 10, 7, 0.85)),
+    linear-gradient(180deg, transparent 68%, rgba(15, 10, 7, 0.30));
+}
+@keyframes film-flicker {
+  0%, 100% { filter: brightness(1); }
+  43% { filter: brightness(1.035); }
+  46% { filter: brightness(0.985); }
+  52% { filter: brightness(1.02); }
+}
+
+/* touch screens: no auto-pan — a normal swipeable strip instead */
+@media (hover: none) {
+  .film-track { animation: none; }
+  .film-marquee {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .film-marquee::-webkit-scrollbar { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .film-track, .film-roll, .film-grain, .film-glint { animation: none !important; }
+  .film-grain { opacity: 0.10; }
+  .film-glint { opacity: 0; }
+}
 
 /* archive timeline dots — positioned by the page (left/top via utilities);
    the CSS only provides the look */
