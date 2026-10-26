@@ -169,7 +169,7 @@ export default function Footer() {
               {new Date().toLocaleDateString("en-US", { timeZone: "Asia/Kolkata", year: "numeric" })}. All rights
               reserved.{" "}
               <span className="footer-signature footer-signature--inline" title="always her — just on new pages">
-                <span className="footer-signature__text font-script text-[1.3rem]">
+                <span className="footer-signature__text font-script text-[1.55rem] sm:text-[1.7rem]">
                   same girl, <span className="footer-signature__em">new chapters</span>
                 </span>
                 <svg
