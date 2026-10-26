@@ -116,7 +116,7 @@ export default async function MidnightTalksPage() {
 
           <p className="midnight-zone__lead mx-auto mt-4 max-w-xl font-serif text-base sm:text-lg leading-relaxed">
             The house is asleep. The sky is awake. Every window below opens onto
-            a different night —{" "}
+            a different night -{" "}
             <span className="italic">
               tonight it leans {dominant.label.toLowerCase()} {dominant.emoji}
             </span>
@@ -151,8 +151,8 @@ export default async function MidnightTalksPage() {
         </StaggerContainer>
 
         <p className="midnight-zone__foot relative z-10 mx-auto mt-16 max-w-md text-center font-serif text-sm italic leading-relaxed">
-          Tag your midnight thoughts with feelings in the admin — love, rain,
-          hope, 2am… — and each talk opens onto its own sky.
+          Give each midnight thought a feeling - love, rain, 
+          hope, 2 a.m. - and let every story open onto its own sky.
         </p>
       </section>
     </div>
