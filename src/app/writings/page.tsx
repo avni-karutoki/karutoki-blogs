@@ -6,6 +6,7 @@ import { categoryLabel } from "@/lib/types";
 import { FloatingElement } from "@/components/ScrollAnimations";
 import { StaggerContainer } from "@/components/ScrollAnimations";
 import { chipForWord } from "@/lib/mood";
+import MoodSearch from "@/components/MoodSearch";
 
 const tabs = [
   { key: "all", label: "All" },
@@ -14,50 +15,43 @@ const tabs = [
   { key: "midnight-talk", label: "Midnight Talks" },
 ];
 
-async function getPosts(category: string, tag?: string): Promise<Post[]> {
+async function getPosts(category: string, mood?: string): Promise<Post[]> {
   try {
     const supabase = await createClient();
-    // Narrow columns: the list view never needs the full `content` body.
+    // Narrow columns: the list view never needs the full `content` body,
+    // but tags are needed to match a feeling against.
     let query = supabase
       .from("posts")
-      .select("id, slug, title, excerpt, cover_image, category, reading_time, created_at")
+      .select("id, slug, title, excerpt, cover_image, category, reading_time, created_at, tags")
       .eq("published", true)
       .order("created_at", { ascending: false });
 
     if (category && category !== "all") {
       query = query.eq("category", category);
     }
-    if (tag) {
-      query = query.contains("tags", [tag]);
-    }
 
     const { data, error } = await query;
     if (error) return [];
-    return (data as Post[]) || [];
-  } catch {
-    return [];
-  }
-}
 
-/** Distinct tags across all published writings, with how often each appears. */
-async function getTagCounts(): Promise<[string, number][]> {
-  try {
-    const supabase = await createClient();
-    const { data } = await supabase
-      .from("posts")
-      .select("tags")
-      .eq("published", true);
+    let posts = (data as Post[]) || [];
 
-    const counts = new Map<string, number>();
-    for (const row of (data as { tags: string[] | null }[]) ?? []) {
-      for (const raw of row.tags ?? []) {
-        const tag = raw.trim();
-        if (tag) counts.set(tag, (counts.get(tag) ?? 0) + 1);
-      }
+    // The feeling is whatever the visitor wrote — match it loosely against
+    // tags (the mood vocabulary), titles, and excerpts, case-insensitively.
+    if (mood) {
+      const m = mood.toLowerCase();
+      posts = posts.filter((p) => {
+        const haystack = [
+          (p.tags ?? []).join(" "),
+          p.title ?? "",
+          p.excerpt ?? "",
+        ]
+          .join(" ")
+          .toLowerCase();
+        return haystack.includes(m);
+      });
     }
-    return [...counts.entries()]
-      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-      .slice(0, 14);
+
+    return posts;
   } catch {
     return [];
   }
@@ -87,19 +81,10 @@ export default async function WritingsPage({
   const active = params?.category || "all";
   const activeTag = params?.tag?.trim() ?? "";
 
-  const [posts, tagCounts, surpriseSlug] = await Promise.all([
+  const [posts, surpriseSlug] = await Promise.all([
     getPosts(active, activeTag || undefined),
-    getTagCounts(),
     getRandomSlug(),
   ]);
-
-  function chipHref(tag: string): string {
-    const qs = new URLSearchParams();
-    if (active && active !== "all") qs.set("category", active);
-    if (tag) qs.set("tag", tag);
-    const s = qs.toString();
-    return s ? `/writings?${s}` : "/writings";
-  }
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-14 relative">
@@ -114,57 +99,26 @@ export default async function WritingsPage({
         </p>
       </Reveal>
 
-      {/* reader mode — filter by how you feel, not just what it is */}
+      {/* reader mode — write your own feeling, the words answer */}
       <Reveal className="mood-picker mt-10">
         <div className="mood-picker__head">
           <p className="eyebrow">Reader mode</p>
           <h2 className="mood-picker__title font-script">How do you feel today?</h2>
           <p className="mood-picker__sub font-serif">
-            Pick a feeling and I&apos;ll hand you the right kind of words.
+            Write it, and I&apos;ll hand you the right kind of words.
           </p>
         </div>
 
-        <div className="mood-picker__chips mt-5 flex flex-wrap gap-3">
-          <Link
-            href={chipHref("")}
-            aria-pressed={activeTag === ""}
-            className={`mood-chip ${activeTag === "" ? "is-active" : ""}`}
-          >
-            <span aria-hidden>✧</span> All feelings
-          </Link>
+        <MoodSearch
+          initial={activeTag}
+          category={active}
+          surpriseHref={surpriseSlug ? `/writings/${surpriseSlug}` : null}
+        />
 
-          {tagCounts.map(([tag, count]) => {
-            const look = chipForWord(tag);
-            return (
-              <Link
-                key={tag}
-                href={chipHref(tag)}
-                aria-pressed={activeTag === tag}
-                className={`mood-chip ${activeTag === tag ? "is-active" : ""}`}
-                style={
-                  {
-                    "--chip-a": look.theme.chipA,
-                    "--chip-b": look.theme.chipB,
-                  } as React.CSSProperties
-                }
-                title={`Worn by ${count} writing${count > 1 ? "s" : ""}`}
-              >
-                <span aria-hidden>{look.emoji}</span> {tag}
-              </Link>
-            );
-          })}
-
-          {surpriseSlug && (
-            <Link href={`/writings/${surpriseSlug}`} className="mood-chip mood-chip--surprise">
-              <span aria-hidden>🎲</span> I don&apos;t know — surprise me
-            </Link>
-          )}
-        </div>
-
-        {tagCounts.length === 0 && (
-          <p className="mood-picker__note mt-4 font-serif text-sm italic text-[var(--text-muted)]">
-            Moods grow from the tags on your writings — once a piece carries
-            words like love, rain, hope or calm, its sky appears here.
+        {activeTag && (
+          <p className="mood-picker__note mt-4 text-center font-serif text-sm italic text-[var(--text-muted)]">
+            Moods grow from the words inside the pieces — a tag, a title, a line. Try
+            the same feeling differently and a different sky may answer.
           </p>
         )}
       </Reveal>
