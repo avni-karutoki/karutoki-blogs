@@ -5,6 +5,7 @@ import SectionHeading from "@/components/SectionHeading";
 import NewsletterForm from "@/components/NewsletterForm";
 import QuoteMarquee from "@/components/home/QuoteMarquee";
 import CategoryTrio from "@/components/home/CategoryTrio";
+import InkTrail from "@/components/InkTrail";
 import NightSky from "@/components/home/NightSky";
 import FilmRoll from "@/components/home/FilmRoll";
 import { createPublicClient as createClient } from "@/lib/supabase/server";
@@ -74,6 +75,13 @@ export default async function HomePage() {
       : "A few words, no longer than they need to be.";
   // Lines for the marquee — the newest poems.
   const poems = posts.filter((p) => p.category === "poem");
+  // Stops for the homepage ink trail — the newest writings.
+  const trail = posts.slice(0, 5).map((p) => ({
+    slug: p.slug,
+    title: p.title,
+    category: p.category,
+    iso: p.created_at,
+  }));
 
   return (
     <div>
@@ -203,6 +211,9 @@ export default async function HomePage() {
       <div className="mx-auto max-w-6xl px-6">
         {/* Pick a mood — category browsing cards */}
         <CategoryTrio counts={counts} />
+
+        {/* Fresh ink, strung on a thread — a horizontal ghost of /archive */}
+        <InkTrail items={trail} />
 
         {/* Newsletter */}
         <section id="newsletter" className="relative border-t border-[var(--border-color)] py-16 text-center">
