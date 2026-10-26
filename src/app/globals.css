@@ -2845,6 +2845,59 @@ html:not(.js) .intro-splash {
   .trail-comet { animation: none !important; opacity: 0; }
 }
 
+/* ————— Footer: paper blooms + the slanted signature ————— */
+.footer-signature {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  color: var(--accent);
+  transform: rotate(-6deg);
+  transform-origin: 75% 90%;
+  transition: transform 0.4s ease;
+  cursor: default;
+}
+.footer-signature:hover {
+  transform: rotate(-2.5deg) translateY(-2px);
+}
+.footer-signature__text {
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 0 var(--bg-card);
+}
+.footer-signature__em {
+  position: relative;
+  font-weight: 500;
+}
+.footer-signature__squiggle {
+  width: 76%;
+  height: 9px;
+  color: var(--accent);
+  opacity: 0.55;
+}
+.reveal .footer-signature__squiggle path {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: signature-draw 1.5s ease 0.7s both;
+  animation-play-state: paused;
+}
+.reveal.is-revealed .footer-signature__squiggle path {
+  animation-play-state: running;
+}
+@keyframes signature-draw {
+  from { stroke-dashoffset: 100; }
+  to { stroke-dashoffset: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal .footer-signature__squiggle path {
+    animation: none !important;
+    stroke-dashoffset: 0;
+  }
+  .footer-signature { transform: rotate(-6deg); }
+  .footer-signature:hover { transform: rotate(-6deg); }
+}
+
 /* ————— Writings: "write your own feeling" search field ————— */
 .mood-search {
   position: relative;

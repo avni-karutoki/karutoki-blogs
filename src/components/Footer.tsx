@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Swirl from "./Swirl";
+import Reveal from "./Reveal";
 
 function InstagramIcon() {
   return (
@@ -68,8 +69,12 @@ function FooterHeading({ children }: { children: React.ReactNode }) {
 
 export default function Footer() {
   return (
-    <footer className="mt-24 border-t border-[var(--border-color)] bg-[var(--bg-card)]/50">
-      <div className="mx-auto grid max-w-6xl gap-10 px-6 py-14 sm:grid-cols-2 lg:grid-cols-[1.3fr_0.8fr_0.8fr_1fr]">
+    <footer className="relative mt-24 overflow-hidden border-t border-[var(--border-color)] bg-[var(--bg-card)]/50">
+      {/* quiet ink blooms behind the paper */}
+      <div aria-hidden className="pointer-events-none absolute -left-16 -top-16 h-56 w-56 rounded-full bg-[var(--accent-soft)] opacity-40 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -right-14 top-40 h-44 w-44 rounded-full bg-[var(--accent-soft)] opacity-30 blur-3xl" />
+
+      <div className="relative mx-auto grid max-w-6xl gap-10 px-6 py-14 sm:grid-cols-2 lg:grid-cols-[1.3fr_0.8fr_0.8fr_1fr]">
         {/* Brand */}
         <div>
           <Link href="/" className="flex items-center gap-3">
@@ -156,14 +161,38 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-[var(--border-color)]">
-        <div className="mx-auto max-w-6xl px-6 py-6 text-center">
+      <div className="relative border-t border-[var(--border-color)]">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 px-6 py-7 text-center sm:flex-row sm:items-end sm:justify-between sm:text-left">
           <p className="font-sans text-xs text-[var(--text-faint)]">
-            Made with love by Avni Goel aka Karutoki © {new Date().toLocaleDateString("en-US", { timeZone: "Asia/Kolkata", year: "numeric" })}. All rights reserved.
+            Made with love by Avni Goel aka Karutoki ©{" "}
+            {new Date().toLocaleDateString("en-US", { timeZone: "Asia/Kolkata", year: "numeric" })}. All rights reserved.
           </p>
+          <Reveal>
+            {/* the margin note every page ends with */}
+            <span className="footer-signature" title="always her — just on new pages">
+              <span className="footer-signature__text font-script text-2xl sm:text-[1.7rem]">
+                same girl, <span className="footer-signature__em">new chapters</span>
+              </span>
+              <svg
+                aria-hidden
+                className="footer-signature__squiggle"
+                viewBox="0 0 150 10"
+                fill="none"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M3 7 C 20 2, 34 9, 52 5.5 S 84 3, 104 7 S 136 4, 147 6"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  strokeLinecap="round"
+                  pathLength={100}
+                />
+              </svg>
+            </span>
+          </Reveal>
         </div>
       </div>
-      <div className="pb-8 text-center">
+      <div className="relative pb-8 text-center">
         <Swirl className="mx-auto text-[var(--text-faint)]" />
       </div>
     </footer>
