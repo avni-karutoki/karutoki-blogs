@@ -402,7 +402,7 @@ export default function WritingComments({ postId }: { postId: string }) {
 
       {!loading && !unavailable && comments.length === 0 && (
         <p className="mt-8 font-script text-2xl text-[var(--text-faint)]">
-          The margins are empty — be the first to write here.
+          Not a single scribble yet. Be the first to leave your mark.
         </p>
       )}
     </section>
