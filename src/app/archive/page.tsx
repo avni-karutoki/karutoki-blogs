@@ -19,7 +19,28 @@ type Row = {
   category: string;
   created_at: string;
   cover_image: string | null;
+  /** the day-of-month in the archive timezone, carried through grouping */
+  tz_day?: string;
 };
+
+// All archive grouping/labels are computed in one fixed timezone so the
+// server (UTC on Vercel) and localhost (IST) always agree. Otherwise
+// writings made in the Indian evening land under the previous day — or
+// even the previous month — when someone builds in UTC.
+const TZ = "Asia/Kolkata";
+const partsFmt = new Intl.DateTimeFormat("en-US", {
+  timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit",
+});
+const monthLong = Intl.DateTimeFormat("en-US", { timeZone: TZ, month: "long" });
+const monthShort = Intl.DateTimeFormat("en-US", { timeZone: TZ, month: "short" });
+
+function tzParts(iso: string): { y: number; mo: number; day: string } {
+  const parts = partsFmt.formatToParts(new Date(iso));
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  const mo = Number(get("month"));
+  const day = get("day");
+  return { y: Number(get("year")), mo, day: String(Number(day)) };
+}
 
 export default async function ArchivePage() {
   let posts: Row[] = [];
@@ -36,22 +57,22 @@ export default async function ArchivePage() {
     posts = [];
   }
 
-  // Group newest-first: year → month → posts.
+  // Group newest-first: year → month → posts (IST-anchored).
   const years = new Map<number, Map<string, { label: string; short: string; items: Row[] }>>();
   posts.forEach((p) => {
+    const { y, mo, day } = tzParts(p.created_at);
     const d = new Date(p.created_at);
-    const y = d.getFullYear();
     if (!years.has(y)) years.set(y, new Map());
-    const key = `${y}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const key = `${y}-${String(mo).padStart(2, "0")}`;
     const yearMap = years.get(y)!;
     if (!yearMap.has(key)) {
       yearMap.set(key, {
-        label: d.toLocaleDateString("en-US", { month: "long" }),
-        short: d.toLocaleDateString("en-US", { month: "short" }),
+        label: monthLong.format(d),
+        short: monthShort.format(d),
         items: [],
       });
     }
-    yearMap.get(key)!.items.push(p);
+    yearMap.get(key)!.items.push({ ...p, tz_day: day });
   });
 
   return (
@@ -129,7 +150,7 @@ export default async function ArchivePage() {
                       const gi = pi; // parity within the month is enough for alternation
                       const isLeft = gi % 2 === 0;
                       const d = new Date(p.created_at);
-                      const day = d.toLocaleDateString("en-US", { day: "numeric" });
+                      const day = p.tz_day ?? String(d.getDate());
                       const initial = p.title.trim().charAt(0).toUpperCase() || "✦";
                       const card = (
                         <Link
