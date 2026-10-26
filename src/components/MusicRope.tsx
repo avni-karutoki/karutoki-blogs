@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 /**
  * Replacement for the HangingMelody popup.
  *
  * A single rope charm that toggles one song: All Too Well (10 Minute Version).
  * Click the rope → the song starts and keeps playing across every page
- * (this component is mounted once in the root layout, so playback survives
- * client-side navigation and hard reloads resume the saved position) until
- * the rope is clicked again to stop it.
+ * (this component is mounted once in the root layout, so the <audio> element
+ * — its position and pause state — survives client-side navigation) until
+ * the rope is clicked again to stop it. Pausing then clicking later resumes
+ * from the same spot. A page refresh rebuilds everything from scratch, so
+ * the song begins from the beginning — nothing is remembered across reloads.
  *
  * The song is copyrighted, so it is loaded from `public/all-too-well.mp3`.
  */
@@ -28,119 +30,24 @@ export default function MusicRope() {
     if (el) el.volume = 0.4;
   };
 
-  // Remember whether the song was on (and where it got to) so playback resumes
-  // exactly where it left off after a hard reload. Client-side navigation is
-  // already seamless — the <audio> stays mounted in the root layout — but a
-  // fresh page load remounts everything, so the position has to be restored.
-  // Autoplay needs a gesture, so a blocked resume silently waits for the next
-  // rope click, which then also continues from the saved position.
-  const RESUME_KEY = "karutoki-rope-playing";
-  const POSITION_KEY = "karutoki-rope-position";
-  useEffect(() => {
-    let on = false;
-    let savedAt = 0;
-    try {
-      on = localStorage.getItem(RESUME_KEY) === "1";
-      savedAt = parseFloat(localStorage.getItem(POSITION_KEY) || "NaN") || 0;
-    } catch {
-      /* storage blocked — ignore */
-    }
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const remember = () => {
-      if (audio.currentTime > 0) {
-        try {
-          localStorage.setItem(POSITION_KEY, String(audio.currentTime));
-        } catch {}
-      }
-    };
-    // Save the position every ~3s while playing (and every time it wraps
-    // around past the last save, i.e. right after a loop restart).
-    const lastSaved = { v: 0 };
-    const onTime = () => {
-      if (audio.currentTime - lastSaved.v >= 3 || audio.currentTime < lastSaved.v) {
-        lastSaved.v = audio.currentTime;
-        remember();
-      }
-    };
-    audio.addEventListener("timeupdate", onTime);
-    audio.addEventListener("pause", remember);
-    const onHidden = () => {
-      if (document.visibilityState === "hidden") remember();
-    };
-    document.addEventListener("visibilitychange", onHidden);
-
-    if (on) {
-      audio.src = SONG_SRC;
-      if (savedAt > 0) {
-        // currentTime can only be seeked once the file's metadata is known.
-        audio.addEventListener(
-          "loadedmetadata",
-          () => {
-            try {
-              audio.currentTime = savedAt;
-            } catch {
-              /* seek failed — just start from the top */
-            }
-          },
-          { once: true },
-        );
-      }
-      audio
-        .play()
-        .then(() => setPlaying(true))
-        .catch(() => {
-          /* blocked until the next rope click — that click resumes the position */
-        });
-    }
-
-    return () => {
-      audio.removeEventListener("timeupdate", onTime);
-      audio.removeEventListener("pause", remember);
-      document.removeEventListener("visibilitychange", onHidden);
-    };
-  }, []);
-
   const toggle = async () => {
     const audio = audioRef.current;
     if (!audio) return;
     if (playing) {
       audio.pause();
       setPlaying(false);
-      try {
-        localStorage.setItem(RESUME_KEY, "0");
-      } catch {}
       return;
     }
     setMissing(false);
     if (!audio.src) {
       audio.src = SONG_SRC;
-      // Continue from where the song last was, instead of the very beginning.
-      let savedAt = 0;
-      try {
-        savedAt = parseFloat(localStorage.getItem(POSITION_KEY) || "NaN") || 0;
-      } catch {}
-      if (savedAt > 0) {
-        audio.addEventListener(
-          "loadedmetadata",
-          () => {
-            try {
-              audio.currentTime = savedAt;
-            } catch {
-              /* seek failed — just start from the top */
-            }
-          },
-          { once: true },
-        );
-      }
     }
+    // No seek here on purpose: as long as this <audio> element lives (the
+    // whole browsing session, page changes included), pause keeps
+    // currentTime and play() resumes from it. A refresh starts fresh.
     try {
       await audio.play();
       setPlaying(true);
-      try {
-        localStorage.setItem(RESUME_KEY, "1");
-      } catch {}
     } catch {
       // Most likely `public/all-too-well.mp3` hasn't been added yet.
       setMissing(true);
