@@ -91,7 +91,7 @@ export default function Footer() {
             </span>
           </Link>
           <p className="mt-4 max-w-xs font-serif text-[0.95rem] leading-relaxed text-[var(--text-muted)]">
-            Poems, blogs and midnight thoughts by Avni Goel aka Karutoki — a little corner for everything in between.
+            Poems, stories, and pieces of me, tucked between the lines.
           </p>
           <div className="mt-5 flex items-center gap-3">
             {socials.map(({ label, href, Icon }) => (
