@@ -46,7 +46,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Karutoki Blogs",
   description:
-    "Poems, blogs and midnight thoughts by Avni Goel aka Karutoki. Words that were never said, left behind here instead.",
+    "Poems, stories, and pieces of me, tucked between the lines. Words for the things left unsaid — by Avni Goel aka Karutoki.",
   icons: {
     icon: "/favicon.ico",
     apple: "/favicon.ico",

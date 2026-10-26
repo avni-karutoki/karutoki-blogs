@@ -43,7 +43,7 @@ export async function GET(request: Request) {
   <channel>
     <title>Karutoki Blogs ✦</title>
     <link>${esc(base)}/</link>
-    <description>Poems, blogs and midnight thoughts by Avni Goel aka Karutoki. Words for the things left unsaid.</description>
+    <description>Poems, stories, and pieces of me, tucked between the lines. Words for the things left unsaid.</description>
     <language>en</language>
     <lastBuildDate>${lastBuildDate}</lastBuildDate>
     <atom:link href="${esc(base)}/feed.xml" rel="self" type="application/rss+xml" />

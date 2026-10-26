@@ -238,7 +238,7 @@ export default async function HomePage() {
                   align="center"
                   eyebrow="Letters, occasionally"
                   title="Stay a little longer..."
-                  sub="New poems and midnight thoughts, delivered only when there's something worth sending."
+                  sub="When I write something worth sharing, you'll be the first to know. Until then, no noise, just the quiet in between."
                 />
                 <NewsletterForm />
                 {/* a whisper that keeps changing its mind */}
