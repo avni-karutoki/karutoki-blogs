@@ -162,33 +162,33 @@ export default function Footer() {
       </div>
 
       <div className="relative border-t border-[var(--border-color)]">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 px-6 py-7 text-center sm:flex-row sm:items-end sm:justify-between sm:text-left">
-          <p className="font-sans text-xs text-[var(--text-faint)]">
-            Made with love by Avni Goel aka Karutoki ©{" "}
-            {new Date().toLocaleDateString("en-US", { timeZone: "Asia/Kolkata", year: "numeric" })}. All rights reserved.
-          </p>
+        <div className="mx-auto max-w-6xl px-6 py-6 text-center">
           <Reveal>
-            {/* the margin note every page ends with */}
-            <span className="footer-signature" title="always her — just on new pages">
-              <span className="footer-signature__text font-script text-2xl sm:text-[1.7rem]">
-                same girl, <span className="footer-signature__em">new chapters</span>
+            <p className="font-sans text-xs text-[var(--text-faint)]">
+              Made with love by Avni Goel aka Karutoki ©{" "}
+              {new Date().toLocaleDateString("en-US", { timeZone: "Asia/Kolkata", year: "numeric" })}. All rights
+              reserved.{" "}
+              <span className="footer-signature footer-signature--inline" title="always her — just on new pages">
+                <span className="footer-signature__text font-script text-[1.3rem]">
+                  same girl, <span className="footer-signature__em">new chapters</span>
+                </span>
+                <svg
+                  aria-hidden
+                  className="footer-signature__squiggle"
+                  viewBox="0 0 150 10"
+                  fill="none"
+                  preserveAspectRatio="none"
+                >
+                  <path
+                    d="M3 7 C 20 2, 34 9, 52 5.5 S 84 3, 104 7 S 136 4, 147 6"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    pathLength={100}
+                  />
+                </svg>
               </span>
-              <svg
-                aria-hidden
-                className="footer-signature__squiggle"
-                viewBox="0 0 150 10"
-                fill="none"
-                preserveAspectRatio="none"
-              >
-                <path
-                  d="M3 7 C 20 2, 34 9, 52 5.5 S 84 3, 104 7 S 136 4, 147 6"
-                  stroke="currentColor"
-                  strokeWidth="1.7"
-                  strokeLinecap="round"
-                  pathLength={100}
-                />
-              </svg>
-            </span>
+            </p>
           </Reveal>
         </div>
       </div>
