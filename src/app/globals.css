@@ -179,49 +179,26 @@
   color-scheme: light;
 }
 
-/* ————— Deep Ocean / dark blue ————— */
-[data-theme="ocean"] {
-  --bg-primary: #0d1521;
-  --bg-secondary: #14202f;
-  --bg-card: #131e2d;
-  --bg-card-hover: #1a2940;
-  --text-primary: #dfe9f2;
-  --text-heading: #eef5fb;
-  --text-muted: rgba(223, 233, 242, 0.68);
-  --text-faint: rgba(223, 233, 242, 0.42);
-  --accent: #7fb6d9;
-  --accent-strong: #a9d0e8;
-  --accent-soft: rgba(127, 182, 217, 0.14);
-  --accent-pink: #7fb6d9;
-  --border-color: rgba(160, 200, 230, 0.18);
-  --border-light: rgba(223, 233, 242, 0.1);
-  --border-pink: rgba(127, 182, 217, 0.34);
-  --shadow-card: 0 24px 50px -20px rgba(0, 0, 0, 0.75);
-  --glow: rgba(127, 182, 217, 0.12);
-  --hero-veil: linear-gradient(180deg, rgba(13, 21, 33, 0) 40%, rgba(13, 21, 33, 0.92) 100%);
-  color-scheme: dark;
-}
-
-/* ————— Sakura Night / dark plum ————— */
-[data-theme="sakura"] {
-  --bg-primary: #1c1117;
-  --bg-secondary: #2a1822;
-  --bg-card: #241620;
-  --bg-card-hover: #30202b;
-  --text-primary: #f3e2e8;
-  --text-heading: #faedf1;
-  --text-muted: rgba(243, 226, 232, 0.68);
-  --text-faint: rgba(243, 226, 232, 0.42);
-  --accent: #e0a0b5;
-  --accent-strong: #f2c3d1;
-  --accent-soft: rgba(224, 160, 181, 0.14);
-  --accent-pink: #e0a0b5;
-  --border-color: rgba(240, 200, 215, 0.17);
-  --border-light: rgba(243, 226, 232, 0.1);
-  --border-pink: rgba(224, 160, 181, 0.34);
-  --shadow-card: 0 24px 50px -20px rgba(0, 0, 0, 0.75);
-  --glow: rgba(224, 160, 181, 0.12);
-  --hero-veil: linear-gradient(180deg, rgba(28, 17, 23, 0) 40%, rgba(28, 17, 23, 0.92) 100%);
+/* ————— Jelly Drift / deep-sea dark, bioluminescent ————— */
+[data-theme="jelly"] {
+  --bg-primary: #12182a;
+  --bg-secondary: #1a2238;
+  --bg-card: #171f33;
+  --bg-card-hover: #1d2740;
+  --text-primary: #e6e1f4;
+  --text-heading: #f2ecff;
+  --text-muted: rgba(230, 225, 244, 0.68);
+  --text-faint: rgba(230, 225, 244, 0.42);
+  --accent: #d9a3e8;
+  --accent-strong: #ecc2f5;
+  --accent-soft: rgba(217, 163, 232, 0.14);
+  --accent-pink: #f0b6d8;
+  --border-color: rgba(230, 225, 244, 0.16);
+  --border-light: rgba(230, 225, 244, 0.1);
+  --border-pink: rgba(240, 182, 216, 0.32);
+  --shadow-card: 0 24px 50px -20px rgba(0, 0, 14, 0.75);
+  --glow: rgba(217, 163, 232, 0.14);
+  --hero-veil: linear-gradient(180deg, rgba(18, 24, 42, 0) 40%, rgba(18, 24, 42, 0.92) 100%);
   color-scheme: dark;
 }
 
@@ -248,6 +225,12 @@ html.theming *::after {
 
 body {
   background-color: var(--bg-primary);
+  /* The doodle layer rides on the document background, so the tiles scroll
+     away with the content — everything drifts together in one flow. The
+     fixed glows/sheen stay in body::before, untouched. */
+  background-image: var(--doodles, none);
+  background-size: var(--doodle-size, 260px) var(--doodle-size, 260px);
+  background-attachment: scroll;
   color: var(--text-primary);
   font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   font-size: 16px;
@@ -1079,23 +1062,62 @@ body:has(aside.visible) .hanging-melody {
   --grain-opacity: 0.085;
   --vignette: rgba(70, 44, 24, 0.14);
 }
-[data-theme="ocean"] {
-  --glow-a: rgba(127, 182, 217, 0.14);
-  --glow-b: rgba(46, 90, 140, 0.2);
-  --glow-c: rgba(24, 52, 88, 0.32);
-  --sheen: linear-gradient(180deg, rgba(180, 220, 250, 0.07), rgba(255, 255, 255, 0) 30%);
-  --dot: rgba(170, 215, 250, 0.07);
+/* jelly drift — bioluminescent bloom, drifting cyan and violet */
+[data-theme="jelly"] {
+  --glow-a: rgba(217, 163, 232, 0.15);
+  --glow-b: rgba(122, 200, 240, 0.13);
+  --glow-c: rgba(50, 42, 104, 0.34);
+  --sheen: linear-gradient(180deg, rgba(240, 220, 255, 0.07), rgba(255, 255, 255, 0) 30%);
+  --dot: rgba(200, 180, 245, 0.07);
   --grain-opacity: 0.07;
-  --vignette: rgba(0, 5, 12, 0.42);
+  --vignette: rgba(0, 4, 14, 0.45);
 }
-[data-theme="sakura"] {
-  --glow-a: rgba(224, 160, 181, 0.14);
-  --glow-b: rgba(122, 70, 110, 0.2);
-  --glow-c: rgba(74, 34, 64, 0.3);
-  --sheen: linear-gradient(180deg, rgba(255, 210, 225, 0.08), rgba(255, 255, 255, 0) 30%);
-  --dot: rgba(250, 205, 220, 0.07);
-  --grain-opacity: 0.07;
-  --vignette: rgba(10, 2, 8, 0.42);
+
+
+
+
+
+/* ————— Per-theme doodle layer —————
+   Every theme paints two tiers of motifs on <body>'s own background,
+   which scrolls with the page so the whole scene drifts together: a
+   scatter of small doodles plus a few larger statement doodles —
+   cream: inked sparkles; moonlit: stars and crescents; blush: hearts;
+   lavender: crescents and twinkles; matcha: leaves; honey:
+   honeycombs; coffee: beans and steam; jelly: bioluminescent bells,
+   tentacles and plankton. Both tiers are translucent so the reading
+   stays untouched. */
+:root,
+[data-theme="cream"] {
+  --doodles: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22260%22%20height%3D%22260%22%3E%3Cg%20fill%3D%22%233c2d1e%22%20opacity%3D%220.07%22%3E%3Cpath%20d%3D%22M0%20-7%20L1.6%20-1.6%20L7%200%20L1.6%201.6%20L0%207%20L-1.6%201.6%20L-7%200%20L-1.6%20-1.6%20Z%22%20transform%3D%22translate(34%2052)%22%2F%3E%3Cpath%20d%3D%22M0%20-7%20L1.6%20-1.6%20L7%200%20L1.6%201.6%20L0%207%20L-1.6%201.6%20L-7%200%20L-1.6%20-1.6%20Z%22%20transform%3D%22translate(196%2028)%20scale(0.65)%22%2F%3E%3Cpath%20d%3D%22M0%202.8%20C-1%20-0.8%20-5.5%20-1.6%20-5.5%20-5%20C-5.5%20-7.4%20-3%20-8.4%20-1.2%20-6.8%20L0%20-5.2%20L1.2%20-6.8%20C3%20-8.4%205.5%20-7.4%205.5%20-5%20C5.5%20-1.6%201%20-0.8%200%202.8%20Z%22%20transform%3D%22translate(212%20152)%22%2F%3E%3Cpath%20d%3D%22M0%20-7%20L1.6%20-1.6%20L7%200%20L1.6%201.6%20L0%207%20L-1.6%201.6%20L-7%200%20L-1.6%20-1.6%20Z%22%20transform%3D%22translate(118%2022)%20scale(0.5)%22%2F%3E%3Ccircle%20cx%3D%22150%22%20cy%3D%22216%22%20r%3D%221.6%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%233c2d1e%22%20stroke-width%3D%221.1%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.06%22%3E%3Cpath%20d%3D%22M0%20-6%20V6%20M-5.2%20-3%20L5.2%203%20M-5.2%203%20L5.2%20-3%22%20transform%3D%22translate(66%20196)%22%2F%3E%3Cpath%20d%3D%22M0%20-6%20C3.6%20-3%203.6%203%200%206%20C-3.6%203%20-3.6%20-3%200%20-6%20Z%22%20transform%3D%22translate(134%20118)%20rotate(-30)%22%2F%3E%3Cpath%20d%3D%22M0%20-4.4%20L0%204.4%22%20stroke-width%3D%220.7%22%20transform%3D%22translate(134%20118)%20rotate(-30)%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22%233c2d1e%22%20opacity%3D%220.10%22%3E%3Cpath%20d%3D%22M0%20-7%20L1.6%20-1.6%20L7%200%20L1.6%201.6%20L0%207%20L-1.6%201.6%20L-7%200%20L-1.6%20-1.6%20Z%22%20transform%3D%22translate(202%20122)%20scale(2.4)%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%233c2d1e%22%20stroke-width%3D%221.1%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.09%22%3E%3Cpath%20d%3D%22M0%20-6%20V6%20M-5.2%20-3%20L5.2%203%20M-5.2%203%20L5.2%20-3%22%20transform%3D%22translate(144%2046)%20scale(2.5)%22%2F%3E%3Cpath%20d%3D%22M0%20-6%20C3.6%20-3%203.6%203%200%206%20C-3.6%203%20-3.6%20-3%200%20-6%20Z%22%20transform%3D%22translate(50%20208)%20rotate(-52)%20scale(2.2)%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  --doodle-size: 260px;
+}
+[data-theme="moonlit"] {
+  --doodles: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22300%22%20height%3D%22300%22%3E%3Cg%20fill%3D%22%23f0dcbe%22%20opacity%3D%220.09%22%3E%3Cpath%20d%3D%22M0%20-7%20L1.6%20-1.6%20L7%200%20L1.6%201.6%20L0%207%20L-1.6%201.6%20L-7%200%20L-1.6%20-1.6%20Z%22%20transform%3D%22translate(60%2052)%22%2F%3E%3Cpath%20d%3D%22M0%20-7%20L1.6%20-1.6%20L7%200%20L1.6%201.6%20L0%207%20L-1.6%201.6%20L-7%200%20L-1.6%20-1.6%20Z%22%20transform%3D%22translate(246%2074)%20scale(0.8)%22%2F%3E%3Cpath%20d%3D%22M0%20-7%20L1.6%20-1.6%20L7%200%20L1.6%201.6%20L0%207%20L-1.6%201.6%20L-7%200%20L-1.6%20-1.6%20Z%22%20transform%3D%22translate(146%20156)%20scale(0.6)%22%2F%3E%3Cpath%20d%3D%22M3%20-7%20A7.2%207.2%200%201%200%203%207%20A5.4%205.4%200%201%201%203%20-7%20Z%22%20transform%3D%22translate(232%20226)%22%2F%3E%3Cpath%20d%3D%22M0%20-7%20L1.6%20-1.6%20L7%200%20L1.6%201.6%20L0%207%20L-1.6%201.6%20L-7%200%20L-1.6%20-1.6%20Z%22%20transform%3D%22translate(32%20202)%20scale(0.5)%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%23f0dcbe%22%20stroke-width%3D%221%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.07%22%3E%3Cpath%20d%3D%22M0%20-4.4%20V4.4%20M-4.4%200%20H4.4%22%20transform%3D%22translate(80%20246)%22%2F%3E%3Ccircle%20cx%3D%22204%22%20cy%3D%22120%22%20r%3D%221.4%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22%23f0dcbe%22%20opacity%3D%220.13%22%3E%3Cpath%20d%3D%22M3%20-7%20A7.2%207.2%200%201%200%203%207%20A5.4%205.4%200%201%201%203%20-7%20Z%22%20transform%3D%22translate(212%2088)%20scale(2.3)%22%2F%3E%3Cpath%20d%3D%22M0%20-7%20L1.6%20-1.6%20L7%200%20L1.6%201.6%20L0%207%20L-1.6%201.6%20L-7%200%20L-1.6%20-1.6%20Z%22%20transform%3D%22translate(96%20150)%20scale(2.1)%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  --doodle-size: 300px;
+}
+[data-theme="blush"] {
+  --doodles: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22250%22%20height%3D%22250%22%3E%3Cg%20fill%3D%22%2394404f%22%20opacity%3D%220.07%22%3E%3Cpath%20d%3D%22M0%202.8%20C-1%20-0.8%20-5.5%20-1.6%20-5.5%20-5%20C-5.5%20-7.4%20-3%20-8.4%20-1.2%20-6.8%20L0%20-5.2%20L1.2%20-6.8%20C3%20-8.4%205.5%20-7.4%205.5%20-5%20C5.5%20-1.6%201%20-0.8%200%202.8%20Z%22%20transform%3D%22translate(38%2042)%22%2F%3E%3Cpath%20d%3D%22M0%202.8%20C-1%20-0.8%20-5.5%20-1.6%20-5.5%20-5%20C-5.5%20-7.4%20-3%20-8.4%20-1.2%20-6.8%20L0%20-5.2%20L1.2%20-6.8%20C3%20-8.4%205.5%20-7.4%205.5%20-5%20C5.5%20-1.6%201%20-0.8%200%202.8%20Z%22%20transform%3D%22translate(196%2086)%20scale(0.7)%22%2F%3E%3Cpath%20d%3D%22M0%202.8%20C-1%20-0.8%20-5.5%20-1.6%20-5.5%20-5%20C-5.5%20-7.4%20-3%20-8.4%20-1.2%20-6.8%20L0%20-5.2%20L1.2%20-6.8%20C3%20-8.4%205.5%20-7.4%205.5%20-5%20C5.5%20-1.6%201%20-0.8%200%202.8%20Z%22%20transform%3D%22translate(120%20166)%20scale(0.5)%22%2F%3E%3Cpath%20d%3D%22M0%20-6%20C3.4%20-3.2%203.4%202.6%200%205.8%20C-3.4%202.6%20-3.4%20-3.2%200%20-6%20Z%22%20transform%3D%22translate(58%20198)%20rotate(32)%22%2F%3E%3Cpath%20d%3D%22M0%20-7%20L1.6%20-1.6%20L7%200%20L1.6%201.6%20L0%207%20L-1.6%201.6%20L-7%200%20L-1.6%20-1.6%20Z%22%20transform%3D%22translate(208%20210)%20scale(0.8)%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22%2394404f%22%20opacity%3D%220.10%22%3E%3Cpath%20d%3D%22M0%202.8%20C-1%20-0.8%20-5.5%20-1.6%20-5.5%20-5%20C-5.5%20-7.4%20-3%20-8.4%20-1.2%20-6.8%20L0%20-5.2%20L1.2%20-6.8%20C3%20-8.4%205.5%20-7.4%205.5%20-5%20C5.5%20-1.6%201%20-0.8%200%202.8%20Z%22%20transform%3D%22translate(208%20190)%20scale(2.5)%22%2F%3E%3Cpath%20d%3D%22M0%20-6%20C3.4%20-3.2%203.4%202.6%200%205.8%20C-3.4%202.6%20-3.4%20-3.2%200%20-6%20Z%22%20transform%3D%22translate(84%20118)%20rotate(-24)%20scale(2.3)%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  --doodle-size: 250px;
+}
+[data-theme="lavender"] {
+  --doodles: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22270%22%20height%3D%22270%22%3E%3Cg%20fill%3D%22%235b448c%22%20opacity%3D%220.08%22%3E%3Cpath%20d%3D%22M0%20-7%20L1.6%20-1.6%20L7%200%20L1.6%201.6%20L0%207%20L-1.6%201.6%20L-7%200%20L-1.6%20-1.6%20Z%22%20transform%3D%22translate(40%2050)%22%2F%3E%3Cpath%20d%3D%22M0%20-7%20L1.6%20-1.6%20L7%200%20L1.6%201.6%20L0%207%20L-1.6%201.6%20L-7%200%20L-1.6%20-1.6%20Z%22%20transform%3D%22translate(206%2034)%20scale(0.7)%22%2F%3E%3Cpath%20d%3D%22M3%20-7%20A7.2%207.2%200%201%200%203%207%20A5.4%205.4%200%201%201%203%20-7%20Z%22%20transform%3D%22translate(162%20160)%20scale(0.85)%22%2F%3E%3Cpath%20d%3D%22M0%20-7%20L1.6%20-1.6%20L7%200%20L1.6%201.6%20L0%207%20L-1.6%201.6%20L-7%200%20L-1.6%20-1.6%20Z%22%20transform%3D%22translate(22%20170)%20scale(0.5)%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%235b448c%22%20stroke-width%3D%221%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.07%22%3E%3Cpath%20d%3D%22M0%20-4.4%20V4.4%20M-4.4%200%20H4.4%22%20transform%3D%22translate(78%20224)%22%2F%3E%3Cpath%20d%3D%22M0%20-4.4%20V4.4%20M-4.4%200%20H4.4%22%20transform%3D%22translate(226%20126)%20scale(0.6)%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22%235b448c%22%20opacity%3D%220.12%22%3E%3Cpath%20d%3D%22M3%20-7%20A7.2%207.2%200%201%200%203%207%20A5.4%205.4%200%201%201%203%20-7%20Z%22%20transform%3D%22translate(56%20100)%20scale(2.2)%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%235b448c%22%20stroke-width%3D%221%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.10%22%3E%3Cpath%20d%3D%22M0%20-4.4%20V4.4%20M-4.4%200%20H4.4%22%20transform%3D%22translate(212%20190)%20scale(2.4)%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  --doodle-size: 270px;
+}
+[data-theme="matcha"] {
+  --doodles: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22270%22%20height%3D%22270%22%3E%3Cg%20fill%3D%22%233a5a32%22%20opacity%3D%220.08%22%3E%3Cpath%20d%3D%22M0%20-6%20C3.6%20-3%203.6%203%200%206%20C-3.6%203%20-3.6%20-3%200%20-6%20Z%22%20transform%3D%22translate(44%2062)%20rotate(-18)%22%2F%3E%3Cpath%20d%3D%22M0%20-6%20C3.6%20-3%203.6%203%200%206%20C-3.6%203%20-3.6%20-3%200%20-6%20Z%22%20transform%3D%22translate(208%2042)%20rotate(24)%20scale(0.8)%22%2F%3E%3Cpath%20d%3D%22M0%20-6%20C3.6%20-3%203.6%203%200%206%20C-3.6%203%20-3.6%20-3%200%20-6%20Z%22%20transform%3D%22translate(122%20140)%20rotate(78)%20scale(0.7)%22%2F%3E%3Cpath%20d%3D%22M0%20-6%20C3.6%20-3%203.6%203%200%206%20C-3.6%203%20-3.6%20-3%200%20-6%20Z%22%20transform%3D%22translate(30%20208)%20rotate(-42)%20scale(0.6)%22%2F%3E%3Ccircle%20cx%3D%22222%22%20cy%3D%22206%22%20r%3D%221.5%22%2F%3E%3Ccircle%20cx%3D%22232%22%20cy%3D%22214%22%20r%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%22212%22%20cy%3D%22218%22%20r%3D%221.2%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22%233a5a32%22%20opacity%3D%220.12%22%3E%3Cpath%20d%3D%22M0%20-6%20C3.6%20-3%203.6%203%200%206%20C-3.6%203%20-3.6%20-3%200%20-6%20Z%22%20transform%3D%22translate(180%20172)%20rotate(58)%20scale(2.4)%22%2F%3E%3Cpath%20d%3D%22M0%20-6%20C3.6%20-3%203.6%203%200%206%20C-3.6%203%20-3.6%20-3%200%20-6%20Z%22%20transform%3D%22translate(98%2076)%20rotate(-24)%20scale(2.0)%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  --doodle-size: 270px;
+}
+[data-theme="honey"] {
+  --doodles: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22240%22%20height%3D%22240%22%3E%3Cg%20stroke%3D%22%23a66a12%22%20stroke-width%3D%221%22%20fill%3D%22none%22%20opacity%3D%220.09%22%3E%3Cpath%20d%3D%22M7%200%20L3.5%206.06%20L-3.5%206.06%20L-7%200%20L-3.5%20-6.06%20L3.5%20-6.06%20Z%22%20transform%3D%22translate(46%2054)%22%2F%3E%3Cpath%20d%3D%22M7%200%20L3.5%206.06%20L-3.5%206.06%20L-7%200%20L-3.5%20-6.06%20L3.5%20-6.06%20Z%22%20transform%3D%22translate(204%20134)%20rotate(14)%20scale(0.75)%22%2F%3E%3Cpath%20d%3D%22M7%200%20L3.5%206.06%20L-3.5%206.06%20L-7%200%20L-3.5%20-6.06%20L3.5%20-6.06%20Z%22%20transform%3D%22translate(110%20206)%20scale(0.5)%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22%23a66a12%22%20opacity%3D%220.09%22%3E%3Ccircle%20cx%3D%22124%22%20cy%3D%2234%22%20r%3D%221.7%22%2F%3E%3Ccircle%20cx%3D%2264%22%20cy%3D%22172%22%20r%3D%221.5%22%2F%3E%3Ccircle%20cx%3D%22224%22%20cy%3D%22226%22%20r%3D%221.4%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%23a66a12%22%20stroke-width%3D%221%22%20fill%3D%22none%22%20opacity%3D%220.13%22%3E%3Cpath%20d%3D%22M7%200%20L3.5%206.06%20L-3.5%206.06%20L-7%200%20L-3.5%20-6.06%20L3.5%20-6.06%20Z%22%20transform%3D%22translate(172%2066)%20rotate(-10)%20scale(2.4)%22%2F%3E%3Cpath%20d%3D%22M7%200%20L3.5%206.06%20L-3.5%206.06%20L-7%200%20L-3.5%20-6.06%20L3.5%20-6.06%20Z%22%20transform%3D%22translate(74%20130)%20scale(2.0)%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  --doodle-size: 240px;
+}
+[data-theme="coffee"] {
+  --doodles: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22280%22%20height%3D%22280%22%3E%3Cg%20fill%3D%22%237a5232%22%20opacity%3D%220.09%22%3E%3Cg%20transform%3D%22translate(46%2056)%20rotate(28)%22%3E%3Cellipse%20rx%3D%223.1%22%20ry%3D%225.6%22%2F%3E%3Cpath%20d%3D%22M0%20-4.8%20C1.7%20-2%201.7%202%200%204.8%22%20fill%3D%22none%22%20stroke-width%3D%220.85%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(218%20112)%20rotate(-38)%20scale(0.85)%22%3E%3Cellipse%20rx%3D%223.1%22%20ry%3D%225.6%22%2F%3E%3Cpath%20d%3D%22M0%20-4.8%20C1.7%20-2%201.7%202%200%204.8%22%20fill%3D%22none%22%20stroke-width%3D%220.85%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(112%20214)%20rotate(76)%20scale(0.7)%22%3E%3Cellipse%20rx%3D%223.1%22%20ry%3D%225.6%22%2F%3E%3Cpath%20d%3D%22M0%20-4.8%20C1.7%20-2%201.7%202%200%204.8%22%20fill%3D%22none%22%20stroke-width%3D%220.85%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%22246%22%20cy%3D%22242%22%20r%3D%221.6%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%237a5232%22%20stroke-width%3D%221%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.08%22%3E%3Cpath%20d%3D%22M0%204%20C-2.2%202%20-2.2%20-0.8%200%20-3%20C2.2%20-5.2%202.2%20-7.6%200%20-9.6%22%20transform%3D%22translate(166%2040)%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22%237a5232%22%20opacity%3D%220.13%22%3E%3Cg%20transform%3D%22translate(200%20236)%20rotate(50)%20scale(2.3)%22%3E%3Cellipse%20rx%3D%223.1%22%20ry%3D%225.6%22%2F%3E%3Cpath%20d%3D%22M0%20-4.8%20C1.7%20-2%201.7%202%200%204.8%22%20fill%3D%22none%22%20stroke-width%3D%220.85%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%237a5232%22%20stroke-width%3D%221%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.11%22%3E%3Cpath%20d%3D%22M0%204%20C-2.2%202%20-2.2%20-0.8%200%20-3%20C2.2%20-5.2%202.2%20-7.6%200%20-9.6%22%20transform%3D%22translate(72%20130)%20scale(2.4)%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  --doodle-size: 280px;
+}
+[data-theme="jelly"] {
+  --doodles: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22300%22%20height%3D%22300%22%3E%3Cg%20fill%3D%22%23d9a3e8%22%20opacity%3D%220.11%22%3E%3Cpath%20d%3D%22M-8%202%20C-8%20-6.5%20-3.5%20-10%200%20-10%20C3.5%20-10%208%20-6.5%208%202%20L5.5%201%20L3%202.6%20L0%201%20L-3%202.6%20L-5.5%201%20L-8%202%20Z%22%20transform%3D%22translate(52%2060)%22%2F%3E%3Cpath%20d%3D%22M-8%202%20C-8%20-6.5%20-3.5%20-10%200%20-10%20C3.5%20-10%208%20-6.5%208%202%20L5.5%201%20L3%202.6%20L0%201%20L-3%202.6%20L-5.5%201%20L-8%202%20Z%22%20transform%3D%22translate(214%2046)%20scale(0.55)%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%23d9a3e8%22%20stroke-width%3D%220.9%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.09%22%3E%3Cpath%20d%3D%22M0%202.4%20C-1.6%206.8%201.4%209.4%20-0.8%2013.6%22%20transform%3D%22translate(47%2062)%22%2F%3E%3Cpath%20d%3D%22M0%202.4%20C-1.6%206.8%201.4%209.4%20-0.8%2013.6%22%20transform%3D%22translate(53%2062)%20rotate(-7)%22%2F%3E%3Cpath%20d%3D%22M0%202.4%20C-1.6%206.8%201.4%209.4%20-0.8%2013.6%22%20transform%3D%22translate(214%2047)%20scale(0.55)%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22%23b6e3f5%22%20opacity%3D%220.10%22%3E%3Ccircle%20cx%3D%22128%22%20cy%3D%22112%22%20r%3D%220.9%22%2F%3E%3Ccircle%20cx%3D%22134%22%20cy%3D%22121%22%20r%3D%221.2%22%2F%3E%3Ccircle%20cx%3D%22121%22%20cy%3D%22123%22%20r%3D%221.1%22%2F%3E%3Cpath%20d%3D%22M0%20-4.4%20V4.4%20M-4.4%200%20H4.4%22%20transform%3D%22translate(152%20222)%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22%23d9a3e8%22%20opacity%3D%220.15%22%3E%3Cpath%20d%3D%22M-8%202%20C-8%20-6.5%20-3.5%20-10%200%20-10%20C3.5%20-10%208%20-6.5%208%202%20L5.5%201%20L3%202.6%20L0%201%20L-3%202.6%20L-5.5%201%20L-8%202%20Z%22%20transform%3D%22translate(176%20202)%20scale(2.3)%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%23b6e3f5%22%20stroke-width%3D%220.9%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.13%22%3E%3Cpath%20d%3D%22M0%202.4%20C-1.6%206.8%201.4%209.4%20-0.8%2013.6%22%20transform%3D%22translate(168%20204)%20scale(2.3)%22%2F%3E%3Cpath%20d%3D%22M0%202.4%20C-1.6%206.8%201.4%209.4%20-0.8%2013.6%22%20transform%3D%22translate(184%20204)%20rotate(8)%20scale(2.3)%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  --doodle-size: 300px;
 }
 
 body::before {
@@ -1106,6 +1128,8 @@ body::before {
   pointer-events: none;
   transform: translateZ(0);
   contain: strict;
+  /* Fixed viewport layer: sheen, glows and dot grid. The per-theme doodle
+     tiles scroll with the document on <body>'s own background instead. */
   background:
     var(--sheen),
     radial-gradient(52rem 34rem at 12% -6%, var(--glow-a), transparent 62%),
