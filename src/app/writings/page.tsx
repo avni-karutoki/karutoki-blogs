@@ -57,18 +57,26 @@ async function getPosts(category: string, mood?: string): Promise<Post[]> {
   }
 }
 
-/** Any published slug — for the "surprise me" chip. */
-async function getRandomSlug(): Promise<string | null> {
+/** The live mood vocabulary — every tag on a published piece, most-used
+ *  first. Feeds the tappable emoji chips so a tap is never a dead end. */
+async function getTagSuggestions(): Promise<string[]> {
   try {
     const supabase = await createClient();
-    const { data } = await supabase
-      .from("posts")
-      .select("slug")
-      .eq("published", true);
-    const slugs = ((data as { slug: string }[]) ?? []).map((p) => p.slug);
-    return slugs.length ? slugs[Math.floor(Math.random() * slugs.length)] : null;
+    const { data, error } = await supabase.from("posts").select("tags").eq("published", true);
+    if (error) return [];
+    const counts = new Map<string, number>();
+    for (const p of (data as { tags: string[] | null }[]) ?? []) {
+      for (const tag of p.tags ?? []) {
+        const t = tag.trim();
+        if (!t) continue;
+        counts.set(t, (counts.get(t) ?? 0) + 1);
+      }
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .map(([t]) => t);
   } catch {
-    return null;
+    return [];
   }
 }
 
@@ -81,9 +89,9 @@ export default async function WritingsPage({
   const active = params?.category || "all";
   const activeTag = params?.tag?.trim() ?? "";
 
-  const [posts, surpriseSlug] = await Promise.all([
+  const [posts, suggestions] = await Promise.all([
     getPosts(active, activeTag || undefined),
-    getRandomSlug(),
+    getTagSuggestions(),
   ]);
 
   return (
@@ -105,15 +113,11 @@ export default async function WritingsPage({
           <p className="eyebrow">Reader mode</p>
           <h2 className="mood-picker__title font-script">How do you feel today?</h2>
           <p className="mood-picker__sub font-serif">
-            Write it, and I&apos;ll hand you the right kind of words.
+            A mood, or your own two words - either will find you the right kind of reading.
           </p>
         </div>
 
-        <MoodSearch
-          initial={activeTag}
-          category={active}
-          surpriseHref={surpriseSlug ? `/writings/${surpriseSlug}` : null}
-        />
+        <MoodSearch initial={activeTag} category={active} suggestions={suggestions} />
 
         {activeTag && (
           <p className="mood-picker__note mt-4 text-center font-serif text-sm italic text-[var(--text-muted)]">
