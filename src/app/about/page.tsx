@@ -64,13 +64,13 @@ export default async function AboutPage() {
                   <span className="absolute left-1/2 -top-2 -translate-x-1/2 text-[var(--accent)]">✦</span>
                 </div>
                 {/* the circle itself */}
-                <div className="relative aspect-square overflow-hidden rounded-full border-4 border-[var(--bg-card)] shadow-[var(--shadow-card)] ring-1 ring-[var(--accent)]/50">
+                <div className="about-portrait__frame relative aspect-square overflow-hidden rounded-full border-4 border-[var(--bg-card)] shadow-[var(--shadow-card)] ring-1 ring-[var(--accent)]/50">
                   {about.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={about.imageUrl}
                       alt="Karutoki"
-                      className="absolute inset-0 h-full w-full"
+                      className="about-portrait__image absolute inset-0 h-full w-full"
                       style={{
                         objectFit: about.imageFit ?? "cover",
                         objectPosition: portraitPos,

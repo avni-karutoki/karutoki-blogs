@@ -2687,8 +2687,25 @@ html:not(.js) .intro-splash {
   animation: orbit-spin 36s linear infinite;
   will-change: transform;
 }
+@keyframes portrait-arrive {
+  0% { opacity: 0; transform: scale(0.78) rotate(-9deg); filter: saturate(0.7); }
+  68% { opacity: 1; transform: scale(1.035) rotate(1deg); filter: saturate(1.08); }
+  100% { opacity: 1; transform: scale(1) rotate(0); filter: saturate(1); }
+}
+@keyframes portrait-develop {
+  0% { opacity: 0.25; filter: blur(12px) brightness(1.2); }
+  100% { opacity: 1; filter: blur(0) brightness(1); }
+}
+.is-revealed .about-portrait__frame {
+  animation: portrait-arrive 950ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.is-revealed .about-portrait__image {
+  animation: portrait-develop 850ms ease-out 120ms both;
+}
 @media (prefers-reduced-motion: reduce) {
-  .portrait-orbit { animation: none !important; }
+  .portrait-orbit,
+  .is-revealed .about-portrait__frame,
+  .is-revealed .about-portrait__image { animation: none !important; }
 }
 
 
