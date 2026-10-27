@@ -147,8 +147,12 @@ export default async function WritingDetailPage({
 
       {post.tags && post.tags.length > 0 && (
         <Reveal>
-          <div className="mt-6 flex flex-wrap justify-center gap-2">
-            {post.tags.map((tag) => (
+          <div
+            className="writing-tags mt-6 flex flex-wrap justify-center gap-2"
+            tabIndex={0}
+            aria-label="Writing tags. Focus or hover to reveal all tags."
+          >
+            {post.tags.slice(0, 5).map((tag) => (
               <Link
                 key={tag}
                 href={`/tags/${encodeURIComponent(tag)}`}
@@ -157,6 +161,20 @@ export default async function WritingDetailPage({
                 #{tag}
               </Link>
             ))}
+            {post.tags.length > 5 && (
+              <>
+                <span className="writing-tags__ellipsis" aria-hidden="true">…</span>
+                {post.tags.slice(5).map((tag) => (
+                  <Link
+                    key={tag}
+                    href={`/tags/${encodeURIComponent(tag)}`}
+                    className="writing-tags__extra rounded-full border border-[var(--border-color)] bg-[var(--accent-soft)] px-3 py-1 font-sans text-[11px] font-medium text-[var(--accent)] transition-colors hover:border-[var(--accent)]"
+                  >
+                    #{tag}
+                  </Link>
+                ))}
+              </>
+            )}
           </div>
         </Reveal>
       )}

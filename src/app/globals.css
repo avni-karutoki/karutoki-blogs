@@ -1659,6 +1659,30 @@ html[data-reading-size="compact"] .reading-body {
   color: var(--text-muted);
 }
 
+.writing-tags:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 5px;
+  border-radius: 999px;
+}
+.writing-tags__extra {
+  display: none;
+}
+.writing-tags__ellipsis {
+  align-self: center;
+  padding: 0 3px;
+  color: var(--text-faint);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.writing-tags:hover .writing-tags__ellipsis,
+.writing-tags:focus-within .writing-tags__ellipsis {
+  display: none;
+}
+.writing-tags:hover .writing-tags__extra,
+.writing-tags:focus-within .writing-tags__extra {
+  display: inline-flex;
+}
+
 .mood-chip {
   display: inline-flex;
   align-items: center;
