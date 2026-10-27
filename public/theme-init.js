@@ -6,14 +6,13 @@
   document.documentElement.classList.add("js");
   try {
     var saved = localStorage.getItem("karutoki-theme");
-    var valid = ["cream", "moonlit", "blush", "lavender", "matcha", "honey", "coffee", "ocean", "sakura"];
-    var theme = valid.indexOf(saved) !== -1 ? saved : null;
-    if (!theme) {
-      theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "moonlit" : "cream";
-    }
+    var valid = ["cream", "moonlit", "blush", "lavender", "matcha", "honey", "coffee", "jelly"];
+    /* First visit (nothing saved) opens on Coffeehouse Ink. Once the visitor
+       picks a theme themselves it persists in localStorage and wins. */
+    var theme = valid.indexOf(saved) !== -1 ? saved : "coffee";
     document.documentElement.setAttribute("data-theme", theme);
   } catch (e) {
-    document.documentElement.setAttribute("data-theme", "cream");
+    document.documentElement.setAttribute("data-theme", "coffee");
   }
   try {
     var size = localStorage.getItem("karutoki-reading-size");

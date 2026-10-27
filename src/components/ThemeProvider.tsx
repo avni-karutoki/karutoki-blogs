@@ -10,8 +10,7 @@ export type Theme =
   | "matcha"
   | "honey"
   | "coffee"
-  | "ocean"
-  | "sakura";
+  | "jelly";
 
 interface ThemeMeta {
   id: Theme;
@@ -37,8 +36,7 @@ const THEMES: ThemeMeta[] = [
   { id: "matcha", name: "Matcha Calm", icon: "🍃", previewColor: "#EDF2E1", kind: "light" },
   { id: "honey", name: "Honeyed Paper", icon: "🐝", previewColor: "#FAF0DC", kind: "light" },
   { id: "coffee", name: "Coffeehouse Ink", icon: "☕", previewColor: "#e9dcc7", kind: "light" },
-  { id: "ocean", name: "Deep Ocean", icon: "🌊", previewColor: "#0E1622", kind: "dark" },
-  { id: "sakura", name: "Sakura Night", icon: "🌸", previewColor: "#1D1218", kind: "dark" },
+  { id: "jelly", name: "Jelly Drift", icon: "🎐", previewColor: "#c9a3e8", kind: "dark" },
 ];
 
 const VALID = THEMES.map((t) => t.id);
@@ -46,7 +44,7 @@ const VALID = THEMES.map((t) => t.id);
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 function getInitialTheme(): Theme {
-  if (typeof window === "undefined") return "cream";
+  if (typeof window === "undefined") return "coffee";
   const fromDom = document.documentElement.getAttribute("data-theme") as Theme | null;
   if (fromDom && VALID.includes(fromDom)) return fromDom;
   try {
@@ -55,7 +53,8 @@ function getInitialTheme(): Theme {
   } catch {
     /* ignore */
   }
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "moonlit" : "cream";
+  /* First visit opens on Coffeehouse Ink (matches theme-init.js). */
+  return "coffee";
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
