@@ -5,7 +5,6 @@ import type { Post } from "@/lib/types";
 import { categoryLabel } from "@/lib/types";
 import { FloatingElement } from "@/components/ScrollAnimations";
 import { StaggerContainer } from "@/components/ScrollAnimations";
-import { chipForWord } from "@/lib/mood";
 import MoodSearch from "@/components/MoodSearch";
 
 const tabs = [
@@ -14,6 +13,13 @@ const tabs = [
   { key: "blog", label: "Blogs" },
   { key: "midnight-talk", label: "Midnight Talks" },
 ];
+
+const MOOD_WORDS: Record<string, string[]> = {
+  happy: ["happy", "happiness", "joy", "joyful", "smile", "sunny", "delight", "cheerful", "laughter"],
+  sad: ["sad", "sorrow", "grief", "tears", "cry", "lonely", "loss", "ache", "goodbye", "heartbreak", "melancholy"],
+  calm: ["calm", "peace", "quiet", "stillness", "gentle", "soft", "serene", "rest", "slow", "mindful"],
+  hopeful: ["hope", "hopeful", "light", "dawn", "believe", "grow", "healing", "brave", "strength", "tomorrow", "new beginning"],
+};
 
 async function getPosts(category: string, mood?: string): Promise<Post[]> {
   try {
@@ -35,10 +41,10 @@ async function getPosts(category: string, mood?: string): Promise<Post[]> {
 
     let posts = (data as Post[]) || [];
 
-    // The feeling is whatever the visitor wrote — match it loosely against
-    // tags (the mood vocabulary), titles, and excerpts, case-insensitively.
+    // Match a selected human mood (or a reader's own words) against the
+    // writing's tags, title, and excerpt.
     if (mood) {
-      const m = mood.toLowerCase();
+      const terms = MOOD_WORDS[mood.toLowerCase()] ?? [mood.toLowerCase()];
       posts = posts.filter((p) => {
         const haystack = [
           (p.tags ?? []).join(" "),
@@ -47,7 +53,7 @@ async function getPosts(category: string, mood?: string): Promise<Post[]> {
         ]
           .join(" ")
           .toLowerCase();
-        return haystack.includes(m);
+        return terms.some((term) => haystack.includes(term));
       });
     }
 
@@ -57,42 +63,16 @@ async function getPosts(category: string, mood?: string): Promise<Post[]> {
   }
 }
 
-/** The live mood vocabulary — every tag on a published piece, most-used
- *  first. Feeds the tappable emoji chips so a tap is never a dead end. */
-async function getTagSuggestions(): Promise<string[]> {
-  try {
-    const supabase = await createClient();
-    const { data, error } = await supabase.from("posts").select("tags").eq("published", true);
-    if (error) return [];
-    const counts = new Map<string, number>();
-    for (const p of (data as { tags: string[] | null }[]) ?? []) {
-      for (const tag of p.tags ?? []) {
-        const t = tag.trim();
-        if (!t) continue;
-        counts.set(t, (counts.get(t) ?? 0) + 1);
-      }
-    }
-    return [...counts.entries()]
-      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-      .map(([t]) => t);
-  } catch {
-    return [];
-  }
-}
-
 export default async function WritingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; tag?: string }>;
+  searchParams: Promise<{ category?: string; mood?: string }>;
 }) {
   const params = await searchParams;
   const active = params?.category || "all";
-  const activeTag = params?.tag?.trim() ?? "";
+  const activeMood = params?.mood?.trim() ?? "";
 
-  const [posts, suggestions] = await Promise.all([
-    getPosts(active, activeTag || undefined),
-    getTagSuggestions(),
-  ]);
+  const posts = await getPosts(active, activeMood || undefined);
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-14 relative">
@@ -107,24 +87,15 @@ export default async function WritingsPage({
         </p>
       </Reveal>
 
-      {/* reader mode — write your own feeling, the words answer */}
-      <Reveal className="mood-picker mt-10">
+      {/* A compact mood selector for readers */}
+      <Reveal className="mood-picker mt-8">
         <div className="mood-picker__head">
           <p className="eyebrow">Reader mode</p>
           <h2 className="mood-picker__title font-script">How do you feel today?</h2>
-          <p className="mood-picker__sub font-serif">
-            A mood, or your own two words - either will find you the right kind of reading.
-          </p>
+          <p className="mood-picker__sub font-serif">Find a little something that meets you where you are.</p>
         </div>
 
-        <MoodSearch initial={activeTag} category={active} suggestions={suggestions} />
-
-        {activeTag && (
-          <p className="mood-picker__note mt-4 text-center font-serif text-sm italic text-[var(--text-muted)]">
-            Moods grow from the words inside the pieces - a tag, a title, a line. Try
-            the same feeling differently and a different sky may answer.
-          </p>
-        )}
+        <MoodSearch initial={activeMood} category={active} />
       </Reveal>
 
       <div className="mt-10 flex gap-7 border-b border-[var(--border-color)] font-sans text-[12px] font-semibold uppercase tracking-[0.2em] relative z-10">
@@ -139,10 +110,10 @@ export default async function WritingsPage({
         ))}
       </div>
 
-      {activeTag && (
+      {activeMood && (
         <Reveal>
           <p className="mt-8 font-serif text-[1.05rem] italic text-[var(--accent)]">
-            Tonight&apos;s words are wearing “{activeTag}”. ✧
+            {MOOD_WORDS[activeMood.toLowerCase()] ? `Words for when you feel ${activeMood}.` : `Words close to “${activeMood}”.`} ✧
           </p>
         </Reveal>
       )}
@@ -155,7 +126,7 @@ export default async function WritingsPage({
       >
         {posts.length === 0 && (
           <p className="body-text col-span-full">
-            Nothing wearing that feeling yet - try another mood.
+            No writings match that feeling yet. Try another mood.
           </p>
         )}
         {posts.map((post, i) => (
