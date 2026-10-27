@@ -62,14 +62,15 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f4efe3" },
-    { media: "(prefers-color-scheme: dark)", color: "#141118" },
+    /* light == Coffeehouse Ink (the first-visit default), dark == Jelly Drift */
+    { media: "(prefers-color-scheme: light)", color: "#e9dcc7" },
+    { media: "(prefers-color-scheme: dark)", color: "#12182a" },
   ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" data-theme="coffee" suppressHydrationWarning>
       <head />
       <body
         className={`${caveat.variable} ${cormorant.variable} ${inter.variable} font-sans antialiased`}
