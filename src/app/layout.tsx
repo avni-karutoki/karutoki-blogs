@@ -14,6 +14,7 @@ import CursorDog from "@/components/CursorDog";
 import IntroSplash from "@/components/IntroSplash";
 import MusicRope from "@/components/MusicRope";
 import AnnouncementBar from "@/components/AnnouncementBar";
+import { Analytics } from "@vercel/analytics/next";
 
 /* Calligraphy — HEADINGS ONLY */
 const caveat = Caveat({
@@ -97,6 +98,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <CursorDog />
           </SearchProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
