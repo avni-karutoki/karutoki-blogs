@@ -73,8 +73,9 @@ export default async function HomePage() {
     featuredPosts.length > 0
       ? "The pieces I'd press into your hands."
       : "A few words, no longer than they need to be.";
-  // Lines for the marquee — the newest poems.
-  const poems = posts.filter((p) => p.category === "poem");
+  // Lines for the marquee — the newest writings of every kind. The list
+  // refreshes with ISR (revalidate = 60), so published pieces appear on it by themselves.
+  const marqueeLines = posts;
   // Stops for the homepage ink trail — the newest writings.
   const trail = posts.slice(0, 5).map((p) => ({
     slug: p.slug,
@@ -87,7 +88,7 @@ export default async function HomePage() {
     <div>
       <Hero hero={hero} featured={posts} counts={counts} />
 
-      <QuoteMarquee poems={poems} />
+      <QuoteMarquee writings={marqueeLines} />
 
       <div className="mx-auto max-w-6xl px-6">
         {/* Featured writings */}

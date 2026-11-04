@@ -2452,10 +2452,31 @@ html:not(.js) .intro-splash {
 .marquee-track {
   display: flex;
   width: max-content;
-  animation: marquee-x 55s linear infinite;
+  /* duration is set inline per strip length so longer pages crawl slower */
+  animation: marquee-x var(--marquee-duration, 55s) linear infinite;
   will-change: transform;
 }
 .marquee-track:hover { animation-play-state: paused; }
+
+/* melt the lines in and out at the edges instead of a hard crop */
+.quote-marquee-mask {
+  mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent);
+}
+
+/* the spark separators breathe gently as the strip drifts by */
+.marquee-spark {
+  display: inline-block;
+  animation: marquee-spark 3s ease-in-out infinite;
+  transform-origin: center;
+}
+.marquee-spark:nth-child(4n + 2) { animation-delay: -0.8s; }
+.marquee-spark:nth-child(4n + 3) { animation-delay: -1.6s; }
+.marquee-spark:nth-child(4n)     { animation-delay: -2.3s; }
+@keyframes marquee-spark {
+  0%, 100% { opacity: 0.45; transform: scale(0.85) rotate(0deg); }
+  50%      { opacity: 1;    transform: scale(1.15) rotate(20deg); }
+}
 
 /* #1 / #4 night sections - fixed midnight palette that never flips with themes */
 .night {
@@ -2710,7 +2731,7 @@ html:not(.js) .intro-splash {
 
 
 @media (prefers-reduced-motion: reduce) {
-  .marquee-track, .night .stars span, .type-caret { animation: none !important; }
+  .marquee-track, .marquee-spark, .night .stars span, .type-caret { animation: none !important; }
 }
 
 /* ————— Contact page: chips, wax seal ————— */
