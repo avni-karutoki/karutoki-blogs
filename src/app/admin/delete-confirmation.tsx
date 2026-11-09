@@ -14,13 +14,19 @@ export default function DeleteConfirmation({
   title,
 }: DeleteConfirmationProps) {
   const [showModal, setShowModal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   function handleDelete() {
     startTransition(async () => {
-      await deletePost(postId);
-
+      const result = await deletePost(postId);
+      if (!result.success) {
+        // Surface DB failures instead of faking success.
+        setError(result.error || "Could not delete this writing. Please try again.");
+        return;
+      }
+      setError(null);
       setShowModal(false);
       router.refresh();
     });
@@ -73,13 +79,16 @@ export default function DeleteConfirmation({
               <p className="mt-2 text-xs text-[var(--text-primary)]/40">
                 This action cannot be undone.
               </p>
+              {error && (
+                <p className="mt-2 text-xs font-medium text-red-500">{error}</p>
+              )}
             </div>
 
             {/* Buttons */}
             <div className="mt-7 flex gap-3">
               <button
                 type="button"
-                onClick={() => setShowModal(false)}
+                onClick={() => { setError(null); setShowModal(false); }}
                 disabled={isPending}
                 className="flex-1 rounded-xl border border-[var(--border-color)] px-5 py-3 text-sm transition hover:bg-[var(--text-primary)]/5 disabled:cursor-not-allowed disabled:opacity-50"
               >

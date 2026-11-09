@@ -140,6 +140,20 @@ export default function NewPostPage() {
       const slug = base || `writing-${Date.now()}`;
       const tagList = tags.split(",").map((t) => t.trim()).filter(Boolean);
 
+      // Slugs are the public address of a writing and must stay unique;
+      // catch the collision here so it fails with a readable message
+      // instead of a raw Postgres unique-constraint error.
+      const { data: slugTaken } = await supabase
+        .from("posts")
+        .select("id")
+        .eq("slug", slug)
+        .maybeSingle();
+      if (slugTaken) {
+        throw new Error(
+          `A writing with the address /writings/${slug} already exists. Tweak the title a little and try again.`
+        );
+      }
+
       // Optional scheduling: a future time saves the piece unpublished and
       // it goes live automatically (via /admin visits or pg_cron).
       const scheduledDate = publishAt ? new Date(publishAt) : null;

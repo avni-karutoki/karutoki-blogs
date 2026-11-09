@@ -295,7 +295,15 @@ export default function EditPostPage() {
           <input
             type="text"
             value={title}
-            onChange={(e) => { setTitle(e.target.value); setSlug(createSlug(e.target.value)); }}
+            onChange={(e) => {
+              const next = e.target.value;
+              // Only auto-derive the slug while it hasn't been customized;
+              // otherwise retitling would silently change this writing's
+              // public URL (/writings/<slug>) and break existing links.
+              const wasAuto = slug === "" || slug === createSlug(title);
+              setTitle(next);
+              if (wasAuto) setSlug(createSlug(next));
+            }}
             required
             className="field-underline mt-1 font-script text-3xl!"
           />

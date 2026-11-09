@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { isAdminUser } from "@/lib/supabase/authorization";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -16,10 +17,18 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError(null);
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) {
       setError(error.message);
+      return;
+    }
+    // A valid password alone isn't enough: non-admin accounts would otherwise
+    // ping-pong between /admin and this page with no explanation. Sign them
+    // back out and say why.
+    if (!isAdminUser(data.user)) {
+      await supabase.auth.signOut();
+      setError("This account doesn't have admin access.");
       return;
     }
     router.push("/admin");

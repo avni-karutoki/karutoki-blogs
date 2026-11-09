@@ -116,8 +116,12 @@ export default function DashboardClient({
     ...initialAboutSettings,
     images: initialAboutSettings.images ?? [],
   });
-  const [settingsStatus, setSettingsStatus] = useState("");
-  const [savingSettings, setSavingSettings] = useState(false);
+  // Hero & About each get their own status/pending state so saving one
+  // doesn't disable the other's button or show its message in the wrong card.
+  const [heroStatus, setHeroStatus] = useState("");
+  const [savingHero, setSavingHero] = useState(false);
+  const [aboutStatus, setAboutStatus] = useState("");
+  const [savingAbout, setSavingAbout] = useState(false);
 
   // Newsletter notify state
   const [notifySlug, setNotifySlug] = useState<string | null>(null);
@@ -158,14 +162,22 @@ export default function DashboardClient({
 
   async function handleDeleteMessage(id: string, name: string) {
     if (confirm(`Delete message from ${name}?`)) {
-      await deleteMessage(id);
+      const result = await deleteMessage(id);
+      if (!result.success) {
+        alert(`Could not delete the message: ${result.error || "unknown error"}`);
+        return;
+      }
       router.refresh();
     }
   }
 
   async function handleDeleteComment(id: string, author: string) {
     if (confirm(`Delete this comment by ${author}? Replies under it are removed too.`)) {
-      await deleteComment(id);
+      const result = await deleteComment(id);
+      if (!result.success) {
+        alert(`Could not delete the comment: ${result.error || "unknown error"}`);
+        return;
+      }
       router.refresh();
     }
   }
@@ -217,28 +229,28 @@ export default function DashboardClient({
   // Handle Hero settings save
   async function handleSaveHero(e: React.FormEvent) {
     e.preventDefault();
-    setSavingSettings(true);
-    setSettingsStatus("");
+    setSavingHero(true);
+    setHeroStatus("");
     const res = await updateSiteSettings("hero", heroForm);
-    setSavingSettings(false);
+    setSavingHero(false);
     if (res.success) {
-      setSettingsStatus("Hero settings updated successfully ✨");
+      setHeroStatus("Hero settings updated successfully ✨");
     } else {
-      setSettingsStatus(`Error: ${res.error}`);
+      setHeroStatus(`Error: ${res.error}`);
     }
   }
 
   // Handle About settings save
   async function handleSaveAbout(e: React.FormEvent) {
     e.preventDefault();
-    setSavingSettings(true);
-    setSettingsStatus("");
+    setSavingAbout(true);
+    setAboutStatus("");
     const res = await updateSiteSettings("about", aboutForm);
-    setSavingSettings(false);
+    setSavingAbout(false);
     if (res.success) {
-      setSettingsStatus("About settings updated successfully ✨");
+      setAboutStatus("About settings updated successfully ✨");
     } else {
-      setSettingsStatus(`Error: ${res.error}`);
+      setAboutStatus(`Error: ${res.error}`);
     }
   }
 
@@ -418,7 +430,7 @@ export default function DashboardClient({
                     <tbody className="divide-y divide-[var(--border-light)] text-[var(--text-primary)]">
                       {initialPosts.slice(0, 5).map((post) => (
                         <tr key={post.id} className="hover:bg-[var(--bg-secondary)]/50 transition">
-                          <td className="py-4 font-semibold text-sm font-script text-lg text-[var(--text-heading)]">
+                          <td className="py-4 font-semibold font-script text-lg text-[var(--text-heading)]">
                             {post.title}
                           </td>
                           <td className="py-4 uppercase tracking-wider text-[10px] text-[var(--accent-pink)]">
@@ -834,12 +846,18 @@ export default function DashboardClient({
                 <div className="pt-2">
                   <button
                     type="submit"
-                    disabled={savingSettings}
+                    disabled={savingHero}
                     className="primary-button uppercase text-xs tracking-wider"
                   >
-                    {savingSettings ? "Saving..." : "Save Hero Settings"}
+                    {savingHero ? "Saving..." : "Save Hero Settings"}
                   </button>
                 </div>
+
+                {heroStatus && (
+                  <p className="font-sans text-xs font-semibold text-[var(--accent-pink)]">
+                    {heroStatus}
+                  </p>
+                )}
               </form>
             </div>
 
@@ -930,17 +948,17 @@ export default function DashboardClient({
                 <div className="pt-2">
                   <button
                     type="submit"
-                    disabled={savingSettings}
+                    disabled={savingAbout}
                     className="primary-button uppercase text-xs tracking-wider"
                   >
-                    {savingSettings ? "Saving..." : "Save About Settings"}
+                    {savingAbout ? "Saving..." : "Save About Settings"}
                   </button>
                 </div>
               </form>
 
-              {settingsStatus && (
+              {aboutStatus && (
                 <p className="font-sans text-xs text-[var(--accent-pink)] font-semibold">
-                  {settingsStatus}
+                  {aboutStatus}
                 </p>
               )}
             </div>
